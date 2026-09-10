@@ -1,6 +1,6 @@
-# REPForge build progress
+# TemprFit build progress
 
-Tracking against `REPForge_Master_Product_Engineering_Specification.md`, phase by phase.
+Tracking against `TemprFit_Master_Product_Engineering_Specification.md`, phase by phase.
 
 ## Phase 0 — Audit (done)
 
@@ -22,7 +22,7 @@ Audited `repily-phase1-backend.zip`. Findings:
 ## Phase 2 — Exercise engine (this pass)
 
 - **`Exercise` model** (`models/Exercise.js`): the full field set from spec §12 — muscles, equipment, category, movement pattern, difficulty, environment, discipline, media (image/video/illustration), safety notes, common mistakes, form tips, variations/progressions/regressions/alternatives, source/licensing metadata, publication status. Indexed for text search and for the category/difficulty/equipment/discipline filters.
-- **Seed catalogue** (`lib/seed-data/exercises.js` + `npm run seed`): 28 exercises spanning every category, equipment type, difficulty, and discipline listed in the spec. All descriptions/instructions are written from scratch for REPForge — nothing scraped from a third-party database — so there's no licensing question to resolve. Swap in a licensed provider later via the ingestion pipeline the spec describes (external source → normalizer → dedupe → license check → Mongo); this seed script is the "→ Mongo" end of that pipeline.
+- **Seed catalogue** (`lib/seed-data/exercises.js` + `npm run seed`): 28 exercises spanning every category, equipment type, difficulty, and discipline listed in the spec. All descriptions/instructions are written from scratch for TemprFit — nothing scraped from a third-party database — so there's no licensing question to resolve. Swap in a licensed provider later via the ingestion pipeline the spec describes (external source → normalizer → dedupe → license check → Mongo); this seed script is the "→ Mongo" end of that pipeline.
 - **API**: `GET /api/exercises` (search + filter by category/equipment/difficulty/environment/discipline/movementPattern, paginated), `GET /api/exercises/[slug]` (detail, with populated alternatives), `POST /api/exercises/[slug]/favorite` (toggle, requires login), `GET /api/exercises/favorites` (the current user's list). `favoriteExercises` added to the `User` model.
 - **`/explore`**: search bar, filter selects, a responsive card grid, optimistic favorite-toggling, "load more" pagination — this is what the Navbar's Explore link now points to.
 - **`/explore/[slug]`**: full detail view — instructions, form tips, common mistakes, safety notes, variations/alternatives, sets/reps/rest/calorie sidebar, favorite button. "Add to Workout" and "Ask AI" are visible but disabled — they're real Phase 3 / Phase 5 features, not stubs pretending to work.

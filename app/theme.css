@@ -1,5 +1,5 @@
 /* ==========================================================================
-   REPForge semantic theme tokens.
+   TemprFit semantic theme tokens.
    Same variable names in both themes so components never branch on theme —
    they just read var(--color-*). Toggling [data-theme] on <html> is enough.
    ========================================================================== */

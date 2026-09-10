@@ -35,7 +35,7 @@ const MediaSchema = new mongoose.Schema(
 
 const SourceSchema = new mongoose.Schema(
   {
-    name: { type: String, default: 'REPForge' },
+    name: { type: String, default: 'TemprFit' },
     url: { type: String, default: '' },
     license: { type: String, default: 'original' },
   },

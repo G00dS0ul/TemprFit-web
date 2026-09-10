@@ -16,7 +16,7 @@ export default function AuthGateModal({ open, onClose, message }) {
           <X size={18} />
         </button>
         <h3>Sign in required</h3>
-        <p>{message || 'Sign in to your REPForge account to do that.'}</p>
+        <p>{message || 'Sign in to your TemprFit account to do that.'}</p>
         <Link href={`/login?next=${encodeURIComponent(pathname || '/')}`} className={styles.ctaBtn}>
           <LogIn size={16} /> Sign In
         </Link>

@@ -25,7 +25,7 @@ export default function WorkoutsPage() {
         <div className={styles.header}>
           <div>
             <h1 className={styles.title}>My Workouts</h1>
-            <p className={styles.subtitle}>Build your own routine, or let REPForge put one together from your equipment and time.</p>
+            <p className={styles.subtitle}>Build your own routine, or let TemprFit put one together from your equipment and time.</p>
           </div>
           <div className={styles.headerActions}>
             <Link href="/workouts/generate" className={styles.secondaryBtn}>

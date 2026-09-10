@@ -13,6 +13,7 @@ const NutritionProfileSchema = new mongoose.Schema(
     },
     allergies: [{ type: String, trim: true }], // free text, e.g. "peanuts", "shellfish"
     exclusions: [{ type: String, trim: true }], // disliked / avoided foods, not allergies
+    pantry: [{ type: String, trim: true }], // list of ingredients/foods the user actually has available
 
     goal: {
       type: String,

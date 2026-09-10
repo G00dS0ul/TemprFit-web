@@ -8,9 +8,10 @@ export default function EscrowWidget({ trainer }) {
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState(trainer?.price || 75);
   const [sessions, setSessions] = useState(4);
+  const [traineeNotes, setTraineeNotes] = useState('');
 
   const total = amount * sessions;
-  const fee = total * 0.05;
+  const fee = total * 0.15; // User said 15% platform fee for trainers
   const totalWithFee = total + fee;
 
   const milestones = [
@@ -19,6 +20,29 @@ export default function EscrowWidget({ trainer }) {
     { id: 3, label: 'Halfway Point', percent: 25, status: 'locked' },
     { id: 4, label: 'Completion', percent: 25, status: 'locked' },
   ];
+
+  const handleDeposit = async () => {
+    try {
+      const res = await fetch('/api/payment/initialize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: totalWithFee,
+          type: 'escrow',
+          trainerId: trainer._id,
+          traineeNotes: traineeNotes
+        })
+      });
+      const data = await res.json();
+      if (data.link) {
+        window.location.href = data.link; // Redirect to Flutterwave
+      } else {
+        alert(data.error || 'Payment failed to initialize.');
+      }
+    } catch (err) {
+      alert('Network error.');
+    }
+  };
 
   return (
     <div className={styles.widget}>
@@ -49,13 +73,24 @@ export default function EscrowWidget({ trainer }) {
             </div>
           </div>
 
+          <div className={styles.inputGroup} style={{ marginTop: '16px' }}>
+            <label>Notes for Trainer</label>
+            <textarea
+              placeholder="E.g., I want to focus on weight loss..."
+              value={traineeNotes}
+              onChange={e => setTraineeNotes(e.target.value)}
+              rows={3}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text)', resize: 'none' }}
+            />
+          </div>
+
           <div className={styles.breakdown}>
             <div className={styles.breakdownRow}>
               <span>Subtotal</span>
               <span>${total}</span>
             </div>
             <div className={styles.breakdownRow}>
-              <span>Platform Fee (5%)</span>
+              <span>Platform Fee (15%)</span>
               <span>${fee.toFixed(2)}</span>
             </div>
             <div className={`${styles.breakdownRow} ${styles.total}`}>
@@ -96,26 +131,8 @@ export default function EscrowWidget({ trainer }) {
 
           <div className={styles.actions}>
             <button className={styles.backBtn} onClick={() => setStep(1)}>Back</button>
-            <button className={styles.depositBtn} onClick={() => setStep(3)}>
+            <button className={styles.depositBtn} onClick={handleDeposit}>
               <Wallet size={16} /> Deposit ${totalWithFee.toFixed(2)}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className={styles.step}>
-          <div className={styles.success}>
-            <div className={styles.successIcon}>
-              <Check size={32} />
-            </div>
-            <h4>Escrow Created!</h4>
-            <p>${totalWithFee.toFixed(2)} has been securely deposited.</p>
-            <div className={styles.escrowId}>
-              <span>Escrow ID: ESC-{Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
-            </div>
-            <button className={styles.doneBtn} onClick={() => setStep(1)}>
-              View Dashboard
             </button>
           </div>
         </div>

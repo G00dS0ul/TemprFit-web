@@ -13,7 +13,7 @@ export default function MonetizationBanner() {
         </div>
         <div>
           <h3>Monetize Your Fitness Journey</h3>
-          <p>Earn money as a trainer, affiliate, or content creator on RepForge.</p>
+          <p>Earn money as a trainer, affiliate, or content creator on TemprFit.</p>
         </div>
       </div>
       <Link href="/monetization" className={styles.cta}>

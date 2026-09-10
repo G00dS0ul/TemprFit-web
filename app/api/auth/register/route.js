@@ -4,6 +4,7 @@ import User from '@/models/User'
 import WeightEntry from '@/models/WeightEntry'
 import { hashPassword, signToken, AUTH_COOKIE_NAME, AUTH_COOKIE_MAX_AGE } from '@/lib/auth'
 import { randomAvatarUrl } from '@/lib/avatars'
+import Notification from '@/models/Notification'
 
 const USERNAME_PATTERN = /^[a-z0-9_.]{3,24}$/
 const VALID_SEX_VALUES = ['male', 'female', 'other', 'prefer_not_to_say']
@@ -20,6 +21,7 @@ export async function POST(request) {
       username, email, password, goal, experience,
       age, sex, heardAboutUs,
       weightUnit, startingWeight, heightCm,
+      role, trainerInfo,
     } = await request.json()
 
     if (!username || !email || !password) {
@@ -77,34 +79,49 @@ export async function POST(request) {
       typeof heardAboutUs === 'string' ? heardAboutUs.trim().slice(0, 60) : ''
 
     const hashedPassword = await hashPassword(password)
-    const user = await User.create({
-      username: normalizedUsername,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      goal: goal || '',
-      experience: experience || '',
-      age: resolvedAge,
-      sex: resolvedSex,
-      heardAboutUs: resolvedHeardAboutUs,
-      weightUnit: resolvedWeightUnit,
-      heightCm: resolvedHeightCm,
-      // No photo upload at signup, so every new account starts with a
-      // deterministic random preset avatar instead of a blank profile icon.
-      avatarUrl: randomAvatarUrl(normalizedUsername),
-      firstLoginCompleted: false,
-    })
-
-    // A starting weight given at signup becomes the user's first real
-    // WeightEntry — same collection the Weight Tracker reads from — rather
-    // than a separate, possibly-conflicting field on the User doc.
-    const resolvedWeight = Number(startingWeight)
-    if (Number.isFinite(resolvedWeight) && resolvedWeight > 0 && resolvedWeight < 2000) {
-      await WeightEntry.create({
-        user: user._id,
-        date: startOfDay(Date.now()),
-        weight: resolvedWeight,
-        unit: resolvedWeightUnit,
+    
+    let user;
+    try {
+      user = await User.create({
+        username: normalizedUsername,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        goal: goal || '',
+        experience: experience || '',
+        age: resolvedAge,
+        sex: resolvedSex,
+        heardAboutUs: resolvedHeardAboutUs,
+        weightUnit: resolvedWeightUnit,
+        heightCm: resolvedHeightCm,
+        avatarUrl: randomAvatarUrl(normalizedUsername),
+        firstLoginCompleted: false,
+        role: role === 'trainer' ? 'trainer' : 'user',
+        trainerInfo: role === 'trainer' ? trainerInfo : undefined,
       })
+
+      // Insert welcome notification
+      await Notification.create({
+        user: user._id,
+        title: 'Welcome to the Forge!',
+        message: 'Your journey begins now. Check out the explore tab or generate your first workout.',
+        type: 'system',
+      })
+
+      const resolvedWeight = Number(startingWeight)
+      if (Number.isFinite(resolvedWeight) && resolvedWeight > 0 && resolvedWeight < 2000) {
+        await WeightEntry.create({
+          user: user._id,
+          date: startOfDay(Date.now()),
+          weight: resolvedWeight,
+          unit: resolvedWeightUnit,
+        })
+      }
+    } catch (createErr) {
+      // If something fails after user creation, delete the ghost user
+      if (user && user._id) {
+        await User.findByIdAndDelete(user._id);
+      }
+      throw createErr;
     }
 
     const token = signToken({ userId: user._id.toString(), role: user.role })

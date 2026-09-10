@@ -62,7 +62,7 @@ export default function Footer() {
         </div>
 
         <div className={styles.bottom}>
-          <p>© 2024 RepForge. All rights reserved.</p>
+          <p>© 2024 TemprFit. All rights reserved.</p>
           <p>Made with 💪 for fitness enthusiasts worldwide.</p>
         </div>
       </div>

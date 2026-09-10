@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-const STORAGE_KEY = 'repforge-theme'; // 'system' | 'light' | 'dark'
+const STORAGE_KEY = 'temprfit-theme'; // 'system' | 'light' | 'dark'
 const ThemeContext = createContext(null);
 
 function resolveTheme(preference) {

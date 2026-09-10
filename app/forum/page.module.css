@@ -1,138 +1,86 @@
 .page {
-  padding: 120px 0 80px;
+  padding: 40px 20px;
   min-height: 100vh;
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-  gap: 16px;
+  margin-bottom: 40px;
+  text-align: center;
 }
 
 .header h1 {
-  font-family: 'Orbitron', sans-serif;
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  color: #f0f0f0;
+  font-size: 2.5rem;
+  margin-bottom: 8px;
 }
 
 .gradient {
-  background: linear-gradient(135deg, #22c55e, #06b6d4);
+  background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
-.newPostBtn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-  border-radius: 12px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+.roomGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 
-.newPostBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(34,197,94,0.3);
-}
-
-.newPostForm {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+.roomCard {
+  background: var(--color-surface, #18181b);
+  border: 1px solid var(--color-border, #27272a);
   border-radius: 16px;
   padding: 24px;
-  margin-bottom: 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  animation: slideUp 0.3s ease-out;
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 }
 
-.titleInput,
-.contentInput {
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  color: #f0f0f0;
-  font-size: 0.95rem;
-  outline: none;
-  font-family: inherit;
-  resize: vertical;
+.roomCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(34, 197, 94, 0.5);
 }
 
-.titleInput:focus,
-.contentInput:focus {
-  border-color: rgba(34,197,94,0.4);
-}
-
-.titleInput::placeholder,
-.contentInput::placeholder {
-  color: #63636b;
-}
-
-.formActions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-}
-
-.cancelBtn {
-  padding: 10px 20px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #a1a1a8;
-  border-radius: 10px;
-  font-weight: 500;
-}
-
-.publishBtn {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-  border-radius: 10px;
-  font-weight: 600;
-}
-
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.tab {
+.roomHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
-  color: #a1a1a8;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.tab:hover {
-  background: rgba(255,255,255,0.06);
-  color: #f0f0f0;
-}
-
-.active {
-  background: rgba(34,197,94,0.1);
-  border-color: rgba(34,197,94,0.2);
-  color: #22c55e;
-}
-
-.posts {
-  display: flex;
-  flex-direction: column;
   gap: 16px;
+  margin-bottom: 12px;
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-primary, #22c55e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roomCard h2 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.roomCard p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
 }

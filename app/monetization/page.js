@@ -28,7 +28,7 @@ export default function Monetization() {
     <div className={styles.page}>
       <div className="container">
         <div className={styles.header}>
-          <h1>Monetize with <span className={styles.gradient}>RepForge</span></h1>
+          <h1>Monetize with <span className={styles.gradient}>TemprFit</span></h1>
           <p>Multiple revenue streams for developers, trainers, and content creators.</p>
         </div>
 

@@ -8,7 +8,7 @@ import styles from './AIModal.module.css';
 
 export default function AIModal({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
-    { role: 'ai', text: 'Hello! I am your RepForge AI Coach. How can I help you today?' },
+    { role: 'ai', text: 'Hello! I am your TemprFit AI Coach. How can I help you today?' },
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -55,7 +55,7 @@ export default function AIModal({ isOpen, onClose }) {
               <Image src="/images/brand/logo-mark.png" alt="" width={22} height={22} />
             </div>
             <div>
-              <h3>RepForge AI Coach</h3>
+              <h3>TemprFit AI Coach</h3>
               <span className={styles.status}>Online</span>
             </div>
           </div>

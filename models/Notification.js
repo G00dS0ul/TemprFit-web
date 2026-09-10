@@ -22,6 +22,11 @@ const NotificationSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  type: {
+    type: String,
+    enum: ['forum', 'message', 'appointment', 'system', 'subscription', 'plan', 'social', 'general'],
+    default: 'general',
+  },
   createdAt: {
     type: Date,
     default: Date.now,

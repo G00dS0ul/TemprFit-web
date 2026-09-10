@@ -17,7 +17,7 @@ export default function BecomeTrainer() {
     <div className={styles.page}>
       <div className="container">
         <div className={styles.hero}>
-          <h1>Become a <span className={styles.gradient}>RepForge Trainer</span></h1>
+          <h1>Become a <span className={styles.gradient}>TemprFit Trainer</span></h1>
           <p>Turn your passion for fitness into a thriving career. Join our global trainer network.</p>
         </div>
 

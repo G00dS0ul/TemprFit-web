@@ -6,10 +6,13 @@ import {
   Activity, Flame, Timer, Trophy, TrendingUp, TrendingDown,
   Dumbbell, Calendar, Target, Zap
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import ChartWidget from '@/components/ChartWidget';
 import WeightTracker from '@/components/WeightTracker';
 import AIModal from '@/components/AIModal';
+import HealthGraphs from '@/components/HealthGraphs';
+import DashboardMeals from '@/components/DashboardMeals';
 import { displayName } from '@/lib/utils';
 import styles from './page.module.css';
 
@@ -21,9 +24,12 @@ function formatDuration(totalSeconds) {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const [aiOpen, setAiOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState(null);
+  const [escrows, setEscrows] = useState([]);
+  const [savedWorkouts, setSavedWorkouts] = useState([]);
   const [signedIn, setSignedIn] = useState(true);
   const [showFirstWelcome, setShowFirstWelcome] = useState(false);
 
@@ -31,6 +37,11 @@ export default function Dashboard() {
     fetch('/api/auth/me')
       .then((r) => r.json())
       .then((data) => {
+        // Redirect trainers to their dedicated dashboard
+        if (data.user?.role === 'trainer') {
+          router.replace('/trainer-dashboard');
+          return;
+        }
         setUser(data.user);
         // First-ever dashboard visit gets a distinct greeting. The flag is
         // flipped server-side right after we read it here, so a refresh
@@ -50,7 +61,39 @@ export default function Dashboard() {
       .catch((e) => {
         if (e.message === 'signin') setSignedIn(false);
       });
-  }, []);
+
+    // Fetch active bookings (escrows)
+    fetch('/api/escrow?status=held')
+      .then(r => r.json())
+      .then(data => {
+        if (data.transactions) setEscrows(data.transactions);
+      })
+      .catch(() => {});
+
+    // Fetch AI workouts
+    fetch('/api/workouts/generate')
+      .then(r => r.json())
+      .then(data => {
+        if (data.plans) setSavedWorkouts(data.plans.slice(0, 3));
+      })
+      .catch(() => {});
+  }, [router]);
+
+  const handleReleaseFunds = async (txId, amount) => {
+    if (!confirm('Are you sure you want to release funds to the trainer? This cannot be undone.')) return;
+    const res = await fetch('/api/escrow', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transactionId: txId, action: 'release', amountToRelease: amount })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setEscrows(prev => prev.map(t => t._id === txId ? data.transaction : t).filter(t => t.status === 'held'));
+      alert('Funds released successfully! Thank you.');
+    } else {
+      alert(data.error || 'Failed to release funds.');
+    }
+  };
 
   if (!signedIn) {
     return (
@@ -159,9 +202,12 @@ export default function Dashboard() {
               color="#06b6d4"
             />
           </div>
+          
+          <DashboardMeals />
 
           <div className={styles.trackerSection}>
             <WeightTracker />
+            <HealthGraphs />
           </div>
 
           <div className={styles.goalsSection}>
@@ -219,6 +265,87 @@ export default function Dashboard() {
                 <span className={styles.goalTarget}>Current streak: {stats?.currentStreak ?? 0} days</span>
               </div>
             </div>
+          </div>
+
+          {escrows.length > 0 && (
+            <div className={styles.goalsSection} style={{ marginTop: '40px' }}>
+              <h3 className={styles.sectionTitle}>Active Training Bookings</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {escrows.map(escrow => {
+                  const trainerName = escrow.trainer?.username || 'Trainer';
+                  const remaining = escrow.trainerEarnings - (escrow.releasedAmount || 0);
+                  const stepVal = escrow.trainerEarnings * 0.25;
+
+                  return (
+                    <div key={escrow._id} style={{ background: 'var(--color-bg-elevated)', padding: '24px', borderRadius: '12px', border: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h4 style={{ marginBottom: '8px' }}>Training with {trainerName}</h4>
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>{escrow.description}</p>
+                        <div style={{ color: '#22c55e', fontSize: '0.85rem' }}>
+                          Released: ${(escrow.releasedAmount || 0).toFixed(2)} / ${escrow.trainerEarnings.toFixed(2)}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <button 
+                          onClick={() => handleReleaseFunds(escrow._id, stepVal)} 
+                          style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Release 25% (${stepVal.toFixed(2)})
+                        </button>
+                        <button 
+                          onClick={() => handleReleaseFunds(escrow._id, remaining)} 
+                          style={{ background: '#22c55e', color: '#000', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Release Remaining (${remaining.toFixed(2)})
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {savedWorkouts.length > 0 && (
+            <div className={styles.goalsSection} style={{ marginTop: '40px' }}>
+              <h3 className={styles.sectionTitle}>Recent AI Workouts</h3>
+              <div className={styles.goalsGrid}>
+                {savedWorkouts.map(plan => (
+                  <div key={plan._id} className={styles.goalCard} style={{ cursor: 'pointer' }} onClick={() => router.push('/workouts/ai')}>
+                    <div className={styles.goalHeader}>
+                      <Zap size={18} style={{ color: '#3b82f6' }} />
+                      <span>{plan.goal}</span>
+                    </div>
+                    <span className={styles.goalTarget}>
+                      {plan.days.length} Days • {plan.equipment}
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', display: 'block', marginTop: '8px' }}>
+                      {new Date(plan.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ marginTop: '40px', background: 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(16,185,129,0.1))', padding: '32px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(34,197,94,0.2)' }}>
+            <div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', color: '#22c55e' }}>Are you a fitness professional?</h3>
+              <p style={{ color: 'var(--color-text-muted)' }}>Join the TemprFit Trainer Network to coach clients and earn money.</p>
+            </div>
+            <Link href="/become-trainer" style={{ background: '#22c55e', color: '#000', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none' }}>
+              Become a Trainer
+            </Link>
+          </div>
+
+          <div style={{ marginTop: '20px', background: 'var(--color-bg-elevated)', padding: '24px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '4px', color: '#f0f0f0' }}>Platform Administration</h3>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Access the admin command center (Master password required).</p>
+            </div>
+            <Link href="/admin/login" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s' }}>
+              Admin Portal
+            </Link>
           </div>
         </div>
       </div>

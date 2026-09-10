@@ -1,4 +1,4 @@
-# REPForge
+# TemprFit
 
 AI-powered fitness ecosystem — Next.js (JavaScript, App Router), CSS Modules, MongoDB/Mongoose.
 

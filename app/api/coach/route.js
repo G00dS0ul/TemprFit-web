@@ -29,6 +29,16 @@ export async function POST(request) {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
 
+  // AI Coach requires Pro plan
+  const { checkPlanAccess } = await import('@/lib/plans')
+  const { allowed } = checkPlanAccess(user, 'pro')
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'AI Coach requires the PRO plan. Upgrade to unlock unlimited AI coaching.', upgrade: true, requiredPlan: 'pro' },
+      { status: 403 }
+    )
+  }
+
   const body = await request.json().catch(() => ({}))
   const userMessage = typeof body.message === 'string' ? body.message.trim() : ''
 

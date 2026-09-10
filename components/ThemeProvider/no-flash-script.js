@@ -2,7 +2,7 @@
 export const noFlashScript = `
 (function () {
   try {
-    var pref = window.localStorage.getItem('repforge-theme') || 'system';
+    var pref = window.localStorage.getItem('temprfit-theme') || 'system';
     var theme = pref;
     if (pref === 'system') {
       theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';

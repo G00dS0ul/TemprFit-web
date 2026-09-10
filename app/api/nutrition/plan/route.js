@@ -39,6 +39,7 @@ export async function POST() {
       systemPrompt,
       history: [],
       userMessage: 'Generate my 7-day meal plan now, following the JSON format exactly.',
+      responseMimeType: 'application/json',
     })
   } catch (err) {
     const status = err instanceof GeminiConfigError ? 500 : err instanceof GeminiRequestError ? 502 : 500

@@ -44,15 +44,26 @@ export default function FloatingUpdatesBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
+  const [role, setRole] = useState('user');
+
   useEffect(() => {
-    if (!visible) return;
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.user) setRole(data.user.role);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!visible || role === 'trainer') return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % UPDATES.length);
     }, 6000); // Change every 6 seconds
     return () => clearInterval(interval);
-  }, [visible]);
+  }, [visible, role]);
 
-  if (!visible) return null;
+  if (!visible || role === 'trainer') return null;
 
   const currentUpdate = UPDATES[currentIndex];
   const Icon = currentUpdate.icon;

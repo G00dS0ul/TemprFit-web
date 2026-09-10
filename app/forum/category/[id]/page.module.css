@@ -1,0 +1,191 @@
+.page {
+  padding: 40px 20px;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.backLink {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.backLink:hover {
+  color: #fff;
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.newThreadBtn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.newThreadBtn:hover {
+  filter: brightness(1.1);
+}
+
+.threadList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.threadCard {
+  background: var(--color-surface, #18181b);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s;
+}
+
+.threadCard:hover {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.threadMain {
+  flex: 1;
+}
+
+.threadTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pinnedBadge {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.threadMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.roleBadge {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.roleBadge.admin {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.roleBadge.trainer {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.threadStats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Upload Modal CSS (Reused pattern) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.uploadForm {
+  background: var(--color-surface);
+  width: 100%;
+  max-width: 600px;
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.uploadForm input[type="text"] {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--color-border);
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.uploadForm textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--color-border);
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 150px;
+}
+
+.uploadBtn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}

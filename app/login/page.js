@@ -42,10 +42,14 @@ function LoginForm() {
         setLoading(false);
         return;
       }
-      // Honor ?next=/wherever-they-came-from (e.g. from the sign-in-required
-      // prompt) so people land back where they were, not always /dashboard.
       const next = searchParams.get('next');
-      router.push(next && next.startsWith('/') ? next : '/dashboard');
+      let defaultRoute = '/dashboard';
+      if (data.user?.role === 'trainer') {
+        defaultRoute = '/trainer-dashboard';
+      } else if (data.user?.role === 'admin') {
+        defaultRoute = '/admin';
+      }
+      router.push(next && next.startsWith('/') ? next : defaultRoute);
     } catch (err) {
       setError('Could not reach the server. Is it running?');
       setLoading(false);
@@ -60,7 +64,7 @@ function LoginForm() {
         </div>
         <div className={styles.leftContent}>
           <Logo3D size={120} />
-          <h2>Welcome Back to RepForge</h2>
+          <h2>Welcome Back to TemprFit</h2>
           <p>Sign in to continue your fitness journey with AI-powered coaching.</p>
         </div>
       </div>

@@ -34,6 +34,12 @@ const MealPlanSchema = new mongoose.Schema(
     // never shown to the user, mirrors nothing sensitive beyond their own data.
     generatedFrom: { type: String, default: '' },
     active: { type: Boolean, default: true }, // only the newest plan per user is active
+    completedMeals: [
+      {
+        dayNumber: Number,
+        mealName: String,
+      }
+    ],
   },
   { timestamps: true }
 )

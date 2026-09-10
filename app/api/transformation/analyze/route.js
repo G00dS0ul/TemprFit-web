@@ -39,7 +39,7 @@ export async function POST(req) {
       
       Compare the two images and provide an encouraging, highly personalized, and specific analysis of their transformation.
       Mention specific body parts if you notice changes (e.g., muscle definition, fat loss, posture).
-      Keep the tone cinematic, premium, and trustworthy (like the REPForge brand).
+      Keep the tone cinematic, premium, and trustworthy (like the TemprFit brand).
       Format the output in plain text with short paragraphs. Max 150 words.
     `;
 

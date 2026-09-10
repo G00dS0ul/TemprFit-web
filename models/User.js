@@ -38,10 +38,29 @@ const UserSchema = new mongoose.Schema(
     experience: { type: String, default: '' }, // e.g. "Beginner"
     plan: {
       type: String,
-      enum: ['free', 'pro', 'elite'],
+      enum: ['free', 'pro', 'max'],
       default: 'free',
     },
+    planExpiresAt: { type: Date, default: null },
+    usedCoupons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'CouponCode' }],
+    trainerInfo: {
+      bio: { type: String, default: '' },
+      specialties: [{ type: String }],
+      escrowBalance: { type: Number, default: 0 },
+      isFeatured: { type: Boolean, default: false },
+      featuredUntil: { type: Date, default: null },
+      isApproved: { type: Boolean, default: false }, // Trainer approval status
+      isVerified: { type: Boolean, default: false }, // Check tick mark
+      views: { type: Number, default: 0 },
+      likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+      price: { type: Number, default: 50 }, // Per session rate
+      location: { type: String, default: 'Remote' },
+      trainingMode: { type: String, enum: ['physical', 'remote', 'hybrid'], default: 'remote' },
+      mediaGallery: [{ type: String }], // Array of URLs
+    },
     avatarUrl: { type: String, default: '' }, // data URL (uploaded photo) or an external URL
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     favoriteExercises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }],
     currentStreak: { type: Number, default: 0 },
     longestStreak: { type: Number, default: 0 },

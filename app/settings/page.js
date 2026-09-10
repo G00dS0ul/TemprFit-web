@@ -45,6 +45,11 @@ export default function SettingsPage() {
           targetExerciseSlug: data.user.goals?.targetExerciseSlug || '',
           targetExerciseName: '',
           targetWeight: data.user.goals?.targetWeight ?? '',
+          trainerBio: data.user.trainerInfo?.bio || '',
+          trainerSpecialties: data.user.trainerInfo?.specialties?.join(', ') || '',
+          trainerPrice: data.user.trainerInfo?.price || 50,
+          trainerLocation: data.user.trainerInfo?.location || '',
+          trainerMode: data.user.trainerInfo?.trainingMode || 'remote',
         });
         // Resolve the saved target exercise's display name for the search box.
         if (data.user.goals?.targetExerciseSlug) {
@@ -109,6 +114,13 @@ export default function SettingsPage() {
             targetExerciseSlug: form.targetExerciseSlug || undefined,
             targetWeight: form.targetWeight === '' ? null : Number(form.targetWeight),
           },
+          trainerInfo: user?.role === 'trainer' ? {
+            bio: form.trainerBio,
+            specialties: form.trainerSpecialties.split(',').map(s => s.trim()).filter(Boolean),
+            price: Number(form.trainerPrice) || 50,
+            location: form.trainerLocation,
+            trainingMode: form.trainerMode,
+          } : undefined,
         }),
       });
       const data = await res.json();
@@ -155,6 +167,21 @@ export default function SettingsPage() {
       }
     } finally {
       setVerifyingEmail(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Are you sure? This will permanently delete your account, progress, and all data. This action cannot be undone.")) return;
+    try {
+      const res = await fetch('/api/user/profile', { method: 'DELETE' });
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to delete account');
+      }
+    } catch (e) {
+      setError('Network error');
     }
   };
 
@@ -419,6 +446,75 @@ export default function SettingsPage() {
               disabled={!passwordForm.current || !passwordForm.new || !passwordForm.confirm}
             >
               Update Password
+            </button>
+          </div>
+
+          {user?.role === 'trainer' && (
+            <div className={styles.card} style={{ marginTop: '40px' }}>
+              <h3>Trainer Profile</h3>
+              <p className={styles.cardHint}>Update your coaching bio and specialties.</p>
+              
+              <div className={styles.field}>
+                <label>Specialties (comma separated)</label>
+                <input
+                  value={form.trainerSpecialties}
+                  onChange={(e) => setForm({ ...form, trainerSpecialties: e.target.value })}
+                />
+              </div>
+              <div className={styles.field}>
+                <label>Bio</label>
+                <textarea
+                  value={form.trainerBio}
+                  onChange={(e) => setForm({ ...form, trainerBio: e.target.value })}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', resize: 'vertical', minHeight: '100px' }}
+                />
+              </div>
+              <div className={styles.field}>
+                <label>Session Price ($)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.trainerPrice}
+                  onChange={(e) => setForm({ ...form, trainerPrice: e.target.value })}
+                />
+              </div>
+              <div className={styles.field}>
+                <label>Location</label>
+                <input
+                  placeholder="e.g. New York, NY or Remote"
+                  value={form.trainerLocation}
+                  onChange={(e) => setForm({ ...form, trainerLocation: e.target.value })}
+                />
+              </div>
+              <div className={styles.field}>
+                <label>Training Mode</label>
+                <div className={styles.optionRow}>
+                  {['remote', 'physical', 'hybrid'].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className={`${styles.optionBtn} ${form.trainerMode === m ? styles.selected : ''}`}
+                      onClick={() => setForm({ ...form, trainerMode: m })}
+                      style={{ textTransform: 'capitalize' }}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className={styles.card} style={{ marginTop: '40px', border: '1px solid rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.05)' }}>
+            <h3 style={{ color: '#ef4444' }}>Danger Zone</h3>
+            <p className={styles.cardHint} style={{ color: 'rgba(239, 68, 68, 0.8)' }}>Permanently delete your account and all associated data.</p>
+            
+            <button 
+              className={styles.saveBtn} 
+              style={{ background: '#ef4444', color: '#fff', border: 'none', marginTop: '16px' }} 
+              onClick={handleDeleteAccount}
+            >
+              Delete Account
             </button>
           </div>
         </div>

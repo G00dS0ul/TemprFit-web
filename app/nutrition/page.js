@@ -232,6 +232,7 @@ function ProfileTab({ profile, setProfile }) {
   const [saved, setSaved] = useState(false);
   const [allergyInput, setAllergyInput] = useState('');
   const [exclusionInput, setExclusionInput] = useState('');
+  const [pantryInput, setPantryInput] = useState('');
 
   useEffect(() => {
     setForm({
@@ -239,6 +240,7 @@ function ProfileTab({ profile, setProfile }) {
       goal: profile?.goal || 'maintain',
       allergies: profile?.allergies || [],
       exclusions: profile?.exclusions || [],
+      pantry: profile?.pantry || [],
       calorieTarget: profile?.calorieTarget ?? '',
       proteinTarget: profile?.proteinTarget ?? '',
       carbsTarget: profile?.carbsTarget ?? '',
@@ -325,6 +327,23 @@ function ProfileTab({ profile, setProfile }) {
         <div className={styles.tags}>
           {form.exclusions.map((a, i) => (
             <span key={i} className={styles.tag}>{a} <button onClick={() => removeTag('exclusions', i)}><X size={12} /></button></span>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.formRow}>
+        <label>My Pantry / Available Ingredients</label>
+        <div className={styles.tagInput}>
+          <input
+            value={pantryInput}
+            onChange={(e) => setPantryInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('pantry', pantryInput, setPantryInput))}
+            placeholder="e.g. eggs, chicken breast, rice — press Enter"
+          />
+        </div>
+        <div className={styles.tags}>
+          {form.pantry.map((a, i) => (
+            <span key={i} className={styles.tag}>{a} <button onClick={() => removeTag('pantry', i)}><X size={12} /></button></span>
           ))}
         </div>
       </div>

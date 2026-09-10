@@ -108,7 +108,7 @@ export default function AboutPage() {
         <div className="container">
           <div className={styles.ctaBox}>
             <h2>Ready to Start Your Transformation?</h2>
-            <p>Join 50,000+ athletes who have already forged their path with REPForge.</p>
+            <p>Join 50,000+ athletes who have already forged their path with TemprFit.</p>
             <div className={styles.ctaButtons}>
               <Link href="/register" className={styles.ctaPrimary}>
                 <Zap size={18} /> Get Started Free

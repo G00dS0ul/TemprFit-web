@@ -21,5 +21,12 @@ export async function GET() {
     return NextResponse.json({ user: null }, { status: 200 })
   }
 
+  // Downgrade plan if expired
+  if (user.plan !== 'free' && user.planExpiresAt && new Date() > user.planExpiresAt) {
+    user.plan = 'free';
+    user.planExpiresAt = null;
+    await user.save();
+  }
+
   return NextResponse.json({ user: user.toSafeObject() })
 }

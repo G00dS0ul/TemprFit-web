@@ -16,10 +16,10 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: 'REPForge — Your Body. Your Goals. Your AI Coach.',
+  title: 'TemprFit — Your Body. Your Goals. Your AI Coach.',
   description:
-    'REPForge is an AI-powered fitness ecosystem: personalized training, an always-on AI coach, progress tracking, nutrition, and a trainer marketplace.',
-  keywords: 'gym, fitness, workout, AI coach, trainer, nutrition, tracker, REPForge',
+    'TemprFit is an AI-powered fitness ecosystem: personalized training, an always-on AI coach, progress tracking, nutrition, and a trainer marketplace.',
+  keywords: 'gym, fitness, workout, AI coach, trainer, nutrition, tracker, TemprFit',
 }
 
 export default function RootLayout({ children }) {

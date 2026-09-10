@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Search, X, Dumbbell, Loader2 } from 'lucide-react';
 import styles from './FloatingSearch.module.css';
@@ -10,6 +10,18 @@ export default function FloatingSearch() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [role, setRole] = useState('user');
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.user) setRole(data.user.role);
+      })
+      .catch(() => {});
+  }, []);
+
+  if (role === 'trainer') return null;
 
   const handleSearch = async (e) => {
     e.preventDefault();

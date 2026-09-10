@@ -43,6 +43,9 @@ export async function PUT(request) {
   if (Array.isArray(body.exclusions)) {
     update.exclusions = body.exclusions.map((a) => String(a).trim()).filter(Boolean).slice(0, 25)
   }
+  if (Array.isArray(body.pantry)) {
+    update.pantry = body.pantry.map((a) => String(a).trim()).filter(Boolean).slice(0, 100)
+  }
   for (const field of ['calorieTarget', 'proteinTarget', 'carbsTarget', 'fatTarget']) {
     if (body[field] !== undefined) {
       const n = body[field] === null || body[field] === '' ? null : Number(body[field])

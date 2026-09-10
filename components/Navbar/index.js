@@ -8,7 +8,7 @@ import {
   Search, Bell, Sun, Moon, ChevronDown, Menu, X, User,
   Settings, LogOut, Compass, BrainCircuit, LineChart, Users,
   Dumbbell, History, Activity, Sparkles, LayoutDashboard,
-  Apple, Salad, BookOpen, Loader2
+  Apple, Salad, BookOpen, Loader2, MessageCircle, Calendar, CreditCard
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { displayName } from '@/lib/utils';
@@ -27,6 +27,7 @@ const APP_PAGES = [
   { title: 'Generate Workout', url: '/workouts/generate', icon: Sparkles },
   { title: 'Progress Tracker', url: '/progress', icon: LineChart },
   { title: 'Bodyweight & Diet Tracker', url: '/tracker', icon: Activity },
+  { title: 'BMI & Health Calculator', url: '/health/calculator', icon: Activity },
   { title: 'Nutrition & Diet Plans', url: '/nutrition', icon: Apple },
   { title: 'AI Coach', url: '/coach', icon: BrainCircuit },
   { title: 'Form Check', url: '/form-check', icon: Activity },
@@ -50,6 +51,7 @@ export default function Navbar() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [selectedNotif, setSelectedNotif] = useState(null);
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,6 +65,19 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  const getNotifIcon = (type) => {
+    switch (type) {
+      case 'forum': return <Users size={16} className={styles.iconForum} />;
+      case 'social': return <Heart size={16} className={styles.iconForum} />;
+      case 'message': return <MessageCircle size={16} className={styles.iconMessage} />;
+      case 'appointment': return <Calendar size={16} className={styles.iconAppt} />;
+      case 'system': return <Activity size={16} className={styles.iconSystem} />;
+      case 'subscription': return <CreditCard size={16} className={styles.iconSub} />;
+      case 'plan': return <Apple size={16} className={styles.iconPlan} />;
+      default: return <Bell size={16} className={styles.iconGen} />;
+    }
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -142,8 +157,8 @@ export default function Navbar() {
       <div className="container">
         <div className={styles.navInner}>
           <Link href="/" className={styles.logo}>
-            <Image src="/images/brand/logo-mark.png" alt="REPForge" width={32} height={32} className={styles.logoMark} priority />
-            <span className={styles.logoText}>REPForge</span>
+            <Image src="/images/brand/logo-mark.png" alt="TemprFit" width={32} height={32} className={styles.logoMark} priority />
+            <span className={styles.logoText}>TemprFit</span>
           </Link>
 
           <div className={styles.desktopNav}>
@@ -244,20 +259,32 @@ export default function Navbar() {
                       </div>
                     ) : (
                       <div className={styles.notifList}>
-                        {notifications.map(n => (
-                          <div key={n._id} className={`${styles.notifItem} ${n.read ? styles.read : ''}`}>
-                            <div className={styles.notifIconWrap}>
-                              <Sparkles size={16} />
+                        {notifications.map(n => {
+                          // Simple relative time
+                          const diff = Math.floor((new Date() - new Date(n.createdAt)) / 1000);
+                          let timeStr = 'just now';
+                          if (diff > 86400) timeStr = Math.floor(diff / 86400) + 'd ago';
+                          else if (diff > 3600) timeStr = Math.floor(diff / 3600) + 'h ago';
+                          else if (diff > 60) timeStr = Math.floor(diff / 60) + 'm ago';
+
+                          return (
+                            <div 
+                              key={n._id} 
+                              className={`${styles.notifItem} ${n.read ? styles.read : ''}`}
+                              onClick={() => setSelectedNotif(n)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <div className={styles.notifIconWrap}>
+                                {getNotifIcon(n.type)}
+                              </div>
+                              <div className={styles.notifContent}>
+                                <strong>{n.title} {!n.read && <span className={styles.unreadDot} />}</strong>
+                                <p>{n.message}</p>
+                                <span className={styles.notifTime}>{timeStr}</span>
+                              </div>
                             </div>
-                            <div className={styles.notifContent}>
-                              <strong>{n.title}</strong>
-                              <p>{n.message}</p>
-                              <span className={styles.notifTime}>
-                                {new Date(n.createdAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -315,13 +342,62 @@ export default function Navbar() {
           ))}
           <hr className={styles.mobileDivider} />
           {user ? (
-            <button className={styles.mobileAuth} onClick={handleLogout}>Sign Out ({displayName(user).split(' ')[0]})</button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <button className={styles.mobileLink} style={{ textAlign: 'left', border: 'none', background: 'none' }} onClick={() => { setMenuOpen(false); setSearchOpen(true); }}>
+                <Search size={16} style={{ display: 'inline', marginRight: '8px' }} /> Search
+              </button>
+              <button className={styles.mobileLink} style={{ textAlign: 'left', border: 'none', background: 'none' }} onClick={() => { setMenuOpen(false); setNotifOpen(true); }}>
+                <Bell size={16} style={{ display: 'inline', marginRight: '8px' }} /> Notifications {unreadCount > 0 && `(${unreadCount})`}
+              </button>
+              <hr className={styles.mobileDivider} />
+              {user.role === 'trainer' ? (
+                <>
+                  <Link href="/trainer-dashboard" className={styles.mobileLink} onClick={() => setMenuOpen(false)}><LayoutDashboard size={16} style={{ display: 'inline', marginRight: '8px' }} /> Trainer Dashboard</Link>
+                </>
+              ) : (
+                APP_PAGES.map(page => (
+                  <Link key={page.url} href={page.url} className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+                    <page.icon size={16} style={{ display: 'inline', marginRight: '8px' }} /> {page.title}
+                  </Link>
+                ))
+              )}
+              <Link href="/moments" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+                <Sparkles size={16} style={{ display: 'inline', marginRight: '8px' }} /> Moments Feed
+              </Link>
+              <hr className={styles.mobileDivider} />
+              <button className={styles.mobileAuth} onClick={handleLogout}>Sign Out ({displayName(user).split(' ')[0]})</button>
+            </div>
           ) : (
             <>
               <Link href="/register" className={styles.mobileDashboard} onClick={() => setMenuOpen(false)}>Get Started</Link>
               <Link href="/login" className={styles.mobileAuth} onClick={() => setMenuOpen(false)}>Sign In</Link>
             </>
           )}
+        </div>
+      )}
+
+      {selectedNotif && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedNotif(null)}>
+          <div className={styles.notifModal} onClick={e => e.stopPropagation()}>
+            <button className={styles.closeModal} onClick={() => setSelectedNotif(null)}><X size={20} /></button>
+            <div className={styles.notifModalHeader}>
+              <div className={styles.notifModalIcon}>
+                {getNotifIcon(selectedNotif.type)}
+              </div>
+              <h3>{selectedNotif.title}</h3>
+            </div>
+            <div className={styles.notifModalBody}>
+              <p>{selectedNotif.message}</p>
+              {selectedNotif.link && (
+                <Link href={selectedNotif.link} className={styles.notifModalLink} onClick={() => setSelectedNotif(null)}>
+                  View Details <ArrowRight size={16} />
+                </Link>
+              )}
+            </div>
+            <div className={styles.notifModalFooter}>
+              <span>{new Date(selectedNotif.createdAt).toLocaleString()}</span>
+            </div>
+          </div>
         </div>
       )}
     </nav>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Sparkles, Save, BookOpen, Trash2, CheckCircle2 } from 'lucide-react';
-import AIResponseRenderer from '@/components/AIResponseRenderer';
+import MealPlanView from '@/components/MealPlanView';
 import AuthGateModal from '@/components/AuthGateModal';
 import styles from './diet.module.css'; // Creating new css file
 
@@ -74,7 +74,7 @@ export default function DietPage() {
       const res = await fetch('/api/diet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: generatedPlan }),
+        body: JSON.stringify({ content: JSON.stringify(generatedPlan) }),
       });
       if (res.status === 401) {
         setAuthGateOpen(true);
@@ -131,7 +131,10 @@ export default function DietPage() {
                     <h3>{plan.title}</h3>
                     <p className={styles.date}>{new Date(plan.createdAt).toLocaleDateString()}</p>
                     <div className={styles.planContent}>
-                      <AIResponseRenderer content={plan.content} />
+                      <MealPlanView plan={(() => {
+                        try { return JSON.parse(plan.content) }
+                        catch(e) { return null }
+                      })()} />
                     </div>
                   </div>
                 ))}
@@ -171,7 +174,7 @@ export default function DietPage() {
                   </button>
                 </div>
                 <div className={styles.planContent}>
-                  <AIResponseRenderer content={generatedPlan} />
+                  <MealPlanView plan={generatedPlan} />
                 </div>
               </div>
             )}

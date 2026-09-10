@@ -318,17 +318,14 @@
 }
 
 .emptyNotifs {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   padding: 40px 20px;
+  text-align: center;
   color: var(--color-text-muted);
-  gap: 12px;
 }
 
 .emptyBell {
-  color: var(--color-border);
+  opacity: 0.2;
+  margin-bottom: 12px;
 }
 
 .notifList {
@@ -338,56 +335,174 @@
 
 .notifItem {
   display: flex;
-  gap: 12px;
-  padding: 16px;
+  padding: 16px 20px;
+  gap: 16px;
   border-bottom: 1px solid var(--color-border);
-  transition: background 0.2s;
-  background: rgba(34, 197, 94, 0.05); /* Unread style */
+  background: rgba(34, 197, 94, 0.03); /* slight tint for unread */
+  transition: background 0.2s ease;
+}
+
+.notifItem:hover {
+  background: var(--color-surface);
 }
 
 .notifItem.read {
   background: transparent;
 }
 
-.notifItem:hover {
-  background: rgba(128,128,128,0.05);
-}
-
 .notifIconWrap {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: var(--color-bg);
 }
 
+.iconForum { color: #8b5cf6; }
+.iconMessage { color: #3b82f6; }
+.iconAppt { color: #f59e0b; }
+.iconSystem { color: #ef4444; }
+.iconSub { color: #22c55e; }
+.iconPlan { color: #10b981; }
+.iconGen { color: var(--color-text-muted); }
+
 .notifContent {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex: 1;
 }
 
 .notifContent strong {
-  font-size: 0.9rem;
+  display: block;
+  font-size: 0.95rem;
   color: var(--color-text);
+  margin-bottom: 4px;
 }
 
 .notifContent p {
   font-size: 0.85rem;
   color: var(--color-text-muted);
+  margin: 0 0 6px 0;
   line-height: 1.4;
-  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .notifTime {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   opacity: 0.7;
 }
+
+/* --- NOTIFICATION MODAL --- */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.notifModal {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.closeModal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.closeModal:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.notifModalHeader {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notifModalIcon {
+  width: 48px;
+  height: 48px;
+  background: var(--color-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notifModalHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.notifModalBody {
+  padding: 24px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.notifModalLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-top: 16px;
+  text-decoration: none;
+}
+
+.notifModalLink:hover {
+  text-decoration: underline;
+}
+
+.notifModalFooter {
+  padding: 16px 24px;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- RESPONSIVE --- */
 
 .themeToggle {
   position: relative;

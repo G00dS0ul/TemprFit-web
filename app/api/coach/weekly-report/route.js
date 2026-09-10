@@ -86,7 +86,7 @@ export async function POST() {
     ? prs.map((p) => `- ${p.exercise?.name || 'exercise'}: ${p.weight}x${p.reps} (est. 1RM ${p.estOneRepMax})`).join('\n')
     : 'None this week.'
 
-  const systemPrompt = `You are REPForge's weekly report writer. Respond with ONLY raw JSON, no markdown fences, in exactly this shape:
+  const systemPrompt = `You are TemprFit's weekly report writer. Respond with ONLY raw JSON, no markdown fences, in exactly this shape:
 {"summary": "2-3 sentence factual, encouraging recap of THIS week using only the data given", "recommendation": "1-2 sentence specific, actionable suggestion for next week based on this data"}
 Never invent numbers or exercises not in the data. Be honest — if the week was light, say so plainly rather than overselling it.`
 

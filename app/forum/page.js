@@ -1,53 +1,63 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, TrendingUp, Clock, MessageSquare, Flame } from 'lucide-react';
-import ForumPost from '@/components/ForumPost';
-import { forumPosts } from '@/lib/data';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
+import { MessageSquare, Video, Apple, Dumbbell, Bell } from 'lucide-react';
 import styles from './page.module.css';
 
-export default function Forum() {
-  const [activeTab, setActiveTab] = useState('trending');
-  const [showNewPost, setShowNewPost] = useState(false);
+const ICON_MAP = {
+  MessageSquare: <MessageSquare size={24} />,
+  Video: <Video size={24} />,
+  Apple: <Apple size={24} />,
+  Dumbbell: <Dumbbell size={24} />,
+  Bell: <Bell size={24} />
+};
+
+export default function ForumRooms() {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/forum/categories')
+      .then(res => res.json())
+      .then(data => setCategories(data.categories || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className={styles.page}>
-      <div className="container">
+      <Navbar />
+      <Sidebar />
+      <div className="container" style={{ marginLeft: '250px', width: 'calc(100% - 250px)' }}>
+        
         <div className={styles.header}>
-          <h1>Community <span className={styles.gradient}>Forum</span></h1>
-          <button className={styles.newPostBtn} onClick={() => setShowNewPost(!showNewPost)}>
-            <Plus size={18} /> New Post
-          </button>
+          <h1>Community <span className={styles.gradient}>Forums</span></h1>
+          <p style={{ color: 'var(--color-text-muted)' }}>Join the discussion, ask for form checks, and connect with trainers.</p>
         </div>
 
-        {showNewPost && (
-          <div className={styles.newPostForm}>
-            <input type="text" placeholder="Post title..." className={styles.titleInput} />
-            <textarea placeholder="Share your thoughts, ask questions, or celebrate wins..." className={styles.contentInput} rows={4} />
-            <div className={styles.formActions}>
-              <button className={styles.cancelBtn} onClick={() => setShowNewPost(false)}>Cancel</button>
-              <button className={styles.publishBtn}>Publish Post</button>
-            </div>
+        {loading ? (
+          <p style={{ textAlign: 'center' }}>Loading rooms...</p>
+        ) : (
+          <div className={styles.roomGrid}>
+            {categories.map(cat => (
+              <Link href={`/forum/category/${cat._id}`} key={cat._id} className={styles.roomCard}>
+                <div className={styles.roomHeader}>
+                  <div className={styles.iconWrapper}>
+                    {ICON_MAP[cat.icon] || <MessageSquare size={24} />}
+                  </div>
+                  <h2>{cat.name}</h2>
+                </div>
+                <p>{cat.description}</p>
+                <div className={styles.stats}>
+                  <MessageSquare size={16} /> {cat.threadCount} active {cat.threadCount === 1 ? 'discussion' : 'discussions'}
+                </div>
+              </Link>
+            ))}
           </div>
         )}
-
-        <div className={styles.tabs}>
-          <button className={`${styles.tab} ${activeTab === 'trending' ? styles.active : ''}`} onClick={() => setActiveTab('trending')}>
-            <Flame size={16} /> Trending
-          </button>
-          <button className={`${styles.tab} ${activeTab === 'latest' ? styles.active : ''}`} onClick={() => setActiveTab('latest')}>
-            <Clock size={16} /> Latest
-          </button>
-          <button className={`${styles.tab} ${activeTab === 'discussions' ? styles.active : ''}`} onClick={() => setActiveTab('discussions')}>
-            <MessageSquare size={16} /> Discussions
-          </button>
-        </div>
-
-        <div className={styles.posts}>
-          {forumPosts.map(post => (
-            <ForumPost key={post.id} post={post} />
-          ))}
-        </div>
       </div>
     </div>
   );

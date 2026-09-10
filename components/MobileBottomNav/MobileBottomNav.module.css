@@ -17,6 +17,11 @@
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border-top: 1px solid var(--nav-pill-border);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .hidden {
+    transform: translateY(100%);
   }
 }
 

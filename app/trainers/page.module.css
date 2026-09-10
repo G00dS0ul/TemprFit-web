@@ -1,178 +1,251 @@
 .page {
-  padding: 120px 0 80px;
+  padding-top: 72px;
   min-height: 100vh;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 40px;
+  padding: 60px 0 40px;
 }
 
 .header h1 {
   font-family: 'Orbitron', sans-serif;
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  color: #f0f0f0;
-  margin-bottom: 12px;
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--color-text);
+  margin-bottom: 16px;
 }
 
 .gradient {
-  background: linear-gradient(135deg, #22c55e, #06b6d4);
+  background: linear-gradient(135deg, #22c55e, #10b981);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .header p {
-  color: #a1a1a8;
-  font-size: 1rem;
+  font-size: 1.2rem;
+  color: var(--color-text-muted);
 }
 
 .searchBar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  padding: 12px 24px;
+  max-width: 800px;
+  margin: 0 auto 32px;
 }
 
 .searchIcon {
-  color: #63636b;
-  flex-shrink: 0;
+  color: var(--color-text-muted);
+  margin-right: 16px;
 }
 
 .searchBar input {
   flex: 1;
-  background: none;
+  background: transparent;
   border: none;
-  color: #f0f0f0;
-  font-size: 0.95rem;
+  color: var(--color-text);
+  font-size: 1.1rem;
   outline: none;
-}
-
-.searchBar input::placeholder {
-  color: #63636b;
 }
 
 .filterBtn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
   padding: 8px 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #a1a1a8;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
+  border-radius: 100px;
+  transition: background 0.2s;
 }
 
 .filterBtn:hover {
-  background: rgba(255,255,255,0.08);
-  color: #f0f0f0;
+  background: var(--color-surface);
 }
 
 .filters {
-  padding: 20px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px;
-  margin-bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  animation: slideUp 0.3s ease-out;
-}
-
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  max-width: 800px;
+  margin: 0 auto 40px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
 }
 
 .filterGroup label {
-  font-size: 0.85rem;
+  display: block;
   font-weight: 600;
-  color: #f0f0f0;
+  color: var(--color-text);
+  margin-bottom: 12px;
 }
 
 .filterTags {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .filterTag {
-  padding: 6px 14px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  color: #a1a1a8;
-  font-size: 0.8rem;
-  transition: all 0.2s ease;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .filterTag:hover {
-  background: rgba(34,197,94,0.1);
-  border-color: rgba(34,197,94,0.2);
-  color: #22c55e;
+  background: var(--color-border);
+}
+
+.activeTag {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #fff !important;
 }
 
 .trainerGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;
+  padding-bottom: 80px;
 }
 
-.trainerWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.trainerCard {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.escrowBtn {
-  width: 100%;
-  padding: 12px;
-  background: rgba(34,197,94,0.1);
-  border: 1px solid rgba(34,197,94,0.2);
-  color: #22c55e;
-  border-radius: 12px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+.trainerCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
-.escrowBtn:hover {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-  border-color: transparent;
-  transform: translateY(-2px);
-}
-
-.escrowOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(10px);
-  z-index: 2000;
+.featuredBadge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f59e0b;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 20px;
-  animation: fadeIn 0.3s ease-out;
+  gap: 4px;
+  z-index: 2;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
 }
 
-.escrowModal {
-  width: 100%;
-  max-width: 480px;
-  animation: scaleIn 0.3s ease-out;
+.cardTop {
+  padding: 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.info h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.25rem;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.specialty {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.location {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.cardBottom {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.amount {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.per {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.viewProfileBtn {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.viewProfileBtn:hover {
+  opacity: 0.9;
 }
 
 @media (max-width: 768px) {
-  .trainerGrid {
+  .header h1 {
+    font-size: 2.2rem;
+  }
+  .filters {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .searchBar {
+    flex-wrap: wrap;
+    border-radius: 20px;
+  }
+  .filterBtn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+    background: var(--color-surface);
   }
 }

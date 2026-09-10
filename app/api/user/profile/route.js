@@ -51,6 +51,29 @@ async function pickEditableFields(body, currentUserId) {
       update[`goals.${key}`] = value
     }
   }
+
+  // Trainer Info fields
+  if (body.trainerInfo && typeof body.trainerInfo === 'object') {
+    if (typeof body.trainerInfo.bio === 'string') {
+      update['trainerInfo.bio'] = body.trainerInfo.bio.trim()
+    }
+    if (Array.isArray(body.trainerInfo.specialties)) {
+      update['trainerInfo.specialties'] = body.trainerInfo.specialties.map(s => s.trim()).filter(Boolean)
+    }
+    if (typeof body.trainerInfo.price === 'number') {
+      update['trainerInfo.price'] = body.trainerInfo.price
+    }
+    if (typeof body.trainerInfo.location === 'string') {
+      update['trainerInfo.location'] = body.trainerInfo.location.trim()
+    }
+    if (typeof body.trainerInfo.trainingMode === 'string' && ['physical', 'remote', 'hybrid'].includes(body.trainerInfo.trainingMode)) {
+      update['trainerInfo.trainingMode'] = body.trainerInfo.trainingMode
+    }
+    if (Array.isArray(body.trainerInfo.mediaGallery)) {
+      update['trainerInfo.mediaGallery'] = body.trainerInfo.mediaGallery.filter(url => typeof url === 'string')
+    }
+  }
+
   return update
 }
 
@@ -87,4 +110,18 @@ export async function PATCH(request) {
   await user.save()
 
   return NextResponse.json({ user: user.toSafeObject() })
+}
+
+export async function DELETE() {
+  await connectDB()
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
+
+  // Optional: delete related records like WeightEntry, Notification, etc.
+  // For now, we will just delete the user document.
+  await User.findByIdAndDelete(user._id)
+
+  const response = NextResponse.json({ success: true })
+  response.cookies.delete('auth_token') // or AUTH_COOKIE_NAME if imported
+  return response
 }

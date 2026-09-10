@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
-// Rough, clearly-labeled estimate — REPForge doesn't have a wearable/HR
+// Rough, clearly-labeled estimate — TemprFit doesn't have a wearable/HR
 // integration yet, so calories are derived from logged duration only.
 // ~6.5 kcal/min is a reasonable average for a mixed resistance session.
 const KCAL_PER_MINUTE_ESTIMATE = 6.5
@@ -88,7 +88,7 @@ export async function GET() {
     workoutSecondsThisWeek: totalDurationSecondsThisWeek,
     workoutSecondsAllTime: totalDurationSecondsAllTime,
     caloriesThisWeek,
-    caloriesEstimateNote: 'Estimated from workout duration — REPForge has no heart-rate data yet.',
+    caloriesEstimateNote: 'Estimated from workout duration — TemprFit has no heart-rate data yet.',
     weeklyVolume,
     strengthTrend,
     targetExercise: targetExercise ? { name: targetExercise.name, slug: targetExercise.slug } : null,
