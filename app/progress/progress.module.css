@@ -1,0 +1,259 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 72px;
+}
+
+.content {
+  flex: 1;
+  margin-left: 260px;
+  padding: 32px 0 60px;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    margin-left: 0;
+  }
+}
+
+.header {
+  margin-bottom: 28px;
+}
+
+.header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f0f0f0;
+  margin-bottom: 4px;
+}
+
+.header p {
+  color: #a1a1a8;
+  font-size: 0.95rem;
+}
+
+.reportCard {
+  background: rgba(168, 85, 247, 0.05);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 28px;
+}
+
+.reportHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.reportTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reportTitle h3 {
+  color: #f0f0f0;
+  font-size: 1rem;
+}
+
+.reportBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: #a855f7;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.reportBtn:disabled {
+  opacity: 0.6;
+}
+
+.spin {
+  animation: reportSpin 0.9s linear infinite;
+}
+
+@keyframes reportSpin {
+  to { transform: rotate(360deg); }
+}
+
+.reportSummary {
+  color: #d1d1d6;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.reportRecommendation {
+  color: #d1d1d6;
+  font-size: 0.87rem;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+}
+
+.reportRecommendation strong {
+  color: #a855f7;
+}
+
+.reportEmpty {
+  color: #a1a1a8;
+  font-size: 0.87rem;
+}
+
+.reportError {
+  color: #f87171;
+  font-size: 0.83rem;
+  margin-bottom: 8px;
+}
+
+.empty {
+  padding: 60px 24px;
+  text-align: center;
+  color: #a1a1a8;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.empty svg {
+  color: #22c55e;
+}
+
+.primaryBtn {
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+
+.statValue {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #f0f0f0;
+}
+
+.statLabel {
+  display: block;
+  font-size: 0.78rem;
+  color: #a1a1a8;
+}
+
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+  .chartsRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.strengthSection {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.strengthHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.strengthHeader h3 {
+  color: #f0f0f0;
+  font-size: 1.05rem;
+}
+
+.select {
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #f0f0f0;
+  font-size: 0.85rem;
+}
+
+.noData {
+  color: #a1a1a8;
+  font-size: 0.9rem;
+  padding: 20px 0;
+}
+
+.prTable {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.prTableHeader,
+.prTableRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+
+.prTableHeader {
+  color: #63636b;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.prTableRow {
+  color: #d1d1d6;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.prValue {
+  color: #22c55e;
+  font-weight: 700;
+}

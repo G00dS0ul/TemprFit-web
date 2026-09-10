@@ -1,0 +1,88 @@
+.page {
+  padding: 120px 0 80px;
+  min-height: 80vh;
+}
+
+.loading,
+.error {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 80px 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.meta {
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+}
+
+.startBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.startBtn:disabled {
+  opacity: 0.6;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exerciseRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.exerciseName {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.exerciseName:hover {
+  color: var(--color-primary);
+}
+
+.setsSummary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.restNote {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

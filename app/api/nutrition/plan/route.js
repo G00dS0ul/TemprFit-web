@@ -1,0 +1,73 @@
+import { NextResponse } from 'next/server'
+import { connectDB } from '@/lib/db'
+import { getSessionUser } from '@/lib/auth'
+import NutritionProfile from '@/models/NutritionProfile'
+import MealPlan from '@/models/MealPlan'
+import { askGemini, GeminiConfigError, GeminiRequestError } from '@/lib/gemini'
+import { buildNutritionContext, NUTRITION_SYSTEM_PROMPT_HEADER } from '@/lib/nutrition-context'
+
+export const dynamic = 'force-dynamic'
+
+export async function GET() {
+  await connectDB()
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
+
+  const plan = await MealPlan.findOne({ user: user._id, active: true }).sort({ createdAt: -1 }).lean()
+  return NextResponse.json({ plan: plan || null })
+}
+
+function extractJson(text) {
+  // Gemini is instructed to return raw JSON, but strip markdown fences
+  // defensively in case it wraps the response anyway.
+  const cleaned = text.replace(/```json|```/g, '').trim()
+  return JSON.parse(cleaned)
+}
+
+export async function POST() {
+  await connectDB()
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
+
+  const profile = await NutritionProfile.findOne({ user: user._id }).lean()
+  const contextBlock = await buildNutritionContext(user, profile)
+  const systemPrompt = `${NUTRITION_SYSTEM_PROMPT_HEADER}\n\nREAL USER DATA:\n${contextBlock}`
+
+  let reply
+  try {
+    reply = await askGemini({
+      systemPrompt,
+      history: [],
+      userMessage: 'Generate my 7-day meal plan now, following the JSON format exactly.',
+    })
+  } catch (err) {
+    const status = err instanceof GeminiConfigError ? 500 : err instanceof GeminiRequestError ? 502 : 500
+    return NextResponse.json({ error: err.message || 'The AI nutrition planner ran into an error.' }, { status })
+  }
+
+  let parsed
+  try {
+    parsed = extractJson(reply)
+  } catch {
+    // The safety instruction in NUTRITION_SYSTEM_PROMPT_HEADER tells the
+    // model to break format and reply in plain text if something about the
+    // request looks like it's steering toward disordered eating. Surface
+    // that message rather than treating it as a parse failure.
+    return NextResponse.json({ advisory: reply })
+  }
+
+  if (!Array.isArray(parsed.days) || parsed.days.length === 0) {
+    return NextResponse.json({ error: 'The AI planner returned an unexpected format. Try again.' }, { status: 502 })
+  }
+
+  await MealPlan.updateMany({ user: user._id, active: true }, { $set: { active: false } })
+  const plan = await MealPlan.create({
+    user: user._id,
+    days: parsed.days,
+    shoppingList: Array.isArray(parsed.shoppingList) ? parsed.shoppingList : [],
+    generatedFrom: contextBlock,
+    active: true,
+  })
+
+  return NextResponse.json({ plan }, { status: 201 })
+}

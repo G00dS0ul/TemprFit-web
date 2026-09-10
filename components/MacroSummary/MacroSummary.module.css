@@ -1,0 +1,58 @@
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  color: #f0f0f0;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.rowLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #a1a1a8;
+}
+
+.rowValue {
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.target {
+  font-weight: 400;
+  color: #63636b;
+}
+
+.bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}

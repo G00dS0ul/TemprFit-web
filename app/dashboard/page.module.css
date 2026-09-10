@@ -1,0 +1,215 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 72px;
+}
+
+.content {
+  flex: 1;
+  margin-left: 260px;
+  padding: 32px 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f0f0f0;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #a1a1a8;
+  font-size: 0.95rem;
+}
+
+.aiBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #a855f7, #06b6d4);
+  color: white;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.aiBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+.quickStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.qsCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.qsCard:hover {
+  border-color: rgba(34, 197, 94, 0.2);
+  transform: translateY(-2px);
+}
+
+.qsIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.qsValue {
+  display: block;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #f0f0f0;
+}
+
+.qsLabel {
+  font-size: 0.8rem;
+  color: #63636b;
+}
+
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.trackerSection {
+  margin-bottom: 32px;
+}
+
+.goalsSection {
+  margin-bottom: 32px;
+}
+
+.emptyBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  background: rgba(34, 197, 94, 0.06);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 14px;
+  color: #a1a1a8;
+  font-size: 0.9rem;
+}
+
+.sectionTitle {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  color: #f0f0f0;
+  margin-bottom: 20px;
+}
+
+.goalsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.goalCard {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goalHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #f0f0f0;
+  font-size: 0.9rem;
+}
+
+.goalProgress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.goalBar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.goalFill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #06b6d4);
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+.goalPercent {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #22c55e;
+  min-width: 40px;
+  text-align: right;
+}
+
+.goalTarget {
+  font-size: 0.8rem;
+  color: #63636b;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    margin-left: 0;
+  }
+  .quickStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .chartsRow {
+    grid-template-columns: 1fr;
+  }
+  .goalsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .quickStats {
+    grid-template-columns: 1fr;
+  }
+}

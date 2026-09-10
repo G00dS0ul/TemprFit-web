@@ -1,0 +1,100 @@
+.post {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.post:hover {
+  border-color: rgba(34, 197, 94, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 2px solid rgba(34, 197, 94, 0.2);
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.author {
+  font-weight: 600;
+  color: #f0f0f0;
+  font-size: 0.9rem;
+}
+
+.time {
+  font-size: 0.75rem;
+  color: #63636b;
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f0f0f0;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.content {
+  font-size: 0.9rem;
+  color: #a1a1a8;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.tag {
+  padding: 4px 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  color: #a1a1a8;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}

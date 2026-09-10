@@ -1,0 +1,31 @@
+{
+  "name": "repforge-gym",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node scripts/seed-exercises.mjs"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^0.10.14",
+    "bcryptjs": "^3.0.3",
+    "chart.js": "^4.4.3",
+    "cloudinary": "^2.11.0",
+    "framer-motion": "^11.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.400.0",
+    "mongoose": "^9.9.4",
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.5"
+  }
+}

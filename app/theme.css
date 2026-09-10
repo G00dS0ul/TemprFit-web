@@ -1,0 +1,117 @@
+/* ==========================================================================
+   REPForge semantic theme tokens.
+   Same variable names in both themes so components never branch on theme —
+   they just read var(--color-*). Toggling [data-theme] on <html> is enough.
+   ========================================================================== */
+
+:root,
+[data-theme='dark'] {
+  /* Brand */
+  --color-primary: #22c55e;
+  --color-primary-hover: #16a34a;
+  --color-primary-soft: rgba(34, 197, 94, 0.14);
+
+  /* Surfaces */
+  --color-bg: #0b0c0e;
+  --color-surface: #131417;
+  --color-surface-elevated: #1a1c20;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Text */
+  --color-text: #f4f5f6;
+  --color-text-muted: #9aa0a8;
+
+  /* Feedback */
+  --color-success: #22c55e;
+  --color-warning: #f5a524;
+  --color-danger: #f43f5e;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55);
+
+  /* Shape */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+
+  /* Nav / overlay glass */
+  --glass-bg: rgba(11, 12, 14, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Floating pill navbar — dark mode aesthetic per spec */
+  --nav-pill-bg: rgba(15, 23, 42, 0.75);
+  --nav-pill-border: rgba(255, 255, 255, 0.1);
+
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --color-primary: #16a34a;
+  --color-primary-hover: #0f8a3c;
+  --color-primary-soft: rgba(22, 163, 74, 0.1);
+
+  --color-bg: #f9faf9;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-border: #e6e9e6;
+  --color-border-strong: #d5d9d5;
+
+  --color-text: #12161a;
+  --color-text-muted: #5b6570;
+
+  --color-success: #16a34a;
+  --color-warning: #b7791f;
+  --color-danger: #e11d48;
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 20, 0.06);
+  --shadow-md: 0 8px 24px rgba(16, 24, 20, 0.08);
+  --shadow-lg: 0 20px 48px rgba(16, 24, 20, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(18, 22, 26, 0.06);
+
+  /* Floating pill navbar — light equivalent of the dark glass treatment */
+  --nav-pill-bg: rgba(255, 255, 255, 0.78);
+  --nav-pill-border: rgba(18, 22, 26, 0.08);
+
+  color-scheme: light;
+}
+
+/* --------------------------------------------------------------------------
+   Legacy aliases so the untouched Phase-1 prototype components/pages
+   (dashboard, trainers, forum, pricing, admin, etc. — still on their old
+   hardcoded palette) keep rendering coherently and pick up light/dark
+   instead of breaking when the old neon variables disappear.
+   These are a bridge, not the design system — new components should use
+   the semantic tokens above directly. Remove as each page gets rebuilt.
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme] {
+  --forge-green: var(--color-primary);
+  --forge-dark: var(--color-bg);
+  --forge-mid: var(--color-primary-hover);
+  --forge-light: var(--color-primary);
+  --obsidian: var(--color-bg);
+  --obsidian-light: var(--color-surface);
+  --obsidian-mid: var(--color-surface-elevated);
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-muted);
+  --accent-orange: var(--color-warning);
+  --accent-cyan: var(--color-primary);
+  --accent-purple: var(--color-primary);
+  --accent-rose: var(--color-danger);
+  --gradient-hero: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
+  --shadow-glow: 0 0 30px var(--color-primary-soft);
+}
+
+/* Avoid a theme "flash" between paint and hydration */
+html {
+  background: var(--color-bg);
+}

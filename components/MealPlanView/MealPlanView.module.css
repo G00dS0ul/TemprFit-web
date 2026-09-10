@@ -1,0 +1,115 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.day {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.dayHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  font-weight: 700;
+  color: #f0f0f0;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+}
+
+.dayCalories {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #f97316;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.meals {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 18px 18px;
+}
+
+.meal {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.mealTop {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.mealType {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.mealCalories {
+  font-size: 0.75rem;
+  color: #a1a1a8;
+}
+
+.mealName {
+  color: #f0f0f0;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.mealDesc {
+  color: #a1a1a8;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+}
+
+.mealMacros {
+  display: flex;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: #63636b;
+}
+
+.shoppingList {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.shoppingTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #f0f0f0;
+  margin-bottom: 10px;
+}
+
+.shoppingList ul {
+  list-style: disc;
+  padding-left: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 6px;
+  color: #a1a1a8;
+  font-size: 0.85rem;
+}

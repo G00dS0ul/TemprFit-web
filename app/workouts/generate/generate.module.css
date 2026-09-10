@@ -1,0 +1,234 @@
+.page {
+  padding: 120px 0 80px;
+  min-height: 90vh;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--color-primary);
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.83rem;
+  text-transform: capitalize;
+}
+
+.chipActive {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.generateBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.generateBtn:disabled {
+  opacity: 0.6;
+}
+
+.error {
+  color: var(--color-danger);
+  margin-bottom: 16px;
+}
+
+.textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+}
+
+.textarea:focus {
+  border-color: var(--color-primary);
+}
+
+.aiNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: var(--radius-md);
+}
+
+.fallbackNote {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 14px;
+}
+
+.result {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+}
+
+.result h2 {
+  color: var(--color-text);
+  margin-bottom: 16px;
+  text-transform: capitalize;
+}
+
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.2);
+  margin-bottom: 22px;
+}
+
+.exerciseTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.exerciseTable th,
+.exerciseTable td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.exerciseTable th {
+  background: var(--color-surface-elevated);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.exerciseTable tr:last-child td {
+  border-bottom: none;
+}
+
+.exerciseLink {
+  color: var(--color-text);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.exerciseLink:hover {
+  color: var(--color-primary);
+}
+
+.setHighlight {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.saveBtn {
+  padding: 13px 28px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+}
+
+.savePrompt {
+  background: rgba(34, 197, 94, 0.05);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.savePrompt p {
+  color: var(--color-text);
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.promptActions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.discardBtn {
+  padding: 13px 28px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.discardBtn:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.discardBtn:disabled {
+  opacity: 0.6;
+}

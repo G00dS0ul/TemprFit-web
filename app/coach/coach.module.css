@@ -1,0 +1,258 @@
+.page {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 100px;
+}
+
+.card {
+  max-width: 440px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 40px 32px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.card svg {
+  color: var(--color-primary);
+  margin-bottom: 16px;
+}
+
+.card h1 {
+  color: var(--color-text);
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  text-transform: capitalize;
+}
+
+/* --- Real chat UI below --- */
+
+.chatPage {
+  min-height: 90vh;
+  padding: 100px 0 60px;
+}
+
+.formCheckLink {
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.chatHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.aiAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.chatHeader h1 {
+  color: var(--color-text);
+  font-size: 1.4rem;
+}
+
+.chatHeader p {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.chatWindow {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  height: 60vh;
+  min-height: 420px;
+  overflow: hidden;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+  color: var(--color-primary);
+}
+
+.spin {
+  animation: coachSpin 0.8s linear infinite;
+}
+
+@keyframes coachSpin {
+  to { transform: rotate(360deg); }
+}
+
+.empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 20px 10px;
+}
+
+.starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.starterBtn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.8rem;
+}
+
+.starterBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.message {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.message.user {
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text);
+}
+
+.message.assistant .avatar {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.bubble {
+  max-width: 88%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  overflow-wrap: break-word;
+}
+
+.message.assistant .bubble {
+  background: rgba(34, 197, 94, 0.05);
+  border-color: rgba(34, 197, 94, 0.15);
+}
+
+.message.user .bubble {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #fff;
+  white-space: pre-wrap;
+}
+
+.typing {
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px;
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 14px;
+}
+
+.typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: coachTypingBounce 1s infinite ease-in-out;
+}
+
+.typing span:nth-child(2) { animation-delay: 0.15s; }
+.typing span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes coachTypingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.errorText {
+  padding: 8px 20px;
+  color: #f87171;
+  font-size: 0.8rem;
+}
+
+.inputArea {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.inputArea input {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.inputArea input:focus {
+  border-color: #22c55e;
+}
+
+.sendBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sendBtn:disabled {
+  opacity: 0.5;
+}

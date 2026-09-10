@@ -1,0 +1,125 @@
+.richContainer {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.paragraph {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.bold {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 6px 0 2px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 4px;
+}
+
+.h3 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 4px 0 2px;
+}
+
+.h4 {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 2px 0 1px;
+}
+
+.bulletList,
+.numList {
+  margin: 2px 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bulletList li,
+.numList li {
+  line-height: 1.55;
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 10px 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.table th,
+.table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+  background: var(--color-surface-elevated);
+  color: var(--color-primary);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.inlineCode {
+  background: var(--color-surface-elevated);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: var(--color-primary);
+}
+
+.codeBlock {
+  background: #09090b;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: #22c55e;
+  position: relative;
+  margin: 6px 0;
+}
+
+.codeLang {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}

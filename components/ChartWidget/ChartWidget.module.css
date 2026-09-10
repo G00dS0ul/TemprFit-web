@@ -1,0 +1,24 @@
+.widget {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.widget:hover {
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #f0f0f0;
+  margin-bottom: 16px;
+}
+
+.canvas {
+  width: 100%;
+  height: 200px;
+}

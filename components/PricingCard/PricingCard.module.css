@@ -1,0 +1,118 @@
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 32px;
+  transition: all 0.4s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(34, 197, 94, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.popular {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.05), rgba(255, 255, 255, 0.03));
+}
+
+.badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.header {
+  text-align: center;
+}
+
+.name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin-bottom: 12px;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+
+.priceValue {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #f0f0f0;
+}
+
+.pricePeriod {
+  font-size: 0.9rem;
+  color: #63636b;
+}
+
+.features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #a1a1a8;
+}
+
+.check {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.cta {
+  width: 100%;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f0f0f0;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.cta:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ctaPopular {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+}
+
+.ctaPopular:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}

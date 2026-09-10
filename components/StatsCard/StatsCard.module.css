@@ -1,0 +1,69 @@
+.card {
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  animation: slideUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.card:hover {
+  border-color: rgba(34, 197, 94, 0.2);
+  transform: translateY(-4px);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #a1a1a8;
+  font-weight: 500;
+}
+
+.change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.positive {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.negative {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f0f0f0;
+  margin-bottom: 16px;
+}
+
+.bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #06b6d4);
+  border-radius: 2px;
+  transition: width 1s ease;
+}
