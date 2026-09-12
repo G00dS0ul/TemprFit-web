@@ -9,17 +9,24 @@ export async function POST(req) {
   if (!user) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
 
   try {
-    const { targetUserId } = await req.json();
-    if (!targetUserId) return NextResponse.json({ error: 'Target user required' }, { status: 400 });
+    const { targetUserId, targetUserIds } = await req.json();
+    
+    // Support either a single ID or an array of IDs
+    const otherParticipants = targetUserIds || (targetUserId ? [targetUserId] : []);
+    if (otherParticipants.length === 0) {
+      return NextResponse.json({ error: 'Target user(s) required' }, { status: 400 });
+    }
 
-    // Check if conversation already exists
+    const allParticipants = [user._id, ...otherParticipants];
+
+    // Check if a conversation with EXACTLY these participants already exists
     let conversation = await Conversation.findOne({
-      participants: { $all: [user._id, targetUserId] }
+      participants: { $all: allParticipants, $size: allParticipants.length }
     });
 
     if (!conversation) {
       conversation = await Conversation.create({
-        participants: [user._id, targetUserId]
+        participants: allParticipants
       });
     }
 

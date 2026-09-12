@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Search, Sparkles, Settings2, Loader2, X, Trash2 } from 'lucide-react';
 import FoodCard from '@/components/FoodCard';
 import MacroSummary from '@/components/MacroSummary';
@@ -177,6 +177,7 @@ function PlanTab({ profile }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
   const [advisory, setAdvisory] = useState('');
+  const planRef = useRef(null);
 
   useEffect(() => {
     fetch('/api/nutrition/plan')
@@ -185,6 +186,12 @@ function PlanTab({ profile }) {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (plan && !loading && !generating && planRef.current) {
+      planRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [plan, loading, generating]);
 
   const generate = async () => {
     setGenerating(true);
@@ -221,7 +228,9 @@ function PlanTab({ profile }) {
       {error && <p className={styles.error}>{error}</p>}
       {advisory && <p className={styles.advisory}>{advisory}</p>}
       {loading && <p className={styles.muted}>Loading…</p>}
-      {!loading && plan && <MealPlanView plan={plan} />}
+      <div ref={planRef}>
+        {!loading && plan && <MealPlanView plan={plan} />}
+      </div>
     </div>
   );
 }
@@ -238,6 +247,9 @@ function ProfileTab({ profile, setProfile }) {
     setForm({
       dietaryPattern: profile?.dietaryPattern || 'none',
       goal: profile?.goal || 'maintain',
+      location: profile?.location || '',
+      age: profile?.age || '',
+      budget: profile?.budget || '',
       allergies: profile?.allergies || [],
       exclusions: profile?.exclusions || [],
       pantry: profile?.pantry || [],
@@ -295,6 +307,27 @@ function ProfileTab({ profile, setProfile }) {
         <select value={form.goal} onChange={(e) => setForm({ ...form, goal: e.target.value })}>
           {GOALS.map((g) => <option key={g} value={g}>{g.replace('_', ' ')}</option>)}
         </select>
+      </div>
+
+      <div className={styles.formRow}>
+        <label>Location (for local ingredients)</label>
+        <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="e.g. New York, USA" />
+      </div>
+      
+      <div className={styles.targetsGrid}>
+        <div className={styles.formRow}>
+          <label>Age</label>
+          <input type="number" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} placeholder="e.g. 30" />
+        </div>
+        <div className={styles.formRow}>
+          <label>Budget</label>
+          <select value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })}>
+            <option value="">Any</option>
+            <option value="low">Budget-friendly</option>
+            <option value="medium">Moderate</option>
+            <option value="high">Premium</option>
+          </select>
+        </div>
       </div>
 
       <div className={styles.formRow}>

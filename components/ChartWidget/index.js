@@ -30,7 +30,9 @@ export default function ChartWidget({ data, type = 'line', title, color = '#22c5
     ctx.clearRect(0, 0, w, h);
 
     // Grid lines
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    const computedStyle = getComputedStyle(document.body);
+    const gridColor = computedStyle.getPropertyValue('--color-border').trim() || 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = gridColor;
     ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i++) {
       const y = padding + (chartH / 4) * i;
@@ -77,7 +79,7 @@ export default function ChartWidget({ data, type = 'line', title, color = '#22c5
         const y = padding + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
         ctx.beginPath();
         ctx.arc(x, y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#0f0f11';
+        ctx.fillStyle = computedStyle.getPropertyValue('--color-surface').trim() || '#0f0f11';
         ctx.fill();
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;

@@ -18,7 +18,7 @@
   justify-content: space-between;
   padding: 16px 18px;
   font-weight: 700;
-  color: #f0f0f0;
+  color: var(--color-text);
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9rem;
 }
@@ -66,17 +66,17 @@
 
 .mealCalories {
   font-size: 0.75rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
 }
 
 .mealName {
-  color: #f0f0f0;
+  color: var(--color-text);
   font-size: 0.95rem;
   margin-bottom: 4px;
 }
 
 .mealDesc {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.82rem;
   margin-bottom: 8px;
 }
@@ -100,7 +100,7 @@
   align-items: center;
   gap: 8px;
   font-size: 0.9rem;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 10px;
 }
 
@@ -110,6 +110,25 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 6px;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
+
+.saveToNotesBtn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saveToNotesBtn:hover {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.2);
+} 

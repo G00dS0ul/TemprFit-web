@@ -22,6 +22,18 @@ body {
   transition: background 0.25s ease, color 0.25s ease;
 }
 
+main {
+  padding-top: 100px;
+  min-height: calc(100vh - 100px);
+}
+
+@media (max-width: 900px) {
+  main {
+    padding-top: 24px;
+    min-height: calc(100vh - 24px);
+  }
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
   font-weight: 700;
@@ -59,6 +71,35 @@ img {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
+}
+
+/* Global Input & Form Styles */
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1; /* Firefox applies lower opacity by default */
+}
+
+input, textarea, select {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px var(--color-primary-soft) !important;
+  outline: none;
+}
+
+/* Ensure options dropdown in select menus match the theme */
+select option {
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 8px;
 }
 
 @keyframes fadeIn {

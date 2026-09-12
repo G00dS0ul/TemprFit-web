@@ -1,26 +1,109 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, Trash2, Pin, Mic } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Trash2, Pin, Mic, Download, Share, Send } from 'lucide-react';
+import { get, set } from 'idb-keyval';
 import styles from './page.module.css';
 
 export default function Notes() {
-  const [notes, setNotes] = useState([
-    { id: 1, title: 'Leg Day PRs', content: 'Squat: 315x5, Leg Press: 800x8, RDL: 225x10', pinned: true, date: '2024-08-15' },
-    { id: 2, title: 'Shoulder Routine', content: 'OHP: 185x3, Lateral raises: 30x15, Face pulls: 4x15', pinned: false, date: '2024-08-14' },
-    { id: 3, title: 'Meal Prep Ideas', content: 'Chicken + rice + broccoli, Steak + sweet potato, Salmon + quinoa', pinned: false, date: '2024-08-13' },
-  ]);
+  const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState({ title: '', content: '' });
   const [showForm, setShowForm] = useState(false);
 
-  const addNote = () => {
-    if (!newNote.title) return;
-    setNotes([{ id: Date.now(), ...newNote, pinned: false, date: new Date().toISOString().slice(0,10) }, ...notes]);
-    setNewNote({ title: '', content: '' });
-    setShowForm(false);
+  useEffect(() => {
+    const loadNotes = async () => {
+      try {
+        if (navigator.onLine) {
+          await syncOfflineNotes();
+          const res = await fetch('/api/notes');
+          const data = await res.json();
+          if (data.notes) {
+            const formatted = data.notes.map(n => ({...n, id: n._id, date: new Date(n.createdAt).toISOString().slice(0, 10)}));
+            setNotes(formatted);
+            await set('cached_notes', formatted);
+          }
+        } else {
+          const cached = await get('cached_notes');
+          if (cached) setNotes(cached);
+        }
+      } catch (e) {
+        const cached = await get('cached_notes');
+        if (cached) setNotes(cached);
+      }
+    };
+    loadNotes();
+
+    window.addEventListener('online', loadNotes);
+    return () => window.removeEventListener('online', loadNotes);
+  }, []);
+
+  const syncOfflineNotes = async () => {
+    const queue = await get('offline_notes_queue') || [];
+    if (queue.length === 0) return;
+    
+    for (const note of queue) {
+      if (note.action === 'POST') {
+        await fetch('/api/notes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(note.data),
+        }).catch(() => {});
+      } else if (note.action === 'DELETE') {
+        await fetch(`/api/notes?id=${note.id}`, { method: 'DELETE' }).catch(() => {});
+      }
+    }
+    await set('offline_notes_queue', []);
   };
 
-  const deleteNote = (id) => setNotes(notes.filter(n => n.id !== id));
+  const addNote = async () => {
+    if (!newNote.title) return;
+    
+    if (!navigator.onLine) {
+      const tempNote = { ...newNote, _id: 'temp_' + Date.now(), createdAt: new Date().toISOString() };
+      const formatted = {...tempNote, id: tempNote._id, date: tempNote.createdAt.slice(0, 10)};
+      setNotes([formatted, ...notes]);
+      
+      const queue = await get('offline_notes_queue') || [];
+      queue.push({ action: 'POST', data: newNote });
+      await set('offline_notes_queue', queue);
+      await set('cached_notes', [formatted, ...notes]);
+      
+      setNewNote({ title: '', content: '' });
+      setShowForm(false);
+      return;
+    }
+
+    const res = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newNote),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const n = data.note;
+      setNotes([{...n, id: n._id, date: new Date(n.createdAt).toISOString().slice(0, 10)}, ...notes]);
+      setNewNote({ title: '', content: '' });
+      setShowForm(false);
+    }
+  };
+
+  const deleteNote = async (id) => {
+    if (!navigator.onLine) {
+      const filtered = notes.filter(n => n.id !== id);
+      setNotes(filtered);
+      const queue = await get('offline_notes_queue') || [];
+      queue.push({ action: 'DELETE', id });
+      await set('offline_notes_queue', queue);
+      await set('cached_notes', filtered);
+      return;
+    }
+
+    const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      setNotes(notes.filter(n => n.id !== id));
+    }
+  };
+
   const togglePin = (id) => setNotes(notes.map(n => n.id === id ? {...n, pinned: !n.pinned} : n));
 
   const sorted = [...notes].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
@@ -65,10 +148,48 @@ export default function Notes() {
               <div className={styles.noteHeader}>
                 <h3>{note.title}</h3>
                 <div className={styles.noteActions}>
-                  <button onClick={() => togglePin(note.id)} className={note.pinned ? styles.pinnedBtn : ''}>
+                  <button onClick={() => togglePin(note.id)} className={note.pinned ? styles.pinnedBtn : ''} title="Pin">
                     <Pin size={14} />
                   </button>
-                  <button onClick={() => deleteNote(note.id)} className={styles.deleteBtn}>
+                  <button onClick={() => {
+                    const blob = new Blob([note.content], { type: 'text/markdown' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${note.title}.md`;
+                    a.click();
+                  }} title="Download">
+                    <Download size={14} />
+                  </button>
+                  <button onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({ title: note.title, text: note.content });
+                    } else {
+                      navigator.clipboard.writeText(note.content);
+                      alert('Copied to clipboard');
+                    }
+                  }} title="Share">
+                    <Share size={14} />
+                  </button>
+                  <button onClick={async () => {
+                     try {
+                       const res = await fetch('/api/moments', {
+                         method: 'POST',
+                         headers: { 'Content-Type': 'application/json' },
+                         body: JSON.stringify({ caption: `**${note.title}**\n\n${note.content}`, mediaUrl: '' })
+                       });
+                       if (res.ok) {
+                         alert('Note shared to Moments successfully!');
+                       } else {
+                         alert('Failed to share to Moments.');
+                       }
+                     } catch (e) {
+                       alert('Error sharing to Moments.');
+                     }
+                  }} title="Share to Moments">
+                    <Send size={14} />
+                  </button>
+                  <button onClick={() => deleteNote(note.id)} className={styles.deleteBtn} title="Delete">
                     <Trash2 size={14} />
                   </button>
                 </div>

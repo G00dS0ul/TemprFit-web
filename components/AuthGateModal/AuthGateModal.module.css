@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted, #a1a1a8);
+  color: var(--color-text-muted, var(--color-text-muted));
 }
 
 .closeBtn:hover {
@@ -45,7 +45,7 @@
 }
 
 .modal p {
-  color: var(--color-text-muted, #a1a1a8);
+  color: var(--color-text-muted, var(--color-text-muted));
   font-size: 0.88rem;
   margin-bottom: 20px;
   line-height: 1.4;
@@ -60,7 +60,7 @@
   padding: 12px;
   border-radius: 999px;
   background: #22c55e;
-  color: #fff;
+  color: var(--color-text);
   font-weight: 700;
   font-size: 0.9rem;
   margin-bottom: 14px;
@@ -68,7 +68,7 @@
 
 .secondaryLink {
   display: block;
-  color: var(--color-text-muted, #a1a1a8);
+  color: var(--color-text-muted, var(--color-text-muted));
   font-size: 0.8rem;
 }
 

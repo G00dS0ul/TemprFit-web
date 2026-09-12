@@ -79,13 +79,36 @@ export default function BecomeTrainer() {
             <div className={styles.formStep}>
               <h3>Pricing & Availability</h3>
               <div className={styles.formGrid}>
-                <input type="number" placeholder="Session Price ($)" />
-                <input type="number" placeholder="Sessions per Week" />
+                <input type="number" placeholder="Session Price ($)" id="trainer-price" defaultValue={50} />
+                <input type="number" placeholder="Sessions per Week" id="trainer-sessions" defaultValue={10} />
               </div>
               <div className={styles.terms}>
-                <label><input type="checkbox" /> I agree to the Trainer Terms & Escrow Policy</label>
+                <label><input type="checkbox" id="trainer-terms" /> I agree to the Trainer Terms & Escrow Policy</label>
               </div>
-              <button className={styles.submitBtn} onClick={() => setStep(4)}>Submit Application</button>
+              <button className={styles.submitBtn} onClick={async () => {
+                const terms = document.getElementById('trainer-terms').checked;
+                if (!terms) {
+                  alert('Please agree to the terms.');
+                  return;
+                }
+                const price = Number(document.getElementById('trainer-price').value);
+                const sessions = Number(document.getElementById('trainer-sessions').value);
+                
+                try {
+                  const res = await fetch('/api/user/become-trainer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pricePerSession: price, sessionsPerWeek: sessions, specialties: ['General Fitness'] })
+                  });
+                  if (res.ok) {
+                    setStep(4);
+                  } else {
+                    alert('Failed to submit application. Please try again.');
+                  }
+                } catch (e) {
+                  alert('Error submitting application.');
+                }
+              }}>Submit Application</button>
             </div>
           )}
 
@@ -93,7 +116,10 @@ export default function BecomeTrainer() {
             <div className={styles.success}>
               <div className={styles.successIcon}><Check size={32} /></div>
               <h3>Application Submitted!</h3>
-              <p>We will review your application within 48 hours. Check your email for updates.</p>
+              <p>Welcome to the team. You are now officially a Trainer!</p>
+              <button className={styles.nextBtn} onClick={() => window.location.href = '/trainer-dashboard'} style={{ marginTop: '24px' }}>
+                Go to Trainer Dashboard
+              </button>
             </div>
           )}
         </div>

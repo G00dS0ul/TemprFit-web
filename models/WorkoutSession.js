@@ -6,6 +6,7 @@ const LoggedSetSchema = new mongoose.Schema(
     targetReps: { type: String, default: '' },
     reps: { type: Number, default: null },
     weight: { type: Number, default: 0 },
+    restSeconds: { type: Number, default: 60 },
     completed: { type: Boolean, default: false },
     isPR: { type: Boolean, default: false },
     restSecondsActual: { type: Number, default: null },

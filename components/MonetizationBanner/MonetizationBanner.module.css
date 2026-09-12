@@ -30,20 +30,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--color-text);
   flex-shrink: 0;
 }
 
 .content h3 {
   font-family: 'Orbitron', sans-serif;
   font-size: 1rem;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 4px;
 }
 
 .content p {
   font-size: 0.85rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
 }
 
 .cta {
@@ -52,7 +52,7 @@
   gap: 8px;
   padding: 10px 20px;
   background: linear-gradient(135deg, #f97316, #a855f7);
-  color: white;
+  color: var(--color-text);
   border-radius: 10px;
   font-weight: 600;
   font-size: 0.9rem;

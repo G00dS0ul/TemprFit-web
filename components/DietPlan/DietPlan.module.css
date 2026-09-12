@@ -36,7 +36,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 4px;
 }
 
@@ -84,7 +84,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1.6rem;
   font-weight: 800;
-  color: #f0f0f0;
+  color: var(--color-text);
 }
 
 .calLabel {
@@ -98,7 +98,7 @@
 
 .mealsLabel {
   font-size: 0.85rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   padding: 8px 16px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
@@ -122,7 +122,7 @@
 .macroValue {
   display: block;
   font-weight: 700;
-  color: #f0f0f0;
+  color: var(--color-text);
   font-size: 0.95rem;
 }
 
@@ -135,7 +135,7 @@
   width: 100%;
   padding: 14px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
+  color: var(--color-text);
   border-radius: 12px;
   font-weight: 600;
   font-size: 0.95rem;

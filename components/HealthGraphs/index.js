@@ -61,11 +61,11 @@ export default function HealthGraphs() {
                     <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="dateStr" stroke="#a1a1a8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#a1a1a8" fontSize={12} tickLine={false} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <XAxis dataKey="dateStr" stroke="var(--color-text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--color-text-muted)" fontSize={12} tickLine={false} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fff' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)', borderRadius: '8px', color: 'var(--color-text)' }}
                   itemStyle={{ color: '#a855f7' }}
                 />
                 <Area type="monotone" dataKey="bmi" name="BMI" stroke="#a855f7" strokeWidth={3} fillOpacity={1} fill="url(#colorBmi)" />
@@ -79,12 +79,12 @@ export default function HealthGraphs() {
           <div className={styles.chartWrapper}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="dateStr" stroke="#a1a1a8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis yAxisId="left" stroke="#a1a1a8" fontSize={12} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
-                <YAxis yAxisId="right" orientation="right" stroke="#a1a1a8" fontSize={12} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <XAxis dataKey="dateStr" stroke="var(--color-text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis yAxisId="left" stroke="var(--color-text-muted)" fontSize={12} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
+                <YAxis yAxisId="right" orientation="right" stroke="var(--color-text-muted)" fontSize={12} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fff' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)', borderRadius: '8px', color: 'var(--color-text)' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
                 <Line yAxisId="left" type="monotone" dataKey="weight" name="Weight (kg)" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />

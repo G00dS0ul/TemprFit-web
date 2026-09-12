@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 import AuthGateModal from '@/components/AuthGateModal';
+import { useToast } from '@/components/ToastProvider';
 import styles from './generate.module.css';
 
 const MUSCLES = ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'quads', 'hamstrings', 'glutes', 'abdominals', 'calves'];
@@ -29,6 +30,7 @@ export default function GenerateWorkoutPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [authGateOpen, setAuthGateOpen] = useState(false);
+  const { showToast } = useToast();
 
   const generate = async () => {
     setLoading(true);
@@ -50,8 +52,10 @@ export default function GenerateWorkoutPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not generate a workout.');
       setResult(data);
+      showToast('Workout successfully generated!', 'success');
     } catch (e) {
       setError(e.message);
+      showToast(e.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -76,9 +80,11 @@ export default function GenerateWorkoutPage() {
       }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not save workout.');
+      showToast('Workout saved!', 'success');
       router.push(`/workouts/${data.template._id}`);
     } catch (e) {
       setError(e.message);
+      showToast(e.message, 'error');
       setSaving(false);
     }
   };

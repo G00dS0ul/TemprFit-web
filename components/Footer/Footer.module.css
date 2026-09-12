@@ -19,7 +19,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 16px;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .brandDesc {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   line-height: 1.7;
   margin-bottom: 20px;
@@ -55,7 +55,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   transition: all 0.3s ease;
 }
 
@@ -71,7 +71,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 16px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -79,7 +79,7 @@
 
 .linksCol a {
   display: block;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   padding: 6px 0;
   transition: all 0.2s ease;
@@ -91,7 +91,7 @@
 }
 
 .newsletter p {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.85rem;
   margin-bottom: 12px;
 }
@@ -107,7 +107,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  color: #f0f0f0;
+  color: var(--color-text);
   font-size: 0.9rem;
   outline: none;
   transition: all 0.3s ease;
@@ -126,7 +126,7 @@
   padding: 12px 16px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
   border-radius: 10px;
-  color: white;
+  color: var(--color-text);
   transition: all 0.3s ease;
 }
 

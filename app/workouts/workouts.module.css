@@ -43,7 +43,7 @@
 
 .primaryBtn {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text);
 }
 
 .primaryBtn:hover {
@@ -83,26 +83,87 @@
 }
 
 .card {
-  padding: 20px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  padding: 24px;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
+  border-color: var(--color-primary);
   transform: translateY(-2px);
-  border-color: var(--color-border-strong);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .card h3 {
-  color: var(--color-text);
-  font-size: 1.05rem;
-  margin-bottom: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
 }
 
 .cardMeta {
-  font-size: 0.82rem;
   color: var(--color-text-muted);
-  text-transform: capitalize;
+  font-size: 0.9rem;
+  margin: 0 0 12px 0;
+}
+.cardDates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+}
+.completedTick {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-success);
+  font-weight: 500;
+}
+.cardNote {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background: var(--color-bg);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--color-primary);
+}
+.cardActions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+.cardActions button {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cardActions button:hover {
+  background: var(--color-surface-elevated);
+  color: var(--color-primary);
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { getSessionUser } from '@/lib/auth';
+import User from '@/models/User';
 
 const FLUTTERWAVE_SECRET_KEY = process.env.FLUTTERWAVE_SECRET_KEY || 'FLWSECK_TEST-dummy-key';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -8,8 +9,11 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 export async function POST(request) {
   try {
     await connectDB();
-    const user = await getSessionUser();
-    if (!user) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
+    const session = await getSessionUser();
+    if (!session) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
+
+    const user = await User.findById(session._id);
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     const { plan, amount, type = 'subscription', trainerId, traineeNotes } = await request.json();
 
@@ -25,7 +29,7 @@ export async function POST(request) {
 
     const tx_ref = `tx-${user._id}-${Date.now()}-${type}-${plan || trainerId}`;
 
-    // Flutterwave Initialize Payment
+    // Flutterwave Initialize Payment Payload
     const flwPayload = {
       tx_ref,
       amount: amount.toString(),
@@ -43,9 +47,9 @@ export async function POST(request) {
         name: user.username || user.email,
       },
       customizations: {
-        title: `TemprFit ${plan} Upgrade`,
-        description: `Payment for ${plan} plan`,
-        logo: `${BASE_URL}/logo.png`,
+        title: `TemprFit ${type === 'escrow' ? 'Booking' : (plan || 'Upgrade')}`,
+        description: type === 'escrow' ? `Secure Escrow for Booking` : `Payment for ${plan || 'Boost'}`,
+        logo: `${BASE_URL}/logo.png`, // Optional
       },
     };
 
@@ -64,8 +68,15 @@ export async function POST(request) {
       return NextResponse.json({ link: data.data.link });
     } else {
       console.error('Flutterwave Error:', data);
-      return NextResponse.json({ error: 'Failed to initialize payment gateway' }, { status: 500 });
+      
+      // If the dummy key fails, provide a clear error message to the user
+      if (FLUTTERWAVE_SECRET_KEY === 'FLWSECK_TEST-dummy-key') {
+         return NextResponse.json({ error: 'Flutterwave Secret Key is missing in .env file.' }, { status: 500 });
+      }
+      
+      return NextResponse.json({ error: data.message || 'Failed to initialize payment gateway' }, { status: 500 });
     }
+
   } catch (error) {
     console.error('Payment Init Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

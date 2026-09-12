@@ -13,6 +13,7 @@ import styles from './page.module.css';
 export default function TrainerDashboard() {
   const router = useRouter();
   const [data, setData] = useState(null);
+  const [escrows, setEscrows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,7 +28,26 @@ export default function TrainerDashboard() {
       .then(d => { if (d) setData(d); })
       .catch(() => router.push('/dashboard'))
       .finally(() => setLoading(false));
+
+    fetch('/api/escrow?status=held')
+      .then(r => r.json())
+      .then(d => { if (d.transactions) setEscrows(d.transactions); })
+      .catch(() => {});
   }, [router]);
+
+  const handleRequestFunds = async (txId) => {
+    const res = await fetch('/api/escrow', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transactionId: txId, action: 'request' })
+    });
+    const data = await res.json();
+    if (data.success || res.ok) {
+      alert('Request sent to the trainee successfully!');
+    } else {
+      alert(data.error || 'Failed to request funds.');
+    }
+  };
 
   if (loading || !data) {
     return (
@@ -176,13 +196,33 @@ export default function TrainerDashboard() {
               {/* Schedule */}
               <div className={styles.card}>
                 <div className={styles.cardHeader}>
-                  <h3><Calendar size={18} /> Upcoming Schedule</h3>
+                  <h3><Calendar size={18} /> Active Bookings</h3>
                 </div>
-                <div className={styles.emptyState}>
-                  <Calendar size={36} style={{ opacity: 0.2 }} />
-                  <p>No upcoming sessions.</p>
-                  <span>Your booked training sessions will show up here.</span>
-                </div>
+                {escrows.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    <Calendar size={36} style={{ opacity: 0.2 }} />
+                    <p>No active bookings.</p>
+                    <span>Your booked training sessions will show up here.</span>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px' }}>
+                    {escrows.map(tx => (
+                      <div key={tx._id} style={{ background: 'var(--color-bg)', padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                          <span style={{ fontWeight: 600 }}>Session with {tx.trainee?.username || 'Client'}</span>
+                          <span style={{ color: '#22c55e', fontWeight: 600 }}>${tx.trainerEarnings.toFixed(2)}</span>
+                        </div>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>{tx.description}</p>
+                        <button
+                          onClick={() => handleRequestFunds(tx._id)}
+                          style={{ width: '100%', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '8px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Request Fund Release
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Reviews */}

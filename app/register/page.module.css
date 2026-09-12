@@ -34,12 +34,12 @@
 .left h2 {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.8rem;
-  color: #f0f0f0;
+  color: var(--color-text);
   text-align: center;
 }
 
 .left p {
-  color: rgba(255,255,255,0.7);
+  color: var(--color-text-muted);
   text-align: center;
   max-width: 300px;
 }
@@ -55,7 +55,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: rgba(255,255,255,0.8);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -75,8 +75,8 @@
   width: 100%;
   max-width: 440px;
   padding: 40px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
 }
 
@@ -89,7 +89,7 @@
 .step {
   flex: 1;
   height: 4px;
-  background: rgba(255,255,255,0.05);
+  background: var(--color-surface);
   border-radius: 2px;
   transition: all 0.3s ease;
 }
@@ -107,11 +107,11 @@
 .form h1 {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.4rem;
-  color: #f0f0f0;
+  color: var(--color-text);
 }
 
 .form > p {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   margin-top: -12px;
 }
@@ -125,15 +125,15 @@
 .inputGroup label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #f0f0f0;
+  color: var(--color-text);
 }
 
 .inputGroup input {
   padding: 12px 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
   border-radius: 10px;
-  color: #f0f0f0;
+  color: var(--color-text);
   font-size: 0.95rem;
   outline: none;
   transition: all 0.3s ease;
@@ -145,9 +145,6 @@
   box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
 }
 
-.inputGroup input::placeholder {
-  color: #63636b;
-}
 
 .unitRow {
   display: flex;
@@ -161,8 +158,8 @@
 .unitToggle {
   display: flex;
   gap: 4px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
   border-radius: 10px;
   padding: 3px;
   flex-shrink: 0;
@@ -173,12 +170,12 @@
   border-radius: 7px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
 }
 
 .unitToggle .unitActive {
   background: #22c55e;
-  color: #fff;
+  color: var(--color-text);
 }
 
 .passwordWrapper {
@@ -196,7 +193,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #63636b;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 4px;
 }
@@ -209,17 +206,17 @@
 
 .optionBtn {
   padding: 14px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
   border-radius: 10px;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .optionBtn:hover {
-  background: rgba(255,255,255,0.08);
-  color: #f0f0f0;
+  background: var(--color-border);
+  color: var(--color-text);
 }
 
 .selected {
@@ -232,7 +229,7 @@
   width: 100%;
   padding: 14px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
+  color: var(--color-text);
   border-radius: 12px;
   font-weight: 600;
   font-size: 1rem;
@@ -258,8 +255,8 @@
   width: 100%;
   padding: 14px;
   background: transparent;
-  color: var(--color-text-muted, #a1a1a8);
-  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--color-text-muted, var(--color-text-muted));
+  border: 1px solid var(--color-border-strong);
   border-radius: 12px;
   font-weight: 600;
   font-size: 1rem;
@@ -271,15 +268,15 @@
 }
 
 .backBtn:hover {
-  background: rgba(255,255,255,0.05);
-  color: #f0f0f0;
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 
 .footerText {
   text-align: center;
   font-size: 0.9rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   margin-top: 8px;
 }
 

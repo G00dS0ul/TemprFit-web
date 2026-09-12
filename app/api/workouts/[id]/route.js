@@ -42,6 +42,8 @@ export async function PUT(request, { params }) {
   const body = await request.json()
   if (body.name?.trim()) template.name = body.name.trim()
   if (body.goal !== undefined) template.goal = body.goal
+  if (body.isFavorite !== undefined) template.isFavorite = body.isFavorite
+  if (body.note !== undefined) template.note = body.note
   if (Array.isArray(body.exercises)) {
     template.exercises = body.exercises.map((ex, i) => ({
       exercise: ex.exercise,

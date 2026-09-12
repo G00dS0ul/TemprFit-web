@@ -2,20 +2,43 @@ import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import WorkoutTemplate from '@/models/WorkoutTemplate'
+import Exercise from '@/models/Exercise' // Required for populate
+import WorkoutSession from '@/models/WorkoutSession'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  await connectDB()
-  const user = await getSessionUser()
-  if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
+  try {
+    await connectDB()
+    const user = await getSessionUser()
+    if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
 
-  const templates = await WorkoutTemplate.find({ user: user._id })
-    .sort({ createdAt: -1 })
-    .populate('exercises.exercise', 'name slug targetMuscles equipment media')
-    .lean()
+    const templates = await WorkoutTemplate.find({ user: user._id })
+      .sort({ createdAt: -1 })
+      .populate('exercises.exercise', 'name slug targetMuscles equipment media')
+      .lean()
 
-  return NextResponse.json({ items: templates })
+    const enrichedTemplates = await Promise.all(
+      templates.map(async (t) => {
+        const lastSession = await WorkoutSession.findOne({ 
+          template: t._id, 
+          status: 'completed' 
+        })
+        .sort({ completedAt: -1 })
+        .lean()
+        
+        return {
+          ...t,
+          lastCompletedAt: lastSession ? lastSession.completedAt : null
+        }
+      })
+    )
+
+    return NextResponse.json({ items: enrichedTemplates })
+  } catch (error) {
+    console.error('Workouts GET Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
 
 export async function POST(request) {

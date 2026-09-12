@@ -156,23 +156,6 @@
   right: 9%;
 }
 
-@media (max-width: 900px) {
-  .statCard1,
-  .statCard2,
-  .statCard3 {
-    display: none;
-  }
-  .heroInner {
-    padding-bottom: 90px;
-    max-width: 100%;
-  }
-  /* The mobile bottom tab bar (components/MobileBottomNav) already covers
-     this exact job on small screens, so don't stack a second bottom pill
-     on top of it. */
-  .quickNav {
-    display: none;
-  }
-}
 
 .quickNav {
   position: absolute;
@@ -196,7 +179,7 @@
   gap: 8px;
   padding: 10px 18px;
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-text);
   font-size: 0.85rem;
   font-weight: 600;
   transition: background 0.2s ease, color 0.2s ease;
@@ -208,3 +191,17 @@
 }
 
 
+@media (max-width: 900px) {
+  .statCard1,
+  .statCard2,
+  .statCard3 {
+    display: none;
+  }
+  .heroInner {
+    padding-bottom: 90px;
+    max-width: 100%;
+  }
+  .quickNav {
+    display: none;
+  }
+}

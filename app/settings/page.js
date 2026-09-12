@@ -50,6 +50,7 @@ export default function SettingsPage() {
           trainerPrice: data.user.trainerInfo?.price || 50,
           trainerLocation: data.user.trainerInfo?.location || '',
           trainerMode: data.user.trainerInfo?.trainingMode || 'remote',
+          trainerMediaGallery: data.user.trainerInfo?.mediaGallery?.join(', ') || '',
         });
         // Resolve the saved target exercise's display name for the search box.
         if (data.user.goals?.targetExerciseSlug) {
@@ -120,6 +121,7 @@ export default function SettingsPage() {
             price: Number(form.trainerPrice) || 50,
             location: form.trainerLocation,
             trainingMode: form.trainerMode,
+            mediaGallery: form.trainerMediaGallery.split(',').map(s => s.trim()).filter(Boolean),
           } : undefined,
         }),
       });
@@ -163,8 +165,13 @@ export default function SettingsPage() {
       const res = await fetch('/api/user/verify-email', { method: 'POST' });
       const data = await res.json();
       if (res.ok) {
-        setUser(data.user);
+        alert('Email verified successfully!');
+        setUser(prev => ({ ...prev, emailVerified: true }));
+      } else {
+        alert(data.error || 'Failed to verify email');
       }
+    } catch (err) {
+      alert('Network error. Try again.');
     } finally {
       setVerifyingEmail(false);
     }
@@ -501,6 +508,15 @@ export default function SettingsPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+              <div className={styles.field}>
+                <label>Media Gallery URLs (comma separated image/video links)</label>
+                <textarea
+                  placeholder="e.g. https://example.com/photo.jpg, https://youtube.com/..."
+                  value={form.trainerMediaGallery}
+                  onChange={(e) => setForm({ ...form, trainerMediaGallery: e.target.value })}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', resize: 'vertical', minHeight: '80px' }}
+                />
               </div>
             </div>
           )}

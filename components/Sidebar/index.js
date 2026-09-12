@@ -92,7 +92,7 @@ export default function Sidebar() {
 
       {isTrainer && (
         <div className={styles.roleBadge}>
-          <Dumbbell size={14} /> Trainer Mode
+          <Dumbbell size={14} /> <span>Trainer Mode</span>
         </div>
       )}
 

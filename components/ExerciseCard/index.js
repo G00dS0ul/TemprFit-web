@@ -2,24 +2,15 @@
 
 import Link from 'next/link';
 import { Heart, Dumbbell } from 'lucide-react';
+import ExercisePreview from '@/components/ExercisePreview';
 import styles from './ExerciseCard.module.css';
 
 export default function ExerciseCard({ exercise, favorited, onToggleFavorite }) {
-  const image = exercise.media?.[0]?.url;
-
   return (
     <div className={styles.card}>
       <Link href={`/explore/${exercise.slug}`} className={styles.mediaLink}>
         <div className={styles.media}>
-          {image ? (
-            // Real photos from the public-domain Free Exercise DB (or
-            // hand-authored entries with no photo yet) — plain <img> since
-            // these are remote, unoptimized demo assets, not next/image
-            // candidates.
-            <img src={image} alt={exercise.name} loading="lazy" className={styles.mediaImg} />
-          ) : (
-            <Dumbbell size={28} />
-          )}
+          <ExercisePreview media={exercise.media} alt={exercise.name} className={styles.mediaImg} />
         </div>
       </Link>
 

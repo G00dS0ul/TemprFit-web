@@ -11,7 +11,7 @@
 .header h1 {
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.8rem);
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 12px;
 }
 
@@ -23,7 +23,7 @@
 }
 
 .header p {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 1rem;
 }
 
@@ -36,8 +36,8 @@
 
 .revenueCard {
   padding: 28px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   transition: all 0.3s ease;
 }
@@ -62,7 +62,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--color-text);
 }
 
 .growth {
@@ -88,7 +88,7 @@
 .revenueCard h3 {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.95rem;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 8px;
 }
 
@@ -97,13 +97,13 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1.6rem;
   font-weight: 800;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 8px;
 }
 
 .revenueCard p {
   font-size: 0.85rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   line-height: 1.5;
 }
 
@@ -122,12 +122,12 @@
 .affiliateLeft h2 {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.4rem;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 12px;
 }
 
 .affiliateLeft p {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.95rem;
   line-height: 1.6;
   margin-bottom: 20px;
@@ -145,7 +145,7 @@
   align-items: center;
   gap: 8px;
   font-size: 0.9rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
 }
 
 .benefitsList li svg {
@@ -155,15 +155,15 @@
 
 .codeCard {
   padding: 28px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
 }
 
 .codeCard h3 {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.95rem;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 16px;
 }
 
@@ -176,8 +176,8 @@
 .codeBox code {
   flex: 1;
   padding: 12px 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
   border-radius: 10px;
   color: #22c55e;
   font-family: 'Orbitron', sans-serif;
@@ -189,7 +189,7 @@
   height: 44px;
   border-radius: 10px;
   background: linear-gradient(135deg, #f97316, #a855f7);
-  color: white;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -211,12 +211,12 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1.3rem;
   font-weight: 800;
-  color: #f0f0f0;
+  color: var(--color-text);
 }
 
 .statLabel {
   font-size: 0.8rem;
-  color: #63636b;
+  color: var(--color-text-muted);
 }
 
 .trainerMonetization {
@@ -226,13 +226,13 @@
 .trainerMonetization h2 {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.4rem;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 8px;
   text-align: center;
 }
 
 .trainerMonetization > p {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   text-align: center;
   margin-bottom: 32px;
 }
@@ -245,8 +245,8 @@
 
 .tier {
   padding: 28px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   text-align: center;
   position: relative;
@@ -259,7 +259,7 @@
 
 .tierPopular {
   border-color: rgba(249,115,22,0.3);
-  background: linear-gradient(180deg, rgba(249,115,22,0.05), rgba(255,255,255,0.03));
+  background: linear-gradient(180deg, rgba(249,115,22,0.05), var(--color-surface));
 }
 
 .tierBadge {
@@ -269,7 +269,7 @@
   transform: translateX(-50%);
   padding: 4px 12px;
   background: linear-gradient(135deg, #f97316, #a855f7);
-  color: white;
+  color: var(--color-text);
   border-radius: 100px;
   font-size: 0.7rem;
   font-weight: 600;
@@ -278,7 +278,7 @@
 .tier h3 {
   font-family: 'Orbitron', sans-serif;
   font-size: 1rem;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 8px;
 }
 
@@ -287,7 +287,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 20px;
 }
 
@@ -304,7 +304,7 @@
   align-items: center;
   gap: 8px;
   font-size: 0.85rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
 }
 
 .tier li svg {

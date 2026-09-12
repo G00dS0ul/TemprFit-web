@@ -51,6 +51,7 @@ export async function POST(request) {
         targetReps: s.targetReps,
         reps: null,
         weight: s.targetWeight || 0,
+        restSeconds: s.restSeconds || 60,
         completed: false,
       })),
       notes: ex.notes || '',
@@ -64,6 +65,7 @@ export async function POST(request) {
         targetReps: s.targetReps || '',
         reps: null,
         weight: s.targetWeight || 0,
+        restSeconds: s.restSeconds || 60,
         completed: false,
       })),
     }))

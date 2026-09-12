@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar'
 import ChromeShell from '@/components/ChromeShell'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import FloatingSearch from '@/components/FloatingSearch'
+import { ToastProvider } from '@/components/ToastProvider'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -20,6 +21,7 @@ export const metadata = {
   description:
     'TemprFit is an AI-powered fitness ecosystem: personalized training, an always-on AI coach, progress tracking, nutrition, and a trainer marketplace.',
   keywords: 'gym, fitness, workout, AI coach, trainer, nutrition, tracker, TemprFit',
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({ children }) {
@@ -31,12 +33,14 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
-          <Navbar />
-          <main>
-            <ChromeShell>{children}</ChromeShell>
-          </main>
-          <MobileBottomNav />
-          <FloatingSearch />
+          <ToastProvider>
+            <Navbar />
+            <main>
+              <ChromeShell>{children}</ChromeShell>
+            </main>
+            <MobileBottomNav />
+            <FloatingSearch />
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

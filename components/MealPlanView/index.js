@@ -59,6 +59,18 @@ export default function MealPlanView({ plan }) {
           </ul>
         </div>
       )}
+
+      <button className={styles.saveToNotesBtn} onClick={async () => {
+        const text = `AI Generated Diet Plan\n\n` + plan.days.map(d => `Day ${d.dayNumber}:\n` + d.meals.map(m => `- ${m.mealType}: ${m.name} (${m.calories} kcal)`).join('\n')).join('\n\n') + `\n\nShopping List:\n${plan.shoppingList?.join(', ')}`;
+        const res = await fetch('/api/notes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: `Meal Plan ${new Date().toISOString().slice(0, 10)}`, content: text })
+        });
+        if (res.ok) alert('Saved to Notes!');
+      }}>
+        Save Plan to Notes
+      </button>
     </div>
   );
 }

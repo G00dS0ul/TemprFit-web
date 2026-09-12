@@ -44,7 +44,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1rem;
   font-weight: 700;
-  color: #f0f0f0;
+  color: var(--color-text);
 }
 
 .verified {
@@ -53,7 +53,7 @@
 
 .specialty {
   font-size: 0.85rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   margin-bottom: 8px;
 }
 
@@ -69,7 +69,7 @@
 
 .ratingValue {
   font-weight: 700;
-  color: #f0f0f0;
+  color: var(--color-text);
   font-size: 0.9rem;
 }
 
@@ -80,7 +80,7 @@
 
 .bio {
   font-size: 0.85rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   line-height: 1.6;
 }
 
@@ -126,7 +126,7 @@
 .bookBtn {
   padding: 10px 20px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
+  color: var(--color-text);
   border-radius: 10px;
   font-weight: 600;
   font-size: 0.9rem;

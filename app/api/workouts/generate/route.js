@@ -5,6 +5,7 @@ import Exercise from '@/models/Exercise'
 import { prescribe } from '@/lib/prescription'
 import { askGemini, GeminiConfigError, GeminiRequestError } from '@/lib/gemini'
 import { buildUserContext } from '@/lib/coach-context'
+import { checkAndIncrementAILimit } from '@/lib/aiLimit'
 
 export const dynamic = 'force-dynamic'
 
@@ -111,6 +112,13 @@ export async function POST(request) {
     useAI = false,
     notes = '',
   } = body
+
+  if (useAI) {
+    const limitCheck = await checkAndIncrementAILimit(user._id)
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ error: limitCheck.error }, { status: 429 })
+    }
+  }
 
   const targetCount = Math.max(3, Math.min(8, Math.round(timeMinutes / MINUTES_PER_EXERCISE)))
 

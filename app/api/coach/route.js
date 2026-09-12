@@ -41,8 +41,9 @@ export async function POST(request) {
 
   const body = await request.json().catch(() => ({}))
   const userMessage = typeof body.message === 'string' ? body.message.trim() : ''
+  const attachment = body.attachment || null
 
-  if (!userMessage) {
+  if (!userMessage && !attachment) {
     return NextResponse.json({ error: 'Message cannot be empty.' }, { status: 400 })
   }
   if (userMessage.length > MAX_MESSAGE_LENGTH) {
@@ -50,7 +51,11 @@ export async function POST(request) {
   }
 
   // Save the user's message up front so it's not lost if the Gemini call fails.
-  await CoachMessage.create({ user: user._id, role: 'user', content: userMessage })
+  const msgObj = { user: user._id, role: 'user', content: userMessage || 'Sent an attachment.' };
+  if (attachment) {
+    msgObj.attachment = { name: attachment.name, type: attachment.type };
+  }
+  await CoachMessage.create(msgObj)
 
   const recentHistory = await CoachMessage.find({ user: user._id })
     .sort({ createdAt: -1 })
@@ -71,7 +76,7 @@ export async function POST(request) {
   const systemPrompt = `${COACH_SYSTEM_PROMPT_HEADER}\n\nREAL USER DATA:\n${contextBlock}`
 
   try {
-    const reply = await askGemini({ systemPrompt, history: historyForModel, userMessage })
+    const reply = await askGemini({ systemPrompt, history: historyForModel, userMessage, attachment })
     const saved = await CoachMessage.create({ user: user._id, role: 'assistant', content: reply })
     return NextResponse.json({ message: { role: 'assistant', content: reply, createdAt: saved.createdAt } })
   } catch (err) {

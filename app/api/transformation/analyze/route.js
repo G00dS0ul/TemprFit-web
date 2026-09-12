@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
-import { getGeminiModel } from '@/lib/gemini';
 
 export const maxDuration = 60; // 60 seconds
 export const dynamic = 'force-dynamic';
@@ -43,8 +42,9 @@ export async function POST(req) {
       Format the output in plain text with short paragraphs. Max 150 words.
     `;
 
-    const model = getGeminiModel('gemini-1.5-pro-latest');
-    
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY is missing');
+
     const parts = [
       { text: prompt },
       {
@@ -61,8 +61,22 @@ export async function POST(req) {
       },
     ];
 
-    const result = await model.generateContent(parts);
-    const text = result.response.text();
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-pro:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts }],
+        generationConfig: { temperature: 0.6, maxOutputTokens: 8192 }
+      })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Gemini API Error: ${errText}`);
+    }
+
+    const result = await res.json();
+    const text = result?.candidates?.[0]?.content?.parts?.map(p => p.text).join('') || '';
 
     return NextResponse.json({ feedback: text });
   } catch (err) {

@@ -113,7 +113,7 @@
 .activeTag {
   background: var(--color-primary) !important;
   border-color: var(--color-primary) !important;
-  color: #fff !important;
+  color: var(--color-text) !important;
 }
 
 .trainerGrid {
@@ -143,7 +143,7 @@
   top: 16px;
   right: 16px;
   background: #f59e0b;
-  color: #fff;
+  color: var(--color-text);
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -195,7 +195,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-surface);
 }
 
 .price {
@@ -217,7 +217,7 @@
 
 .viewProfileBtn {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text);
   padding: 10px 20px;
   border-radius: var(--radius-sm);
   font-weight: 600;

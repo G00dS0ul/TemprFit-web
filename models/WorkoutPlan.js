@@ -20,7 +20,9 @@ const WorkoutPlanSchema = new mongoose.Schema(
           }
         ]
       }
-    ]
+    ],
+    isFavorite: { type: Boolean, default: false },
+    note: { type: String, default: '' },
   },
   { timestamps: true }
 );

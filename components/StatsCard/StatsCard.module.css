@@ -22,7 +22,7 @@
 
 .label {
   font-size: 0.85rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
@@ -50,7 +50,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 16px;
 }
 

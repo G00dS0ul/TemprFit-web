@@ -24,14 +24,6 @@ const CATEGORIES = [
 
 const DIFFICULTIES = ['beginner', 'intermediate', 'advanced']
 
-const MediaSchema = new mongoose.Schema(
-  {
-    type: { type: String, enum: ['image', 'video', 'illustration'], required: true },
-    url: { type: String, required: true },
-    alt: { type: String, default: '' },
-  },
-  { _id: false }
-)
 
 const SourceSchema = new mongoose.Schema(
   {
@@ -69,7 +61,7 @@ const ExerciseSchema = new mongoose.Schema(
     // prescribed dynamically per user + goal by lib/prescription.js (and
     // later the AI planner), not baked into the exercise record.
 
-    media: [MediaSchema], // media[0]/media[1] are conventionally the start/finish frames when available
+    media: { type: mongoose.Schema.Types.Mixed },
 
     safetyNotes: [{ type: String }],
     commonMistakes: [{ type: String }],

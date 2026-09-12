@@ -5,6 +5,14 @@ const nextConfig = {
     unoptimized: true,
     domains: ['images.unsplash.com', 'api.dicebear.com', 'img.spoonacular.com'],
   },
+  outputFileTracing: false,
 }
 
-module.exports = nextConfig
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+});
+
+module.exports = withPWA(nextConfig);

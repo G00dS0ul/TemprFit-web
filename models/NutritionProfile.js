@@ -15,6 +15,10 @@ const NutritionProfileSchema = new mongoose.Schema(
     exclusions: [{ type: String, trim: true }], // disliked / avoided foods, not allergies
     pantry: [{ type: String, trim: true }], // list of ingredients/foods the user actually has available
 
+    location: { type: String, trim: true, default: '' },
+    age: { type: Number, default: null },
+    budget: { type: String, enum: ['low', 'medium', 'high', ''], default: '' },
+
     goal: {
       type: String,
       enum: ['lose_weight', 'maintain', 'gain_muscle', 'improve_health'],

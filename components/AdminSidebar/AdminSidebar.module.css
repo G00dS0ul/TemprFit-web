@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-text);
 }
 
 .brandInfo {
@@ -42,7 +42,7 @@
 }
 
 .brandName {
-  color: #f0f0f0;
+  color: var(--color-text);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -69,7 +69,7 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 10px;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.88rem;
   font-weight: 500;
   background: none;
@@ -82,7 +82,7 @@
 
 .menuItem:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #f0f0f0;
+  color: var(--color-text);
 }
 
 .active {

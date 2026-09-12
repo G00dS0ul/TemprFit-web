@@ -36,13 +36,13 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 12px;
 }
 
 .description {
   font-size: 0.9rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   line-height: 1.6;
 }
 

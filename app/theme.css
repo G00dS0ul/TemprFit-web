@@ -21,6 +21,7 @@
   /* Text */
   --color-text: #f4f5f6;
   --color-text-muted: #9aa0a8;
+  --color-placeholder: rgba(244, 245, 246, 0.55);
 
   /* Feedback */
   --color-success: #22c55e;
@@ -56,11 +57,12 @@
   --color-bg: #f9faf9;
   --color-surface: #ffffff;
   --color-surface-elevated: #ffffff;
-  --color-border: #e6e9e6;
-  --color-border-strong: #d5d9d5;
+  --color-border: #cbd5e1;
+  --color-border-strong: #94a3b8;
 
-  --color-text: #12161a;
-  --color-text-muted: #5b6570;
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-placeholder: #94a3b8;
 
   --color-success: #16a34a;
   --color-warning: #b7791f;

@@ -20,7 +20,7 @@ export async function GET(request, { params }) {
   if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
 
   const session = await WorkoutSession.findById(params.id)
-    .populate('exercises.exercise', 'name slug targetMuscles equipment media category difficulty alternatives')
+    .populate('exercises.exercise', 'name slug targetMuscles equipment media category difficulty instructions alternatives')
     .lean()
 
   if (!session) return NextResponse.json({ error: 'Session not found.' }, { status: 404 })

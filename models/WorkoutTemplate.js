@@ -27,6 +27,8 @@ const WorkoutTemplateSchema = new mongoose.Schema(
     goal: { type: String, default: '' }, // strength / hypertrophy / endurance / fat-loss
     exercises: [WorkoutExerciseSchema],
     source: { type: String, enum: ['manual', 'generated'], default: 'manual' },
+    isFavorite: { type: Boolean, default: false },
+    note: { type: String, default: '' },
     generatorInputs: {
       // only populated when source === 'generated' — kept for transparency/debugging,
       // not shown to the user as a feature

@@ -14,6 +14,7 @@ export async function GET(req) {
       .sort({ createdAt: -1 })
       .populate('user', 'username avatarUrl')
       .populate('comments.user', 'username avatarUrl')
+      .populate('comments.replies.user', 'username avatarUrl')
       .lean();
     return NextResponse.json({ moments });
   } catch (error) {

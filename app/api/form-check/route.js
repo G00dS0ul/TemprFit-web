@@ -26,6 +26,15 @@ export async function POST(request) {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
 
+  const { checkAndIncrementAILimit } = await import('@/lib/aiLimit');
+  const limitCheck = await checkAndIncrementAILimit(user._id);
+  if (!limitCheck.allowed) {
+    return NextResponse.json(
+      { error: limitCheck.error, upgrade: true },
+      { status: 429 }
+    );
+  }
+
   const body = await request.json().catch(() => ({}))
   const { exerciseSlug, flaggedIssues, videoDurationSeconds } = body
 

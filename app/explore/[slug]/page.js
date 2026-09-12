@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Dumbbell, Heart, Clock, Repeat, Plus, Sparkles, ShieldAlert, AlertTriangle, Lightbulb, Send, Loader2 } from 'lucide-react';
 import { prescribe, GOALS } from '@/lib/prescription';
-import ExerciseMediaLoop from '@/components/ExerciseMediaLoop';
+import ExercisePreview from '@/components/ExercisePreview';
 import AuthGateModal from '@/components/AuthGateModal';
 import AIResponseRenderer from '@/components/AIResponseRenderer';
 import styles from './detail.module.css';
@@ -44,7 +44,7 @@ export default function ExerciseDetailPage() {
       if (res.status === 401) {
         setFavorited((f) => !f);
         setAuthGateOpen(true);
-      }
+      } 
     } catch {
       setFavorited((f) => !f);
     }
@@ -100,21 +100,14 @@ export default function ExerciseDetailPage() {
     );
   }
 
-  const startImg = exercise.media?.[0]?.url;
-  const finishImg = exercise.media?.[1]?.url;
-
   return (
     <div className={styles.page}>
       <div className="container">
         <div className={styles.layout}>
           <div className={styles.main}>
-            {startImg ? (
-              <ExerciseMediaLoop startImg={startImg} finishImg={finishImg} alt={exercise.name} />
-            ) : (
-              <div className={styles.mediaHeroPlaceholder}>
-                <Dumbbell size={64} />
-              </div>
-            )}
+            <div className={styles.mediaHeroPlaceholder} style={{ background: 'transparent' }}>
+              <ExercisePreview media={exercise.media} alt={exercise.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} />
+            </div>
 
             <div className={styles.titleRow}>
               <h1 className={styles.title}>{exercise.name}</h1>

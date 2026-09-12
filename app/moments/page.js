@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
-import { Heart, MessageCircle, Eye, Plus, X, Send, MoreVertical, Bookmark, Edit2, Trash2, Smile } from 'lucide-react';
+import { Heart, MessageCircle, Eye, Plus, X, Send, MoreVertical, Bookmark, Edit2, Trash2, Smile, Dumbbell, FileText } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import styles from './page.module.css';
 
@@ -26,6 +27,78 @@ export default function MomentsPage() {
   // Comment State
   const [commentText, setCommentText] = useState('');
   const [showEmojiComment, setShowEmojiComment] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null);
+
+  const handleCommentLike = async (momentId, commentId) => {
+    try {
+      const res = await fetch(`/api/moments/${momentId}/comments/${commentId}/like`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setMoments(prev => prev.map(m => {
+          if (m._id === momentId) {
+            return {
+              ...m,
+              comments: m.comments.map(c => c._id === commentId ? data.comment : c)
+            };
+          }
+          return m;
+        }));
+        if (activeMoment && activeMoment._id === momentId) {
+          setActiveMoment(prev => ({
+            ...prev,
+            comments: prev.comments.map(c => c._id === commentId ? data.comment : c)
+          }));
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCommentReply = (comment) => {
+    setReplyingTo(comment);
+    setCommentText(`@${comment.user.username} `);
+  };
+
+  const handleReplyLike = async (momentId, commentId, replyId) => {
+    try {
+      const res = await fetch(`/api/moments/${momentId}/comments/${commentId}/replies/${replyId}/like`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setMoments(prev => prev.map(m => {
+          if (m._id === momentId) {
+            return {
+              ...m,
+              comments: m.comments.map(c => c._id === commentId ? data.comment : c)
+            };
+          }
+          return m;
+        }));
+        if (activeMoment && activeMoment._id === momentId) {
+          setActiveMoment(prev => ({
+            ...prev,
+            comments: prev.comments.map(c => c._id === commentId ? data.comment : c)
+          }));
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+  };
 
   // Edit State
   const [editingMomentId, setEditingMomentId] = useState(null);
@@ -67,7 +140,7 @@ export default function MomentsPage() {
             const hasLiked = data.isLiked;
             return {
               ...m,
-              likes: hasLiked ? [...m.likes, userId] : m.likes.filter(l => l !== userId),
+              likes: hasLiked ? [...(m.likes || []), userId] : (m.likes || []).filter(l => l !== userId),
               isLikedByMe: hasLiked
             };
           }
@@ -76,7 +149,7 @@ export default function MomentsPage() {
         if (activeMoment && activeMoment._id === id) {
           setActiveMoment(prev => ({
             ...prev,
-            likes: data.isLiked ? [...prev.likes, currentUser?._id || 'me'] : prev.likes.slice(0, -1),
+            likes: data.isLiked ? [...(prev.likes || []), currentUser?._id || 'me'] : (prev.likes || []).filter(l => l !== (currentUser?._id || 'me')),
             isLikedByMe: data.isLiked
           }));
         }
@@ -166,18 +239,43 @@ export default function MomentsPage() {
     if (!commentText.trim() || !activeMoment) return;
     
     try {
-      const res = await fetch(`/api/moments/${activeMoment._id}/comment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: commentText })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setActiveMoment(prev => ({ ...prev, comments: data.comments }));
-        setMoments(prev => prev.map(m => m._id === activeMoment._id ? { ...m, comments: data.comments } : m));
-        setCommentText('');
-        setShowEmojiComment(false);
+      if (replyingTo) {
+        const res = await fetch(`/api/moments/${activeMoment._id}/comments/${replyingTo._id}/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: commentText.replace(`@${replyingTo.user.username} `, '') })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setActiveMoment(prev => ({
+            ...prev,
+            comments: prev.comments.map(c => c._id === replyingTo._id ? data.comment : c)
+          }));
+          setMoments(prev => prev.map(m => {
+            if (m._id === activeMoment._id) {
+              return {
+                ...m,
+                comments: m.comments.map(c => c._id === replyingTo._id ? data.comment : c)
+              };
+            }
+            return m;
+          }));
+        }
+      } else {
+        const res = await fetch(`/api/moments/${activeMoment._id}/comment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: commentText })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setActiveMoment(prev => ({ ...prev, comments: data.comments }));
+          setMoments(prev => prev.map(m => m._id === activeMoment._id ? { ...m, comments: data.comments } : m));
+        }
       }
+      setCommentText('');
+      setShowEmojiComment(false);
+      setReplyingTo(null);
     } catch (err) {
       console.error(err);
     }
@@ -243,9 +341,7 @@ export default function MomentsPage() {
 
   return (
     <div className={styles.page}>
-      <Navbar />
-      <Sidebar />
-      <div className="container" style={{ marginLeft: '250px', width: 'calc(100% - 250px)' }}>
+      <div className={`container ${styles.momentsContainer}`}>
         
         <div className={styles.header}>
           <h1>Community Moments</h1>
@@ -283,7 +379,10 @@ export default function MomentsPage() {
                 <div key={m._id} className={styles.momentCard} onClick={() => openMoment(m)}>
                   <div className={styles.momentHeader}>
                     <img src={m.user?.avatarUrl || `https://ui-avatars.com/api/?name=${m.user?.username}&background=22c55e&color=fff`} className={styles.avatar} alt={m.user?.username} />
-                    <div className={styles.username}>{m.user?.username}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <div className={styles.username}>{m.user?.username}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{formatDate(m.createdAt)}</div>
+                    </div>
                     
                     {isMyMoment && (
                       <div className={styles.menuContainer} onClick={e => e.stopPropagation()}>
@@ -305,11 +404,30 @@ export default function MomentsPage() {
                   </div>
                   
                   <div className={styles.mediaContainer}>
-                    {m.mediaUrl.match(/\.(mp4|webm)$/i) ? (
+                    {m.sharedType ? (
+                      <div className={styles.sharedCard}>
+                        <div className={styles.sharedIcon}>
+                          {m.sharedType === 'workout' ? <Dumbbell size={32} /> : <FileText size={32} />}
+                        </div>
+                        <h3>{m.sharedTitle || `Shared ${m.sharedType}`}</h3>
+                        
+                        {m.sharedPreview && m.sharedPreview.length > 0 && (
+                          <ul className={styles.sharedPreviewList}>
+                            {m.sharedPreview.map((line, idx) => (
+                              <li key={idx}>{line}</li>
+                            ))}
+                          </ul>
+                        )}
+
+                        <Link href={m.sharedLink || '#'} className={styles.sharedBtn}>
+                          View {m.sharedType}
+                        </Link>
+                      </div>
+                    ) : m.mediaUrl?.match(/\.(mp4|webm)$/i) ? (
                       <video src={m.mediaUrl} className={styles.media} muted loop autoPlay />
-                    ) : (
+                    ) : m.mediaUrl ? (
                       <img src={m.mediaUrl} className={styles.media} alt="Moment" />
-                    )}
+                    ) : null}
                   </div>
 
                   <div className={styles.actions}>
@@ -331,18 +449,33 @@ export default function MomentsPage() {
                         <textarea 
                           value={editCaption}
                           onChange={e => setEditCaption(e.target.value)}
-                          style={{ width: '100%', background: 'rgba(255,255,255,0.05)', color: '#fff', padding: '8px', borderRadius: '4px', border: '1px solid var(--color-border)', marginBottom: '8px' }}
+                          style={{ width: '100%', background: 'rgba(255,255,255,0.05)', color: 'var(--color-text)', padding: '8px', borderRadius: '4px', border: '1px solid var(--color-border)', marginBottom: '8px' }}
                         />
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button onClick={(e) => saveEdit(e, m._id)} style={{ background: '#22c55e', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}>Save</button>
-                          <button onClick={() => setEditingMomentId(null)} style={{ background: 'transparent', border: '1px solid var(--color-border)', color: '#fff', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+                          <button onClick={() => setEditingMomentId(null)} style={{ background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
                         </div>
                       </div>
                     ) : m.caption ? (
-                      <>
+                      <div style={{ marginBottom: '8px' }}>
                         <strong>{m.user?.username}</strong> {m.caption}
-                      </>
+                      </div>
                     ) : null}
+
+                    {m.comments && m.comments.length > 2 && (
+                      <button 
+                        onClick={() => setActiveMoment(m)}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: '4px 0', fontSize: '0.9rem', textAlign: 'left' }}
+                      >
+                        View all {m.comments.length} comments
+                      </button>
+                    )}
+
+                    {m.comments && m.comments.slice(0, 2).map((c, i) => (
+                      <div key={i} style={{ fontSize: '0.9rem', marginBottom: '4px' }}>
+                        <strong>{c.user?.username}</strong> {c.text}
+                      </div>
+                    ))}
                   </div>
                 </div>
               );
@@ -419,17 +552,39 @@ export default function MomentsPage() {
         <div className={styles.overlay} onClick={() => setActiveMoment(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalMedia}>
-              {activeMoment.mediaUrl.match(/\.(mp4|webm)$/i) ? (
+              {activeMoment.sharedType ? (
+                 <div className={styles.sharedCard} style={{ margin: 'auto', background: 'var(--color-surface)', width: '80%', padding: '40px' }}>
+                  <div className={styles.sharedIcon}>
+                    {activeMoment.sharedType === 'workout' ? <Dumbbell size={48} /> : <FileText size={48} />}
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', margin: '16px 0' }}>{activeMoment.sharedTitle || `Shared ${activeMoment.sharedType}`}</h3>
+                  
+                  {activeMoment.sharedPreview && activeMoment.sharedPreview.length > 0 && (
+                    <ul className={styles.sharedPreviewList} style={{ fontSize: '1.1rem', marginBottom: '24px' }}>
+                      {activeMoment.sharedPreview.map((line, idx) => (
+                        <li key={idx}>{line}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <Link href={activeMoment.sharedLink || '#'} className={styles.sharedBtn} style={{ padding: '12px 24px', fontSize: '1rem' }}>
+                    View {activeMoment.sharedType}
+                  </Link>
+                </div>
+              ) : activeMoment.mediaUrl?.match(/\.(mp4|webm)$/i) ? (
                 <video src={activeMoment.mediaUrl} controls autoPlay />
-              ) : (
+              ) : activeMoment.mediaUrl ? (
                 <img src={activeMoment.mediaUrl} alt="Moment" />
-              )}
+              ) : null}
             </div>
             
             <div className={styles.modalSidebar}>
               <div className={styles.momentHeader} style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <img src={activeMoment.user?.avatarUrl || `https://ui-avatars.com/api/?name=${activeMoment.user?.username}&background=22c55e&color=fff`} className={styles.avatar} alt={activeMoment.user?.username} />
-                <div className={styles.username}>{activeMoment.user?.username}</div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div className={styles.username}>{activeMoment.user?.username}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{formatDate(activeMoment.createdAt)}</div>
+                </div>
                 <X size={20} style={{ marginLeft: 'auto', cursor: 'pointer' }} onClick={() => setActiveMoment(null)} />
               </div>
               
@@ -443,14 +598,52 @@ export default function MomentsPage() {
                   </div>
                 )}
                 
-                {activeMoment.comments?.map((c, i) => (
-                  <div key={i} className={styles.comment}>
-                    <img src={c.user?.avatarUrl || `https://ui-avatars.com/api/?name=${c.user?.username}&background=22c55e&color=fff`} className={styles.commentAvatar} />
-                    <div className={styles.commentText}>
-                      <strong>{c.user?.username}</strong> {c.text}
+                {activeMoment.comments?.map((c, i) => {
+                  const hasLiked = c.likes?.includes(currentUser?._id);
+                  return (
+                    <div key={i} className={styles.commentBlock} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div className={styles.comment} style={{ display: 'flex', gap: '12px' }}>
+                        <img src={c.user?.avatarUrl || `https://ui-avatars.com/api/?name=${c.user?.username}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                        <div style={{ flex: 1 }}>
+                          <div className={styles.commentText} style={{ fontSize: '0.9rem' }}>
+                            <strong>{c.user?.username}</strong> {c.text}
+                          </div>
+                          <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                            <span>{formatDate(c.createdAt)}</span>
+                            <button onClick={() => handleCommentLike(activeMoment._id, c._id)} style={{ background: 'none', border: 'none', color: hasLiked ? 'var(--color-primary)' : 'inherit', cursor: 'pointer', padding: 0 }}>
+                              {c.likes?.length || 0} {c.likes?.length === 1 ? 'like' : 'likes'}
+                            </button>
+                            <button onClick={() => handleCommentReply(c)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0 }}>Reply</button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {c.replies?.length > 0 && (
+                        <div style={{ marginLeft: '44px', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '4px' }}>
+                          {c.replies.map((reply, ridx) => {
+                            const hasReplyLiked = reply.likes?.includes(currentUser?._id);
+                            return (
+                              <div key={ridx} className={styles.comment} style={{ display: 'flex', gap: '8px' }}>
+                                <img src={reply.user?.avatarUrl || `https://ui-avatars.com/api/?name=${reply.user?.username}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '24px', height: '24px', borderRadius: '50%' }} />
+                                <div style={{ flex: 1 }}>
+                                  <div className={styles.commentText} style={{ fontSize: '0.85rem' }}>
+                                    <strong>{reply.user?.username}</strong> {reply.text}
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                                    <span>{formatDate(reply.createdAt)}</span>
+                                    <button onClick={() => handleReplyLike(activeMoment._id, c._id, reply._id)} style={{ background: 'none', border: 'none', color: hasReplyLiked ? 'var(--color-primary)' : 'inherit', cursor: 'pointer', padding: 0 }}>
+                                      {reply.likes?.length || 0} {reply.likes?.length === 1 ? 'like' : 'likes'}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className={styles.actions} style={{ borderTop: '1px solid var(--color-border)' }}>

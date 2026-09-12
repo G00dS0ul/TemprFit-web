@@ -95,6 +95,22 @@ export default function Dashboard() {
     }
   };
 
+  const handleDisputeEscrow = async (txId) => {
+    if (!confirm('Are you sure you want to dispute this transaction? This will freeze the funds and notify an Admin to intervene.')) return;
+    const res = await fetch('/api/escrow', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transactionId: txId, action: 'dispute' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setEscrows(prev => prev.filter(t => t._id !== txId)); // Remove from active view
+      alert('Dispute raised. An Admin will review the transaction soon.');
+    } else {
+      alert(data.error || 'Failed to raise dispute.');
+    }
+  };
+
   if (!signedIn) {
     return (
       <div className={styles.page}>
@@ -287,6 +303,12 @@ export default function Dashboard() {
                       </div>
                       <div style={{ display: 'flex', gap: '12px' }}>
                         <button 
+                          onClick={() => handleDisputeEscrow(escrow._id)} 
+                          style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Dispute
+                        </button>
+                        <button 
                           onClick={() => handleReleaseFunds(escrow._id, stepVal)} 
                           style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
                         >
@@ -333,17 +355,17 @@ export default function Dashboard() {
               <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', color: '#22c55e' }}>Are you a fitness professional?</h3>
               <p style={{ color: 'var(--color-text-muted)' }}>Join the TemprFit Trainer Network to coach clients and earn money.</p>
             </div>
-            <Link href="/become-trainer" style={{ background: '#22c55e', color: '#000', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none' }}>
+            <Link href="/become-trainer" style={{ background: '#22c55e', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
               Become a Trainer
             </Link>
           </div>
 
           <div style={{ marginTop: '20px', background: 'var(--color-bg-elevated)', padding: '24px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '4px', color: '#f0f0f0' }}>Platform Administration</h3>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>Platform Administration</h3>
               <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Access the admin command center (Master password required).</p>
             </div>
-            <Link href="/admin/login" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s' }}>
+            <Link href="/admin/login" style={{ background: '#22c55e', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
               Admin Portal
             </Link>
           </div>

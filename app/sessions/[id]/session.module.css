@@ -41,7 +41,48 @@
 
 .headerActions {
   display: flex;
-  gap: 6px;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.exerciseDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.exerciseMediaWrap {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.exerciseInstructions {
+  background: var(--color-bg-elevated);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.exerciseInstructions h4 {
+  margin-bottom: 8px;
+  color: var(--color-text);
+}
+
+.exerciseInstructions ol {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.exerciseInstructions li {
+  margin-bottom: 4px;
 }
 
 .headerActions button {
@@ -176,7 +217,7 @@
 .setDone .checkBtn {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-text);
 }
 
 .setDone input {
@@ -209,7 +250,7 @@
   padding: 14px;
   border-radius: 999px;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text);
   font-weight: 700;
 }
 
@@ -279,8 +320,124 @@
 
 .primaryBtn {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text);
 }
+
+.primary.checkBtn:hover {
+  background: var(--color-success);
+  color: var(--color-text);
+}
+
+.wizardCard {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin: 24px 0;
+  text-align: center;
+}
+
+.wizardTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--color-text);
+}
+
+.wizardSubtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin-bottom: 24px;
+}
+
+.wizardInputRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.wizardInput {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border-strong);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  width: 120px;
+  text-align: center;
+  outline: none;
+}
+.wizardInput:focus {
+  border-color: var(--color-primary);
+}
+
+.wizardUnit {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.wizardBtn {
+  background: var(--color-primary);
+  color: var(--color-text);
+  border: none;
+  border-radius: 99px;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+.wizardBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--color-primary-soft);
+}
+
+.timerCircle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 6px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 3rem;
+  font-weight: 800;
+  font-family: 'Orbitron', sans-serif;
+  color: var(--color-primary);
+  box-shadow: 0 0 20px var(--color-primary-soft);
+}
+
+.setIndicator {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.setDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-border);
+  transition: all 0.3s;
+}
+.setDot.active {
+  background: var(--color-primary);
+  transform: scale(1.2);
+}
+.setDot.completed {
+  background: var(--color-success);
+}
+
 
 .secondaryBtn {
   border: 1px solid var(--color-border);

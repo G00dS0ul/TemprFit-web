@@ -21,11 +21,11 @@
 .header h1 {
   font-family: 'Orbitron', sans-serif;
   font-size: 2.2rem;
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .header p {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin-bottom: 24px;
 }
 
@@ -40,7 +40,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -53,7 +53,7 @@
 
 .tab.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text);
   border-color: var(--color-primary);
 }
 
@@ -75,12 +75,12 @@
 
 .genderSelect label {
   font-weight: 600;
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .genderSelect select {
   background: var(--bg);
-  color: var(--text);
+  color: var(--color-text);
   border: 1px solid var(--border);
   padding: 8px 12px;
   border-radius: 8px;
@@ -117,7 +117,7 @@
   border: 2px dashed var(--border);
   border-radius: 12px;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   transition: all 0.2s;
 }
 
@@ -145,7 +145,7 @@
   top: 10px;
   right: 10px;
   background: rgba(0,0,0,0.6);
-  color: white;
+  color: var(--color-text);
   border: none;
   border-radius: 50%;
   width: 32px;
@@ -163,7 +163,7 @@
 
 .primaryBtn {
   background: linear-gradient(135deg, var(--color-primary), #16a34a);
-  color: white;
+  color: var(--color-text);
   border: none;
   padding: 14px 32px;
   border-radius: 12px;
@@ -192,7 +192,7 @@
 
 .hint {
   text-align: center;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .tagGrid {
@@ -247,7 +247,7 @@
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.8);
-  color: white;
+  color: var(--color-text);
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.7rem;
@@ -288,13 +288,13 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
-  color: var(--text);
+  color: var(--color-text);
   outline: none;
 }
 
 .modal button {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text);
   border: none;
   padding: 10px;
   border-radius: 8px;
@@ -324,7 +324,7 @@
 }
 
 .compareSidebar p {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -342,7 +342,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
-  color: var(--text);
+  color: var(--color-text);
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.2s;
@@ -393,7 +393,7 @@
   top: 10px;
   left: 10px;
   background: rgba(0,0,0,0.6);
-  color: white;
+  color: var(--color-text);
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -408,7 +408,7 @@
   width: 100%;
   padding: 14px;
   background: linear-gradient(135deg, #a855f7, #06b6d4);
-  color: white;
+  color: var(--color-text);
   border: none;
   border-radius: 12px;
   font-weight: bold;
@@ -449,7 +449,7 @@
 }
 
 .aiFeedbackBox p {
-  color: var(--text);
+  color: var(--color-text);
   line-height: 1.5;
   font-size: 0.95rem;
 }
@@ -457,7 +457,7 @@
 .saveBtn {
   background: var(--bg);
   border: 1px solid var(--border);
-  color: var(--text);
+  color: var(--color-text);
   padding: 10px;
   border-radius: 8px;
   font-weight: bold;
@@ -467,7 +467,7 @@
 
 .saveBtn:disabled {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text);
   border-color: var(--color-primary);
   cursor: default;
 }

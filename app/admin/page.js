@@ -9,10 +9,12 @@ import styles from './page.module.css';
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [pendingTrainers, setPendingTrainers] = useState([]);
+  const [escrows, setEscrows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();
+    fetchEscrows();
   }, []);
 
   const fetchStats = async () => {
@@ -27,6 +29,18 @@ export default function AdminDashboard() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchEscrows = async () => {
+    try {
+      const res = await fetch('/api/escrow');
+      const data = await res.json();
+      if (data.transactions) {
+        setEscrows(data.transactions);
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -49,9 +63,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className={styles.page}>
-        <Navbar />
-        <Sidebar />
-        <div style={{ marginLeft: '250px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
           <Loader2 size={40} className="spin" style={{ color: '#ef4444' }} />
         </div>
       </div>
@@ -60,9 +72,7 @@ export default function AdminDashboard() {
 
   return (
     <div className={styles.page}>
-      <Navbar />
-      <Sidebar />
-      <div className="container" style={{ marginLeft: '250px', width: 'calc(100% - 250px)' }}>
+      <div className={`container ${styles.adminContainer}`}>
         <div className={styles.header}>
           <h1>Admin <span className={styles.gradient}>Command Center</span></h1>
           <p style={{ color: 'var(--color-text-muted)' }}>Platform overview and management.</p>
@@ -126,6 +136,46 @@ export default function AdminDashboard() {
                       <X size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> Reject
                     </button>
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.section} style={{ marginTop: '40px' }}>
+          <h2>Manage Escrow Transactions</h2>
+          {escrows.length === 0 ? (
+            <p style={{ color: 'var(--color-text-muted)' }}>No escrow transactions found.</p>
+          ) : (
+            <div className={styles.escrowList}>
+              {escrows.map(tx => (
+                <div key={tx._id} className={styles.trainerCard} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
+                  <div className={styles.trainerInfo}>
+                    <span className={styles.trainerName}>Booking: {tx.trainee?.username} → {tx.trainer?.username}</span>
+                    <span className={styles.trainerEmail}>Amount: ${tx.amount.toFixed(2)} | Status: <strong>{tx.status.toUpperCase()}</strong></span>
+                  </div>
+                  {tx.status === 'requested' || tx.status === 'held' ? (
+                    <div className={styles.actions}>
+                      <button 
+                        className={styles.approveBtn} 
+                        onClick={async () => {
+                          const res = await fetch('/api/escrow', {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ transactionId: tx._id, action: 'release' })
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            fetchEscrows(); // Reload
+                          } else {
+                            alert(data.error);
+                          }
+                        }}
+                      >
+                        <Check size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> Admin Force Release
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>

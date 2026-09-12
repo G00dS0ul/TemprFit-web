@@ -14,7 +14,7 @@
 }
 
 .backLink:hover {
-  color: #fff;
+  color: var(--color-text);
 }
 
 .threadHeader {
@@ -132,9 +132,9 @@
 
 .replyForm textarea {
   width: 100%;
-  background: rgba(255,255,255,0.05);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  color: #fff;
+  color: var(--color-text);
   padding: 16px;
   border-radius: 8px;
   resize: vertical;
@@ -145,7 +145,7 @@
 
 .replyBtn {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text);
   border: none;
   padding: 10px 24px;
   border-radius: 8px;

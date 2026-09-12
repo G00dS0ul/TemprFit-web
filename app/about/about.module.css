@@ -32,7 +32,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   font-weight: 800;
-  color: #f0f0f0;
+  color: var(--color-text);
   line-height: 1.2;
   margin-bottom: 16px;
 }
@@ -46,7 +46,7 @@
 
 .sectionDesc {
   font-size: 1rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   line-height: 1.6;
 }
 
@@ -95,9 +95,9 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f0f0f0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
   border-radius: 10px;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -137,14 +137,14 @@
 .ctaBox h2 {
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(1.5rem, 3vw, 2.2rem);
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 12px;
   position: relative;
   z-index: 1;
 }
 
 .ctaBox p {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 1rem;
   margin-bottom: 28px;
   max-width: 500px;
@@ -169,7 +169,7 @@
   gap: 8px;
   padding: 14px 32px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
+  color: var(--color-text);
   border-radius: 12px;
   font-weight: 600;
   font-size: 1rem;
@@ -187,9 +187,9 @@
   align-items: center;
   gap: 8px;
   padding: 14px 32px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f0f0f0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
   border-radius: 12px;
   font-weight: 600;
   font-size: 1rem;
@@ -197,7 +197,7 @@
 }
 
 .ctaSecondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border-strong);
   border-color: rgba(34, 197, 94, 0.3);
 }
 

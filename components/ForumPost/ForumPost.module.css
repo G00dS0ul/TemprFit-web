@@ -31,7 +31,7 @@
 
 .author {
   font-weight: 600;
-  color: #f0f0f0;
+  color: var(--color-text);
   font-size: 0.9rem;
 }
 
@@ -44,14 +44,14 @@
   font-family: 'Orbitron', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: #f0f0f0;
+  color: var(--color-text);
   margin-bottom: 8px;
   line-height: 1.4;
 }
 
 .content {
   font-size: 0.9rem;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   line-height: 1.6;
   margin-bottom: 16px;
 }
@@ -88,7 +88,7 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.85rem;
   transition: all 0.2s ease;
 }

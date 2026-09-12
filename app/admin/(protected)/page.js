@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Users, DollarSign, TrendingUp, Search, Shield, CheckCircle, XCircle,
   Plus, Loader2, TicketCheck, BarChart3, Crown, Zap, UserX, Trash2, Mail
@@ -10,6 +11,7 @@ import StatsCard from '@/components/StatsCard';
 import styles from './page.module.css';
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [tab, setTab] = useState('overview');
   const [stats, setStats] = useState(null);
 
@@ -96,6 +98,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleInitChat = async (userIds) => {
+    try {
+      const res = await fetch('/api/messages/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetUserIds: userIds })
+      });
+      const data = await res.json();
+      if (data.success) {
+        router.push('/messages');
+      } else {
+        alert(data.error || 'Failed to start chat');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error while starting chat');
+    }
+  };
+
   const handleDeleteUser = async (userId) => {
     if (!confirm('Delete this user permanently? This cannot be undone.')) return;
     await fetch('/api/admin/users', {
@@ -172,7 +193,7 @@ export default function AdminDashboard() {
   const planIcon = (plan) => {
     if (plan === 'max') return <Crown size={12} style={{ color: 'gold' }} />;
     if (plan === 'pro') return <Zap size={12} style={{ color: '#22c55e' }} />;
-    return <Shield size={12} style={{ color: '#a1a1a8' }} />;
+    return <Shield size={12} style={{ color: 'var(--color-text-muted)' }} />;
   };
 
   return (
@@ -205,19 +226,19 @@ export default function AdminDashboard() {
                   </div>
                   <div style={{ padding: '20px', display: 'grid', gap: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                      <span style={{ color: '#a1a1a8' }}>New users this month</span>
+                      <span style={{ color: 'var(--color-text-muted)' }}>New users this month</span>
                       <strong>{stats?.newUsersThisMonth ?? '...'}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                      <span style={{ color: '#a1a1a8' }}>Active coupons</span>
+                      <span style={{ color: 'var(--color-text-muted)' }}>Active coupons</span>
                       <strong>{stats?.activeCoupons ?? '...'}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                      <span style={{ color: '#a1a1a8' }}>Pro subscribers</span>
+                      <span style={{ color: 'var(--color-text-muted)' }}>Pro subscribers</span>
                       <strong style={{ color: '#22c55e' }}>{stats?.proUsers ?? '...'}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                      <span style={{ color: '#a1a1a8' }}>Max subscribers</span>
+                      <span style={{ color: 'var(--color-text-muted)' }}>Max subscribers</span>
                       <strong style={{ color: 'gold' }}>{stats?.maxUsers ?? '...'}</strong>
                     </div>
                   </div>
@@ -233,7 +254,7 @@ export default function AdminDashboard() {
                 <h3>User Management ({usersTotal})</h3>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <div style={{ position: 'relative' }}>
-                    <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#a1a1a8' }} />
+                    <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                     <input
                       type="text"
                       placeholder="Search users..."
@@ -265,11 +286,11 @@ export default function AdminDashboard() {
                   <span>Actions</span>
                 </div>
                 {loadingUsers ? (
-                  <div style={{ padding: '2rem', textAlign: 'center', color: '#a1a1a8' }}>
+                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                     <Loader2 size={24} className={styles.spin} />
                   </div>
                 ) : users.length === 0 ? (
-                  <div style={{ padding: '2rem', textAlign: 'center', color: '#a1a1a8' }}>No users found.</div>
+                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No users found.</div>
                 ) : (
                   users.map(u => (
                     <div key={u._id} className={styles.tableRow}>
@@ -316,7 +337,7 @@ export default function AdminDashboard() {
             <div className={styles.tableSection}>
               <div className={styles.tableHeader}>
                 <h3>Trainer Applications</h3>
-                <p style={{ fontSize: '0.85rem', color: '#a1a1a8' }}>Approve or reject pending trainer accounts.</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Approve or reject pending trainer accounts.</p>
               </div>
               <div className={styles.table}>
                 <div className={styles.tableHead}>
@@ -326,7 +347,7 @@ export default function AdminDashboard() {
                   <span>Actions</span>
                 </div>
                 {users.filter(u => u.role === 'trainer' && !u.trainerInfo?.isApproved).length === 0 ? (
-                  <div style={{ padding: '3rem', textAlign: 'center', color: '#a1a1a8' }}>
+                  <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                     <Shield size={40} style={{ opacity: 0.3, marginBottom: '12px' }} />
                     <p>No pending applications.</p>
                   </div>
@@ -385,11 +406,11 @@ export default function AdminDashboard() {
               </div>
               
               {loadingEscrow ? (
-                <div style={{ padding: '3rem', textAlign: 'center', color: '#a1a1a8' }}>
+                <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                   <Loader2 size={32} className={styles.spin} />
                 </div>
               ) : escrows.length === 0 ? (
-                <div style={{ padding: '3rem', textAlign: 'center', color: '#a1a1a8' }}>
+                <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                   <DollarSign size={40} style={{ opacity: 0.3, marginBottom: '12px' }} />
                   <p>No escrow transactions yet.</p>
                   <p style={{ fontSize: '0.85rem', opacity: 0.6 }}>Escrow transactions will appear here once trainers start receiving bookings.</p>
@@ -423,9 +444,16 @@ export default function AdminDashboard() {
                           <>
                             <button onClick={() => handleEscrowAction(tx._id, 'release')} style={{ padding: '4px 10px', fontSize: '0.75rem', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Release</button>
                             <button onClick={() => handleEscrowAction(tx._id, 'refund')} style={{ padding: '4px 10px', fontSize: '0.75rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Refund</button>
+                            {tx.status === 'disputed' && (
+                              <>
+                                <button onClick={() => handleInitChat([tx.trainee._id])} style={{ padding: '4px 10px', fontSize: '0.75rem', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Msg Trainee</button>
+                                <button onClick={() => handleInitChat([tx.trainer._id])} style={{ padding: '4px 10px', fontSize: '0.75rem', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Msg Trainer</button>
+                                <button onClick={() => handleInitChat([tx.trainee._id, tx.trainer._id])} style={{ padding: '4px 10px', fontSize: '0.75rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Group Chat</button>
+                              </>
+                            )}
                           </>
                         ) : (
-                          <span style={{ fontSize: '0.75rem', color: '#a1a1a8' }}>Resolved</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Resolved</span>
                         )}
                       </div>
                     </div>
@@ -509,21 +537,21 @@ export default function AdminDashboard() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div>
                     <p style={{ fontWeight: 600 }}>Total Registered Users</p>
-                    <p style={{ color: '#a1a1a8', fontSize: '0.85rem' }}>All-time user registrations</p>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>All-time user registrations</p>
                   </div>
                   <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#22c55e' }}>{stats?.totalUsers ?? '...'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div>
                     <p style={{ fontWeight: 600 }}>Monthly Revenue (Est.)</p>
-                    <p style={{ color: '#a1a1a8', fontSize: '0.85rem' }}>Based on active Pro + Max subscriptions</p>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Based on active Pro + Max subscriptions</p>
                   </div>
                   <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#22c55e' }}>${stats?.estimatedMRR ?? '0'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div>
                     <p style={{ fontWeight: 600 }}>Conversion Rate</p>
-                    <p style={{ color: '#a1a1a8', fontSize: '0.85rem' }}>Paid users / Total users</p>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Paid users / Total users</p>
                   </div>
                   <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#06b6d4' }}>
                     {stats ? (((stats.proUsers + stats.maxUsers) / Math.max(stats.totalUsers, 1)) * 100).toFixed(1) : '0'}%
@@ -543,7 +571,7 @@ export default function AdminDashboard() {
                 <div>
                   <label style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>Platform Fee (%)</label>
                   <input className={styles.searchInput} type="number" defaultValue={15} min={0} max={50} />
-                  <p style={{ color: '#a1a1a8', fontSize: '0.75rem', marginTop: '4px' }}>Commission charged on escrow transactions.</p>
+                  <p style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem', marginTop: '4px' }}>Commission charged on escrow transactions.</p>
                 </div>
                 <div>
                   <label style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>Admin Password</label>

@@ -49,7 +49,7 @@
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary, #a1a1a8);
+  color: var(--text-secondary, var(--color-text-muted));
 }
 
 .chartWrapper {
@@ -60,5 +60,5 @@
 .loading {
   padding: 2rem;
   text-align: center;
-  color: var(--text-secondary, #a1a1a8);
+  color: var(--text-secondary, var(--color-text-muted));
 }

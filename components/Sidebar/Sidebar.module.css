@@ -1,5 +1,5 @@
 .sidebar {
-  width: 260px;
+  width: 76px;
   height: calc(100vh - 72px);
   position: fixed;
   left: 0;
@@ -12,6 +12,11 @@
   padding: 16px 10px;
   z-index: 100;
   overflow: hidden;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar:hover {
+  width: 260px;
 }
 
 .roleBadge {
@@ -56,7 +61,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-text);
   font-weight: 700;
   font-size: 0.95rem;
 }
@@ -74,7 +79,7 @@
 }
 
 .profileName {
-  color: #f0f0f0;
+  color: var(--color-text);
   font-size: 0.88rem;
   font-weight: 600;
   white-space: nowrap;
@@ -83,7 +88,7 @@
 }
 
 .profilePlan {
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.75rem;
   text-transform: capitalize;
 }
@@ -123,7 +128,7 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 10px;
-  color: #a1a1a8;
+  color: var(--color-text-muted);
   font-size: 0.88rem;
   font-weight: 500;
   transition: all 0.2s ease;
@@ -132,7 +137,7 @@
 
 .menuItem:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #f0f0f0;
+  color: var(--color-text);
 }
 
 .active {
@@ -180,4 +185,31 @@
   .sidebar {
     display: none;
   }
+}
+
+.sidebar:not(:hover) .menuItem span,
+.sidebar:not(:hover) .profileInfo,
+.sidebar:not(:hover) .roleBadge span,
+.sidebar:not(:hover) .logout span,
+.sidebar:not(:hover) .bottom span {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  position: absolute;
+}
+
+.sidebar .menuItem span,
+.sidebar .profileInfo,
+.sidebar .roleBadge span,
+.sidebar .logout span,
+.sidebar .bottom span {
+  transition: opacity 0.3s ease;
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+
+.sidebar:not(:hover) .roleBadge {
+  justify-content: center;
+  padding: 6px;
 }

@@ -19,6 +19,7 @@ export default function TrainerProfile({ params }) {
   useEffect(() => {
     fetch(`/api/trainers/${params.id}`)
       .then(r => r.json())
+      .then(data => {
         if (data.error) {
           setError(data.error);
         } else {
@@ -158,7 +159,7 @@ export default function TrainerProfile({ params }) {
             <button 
               onClick={async () => {
                 try {
-                  const res = await fetch(\`/api/messages/init\`, {
+                  const res = await fetch('/api/messages/init', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ targetUserId: trainer._id })

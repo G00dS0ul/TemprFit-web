@@ -3,15 +3,15 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, Dumbbell, BrainCircuit, LineChart } from 'lucide-react';
+import { Home, Compass, Dumbbell, BrainCircuit, Users } from 'lucide-react';
 import styles from './MobileBottomNav.module.css';
 
 const TABS = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/explore', label: 'Explore', icon: Compass },
-  { href: '/workouts', label: 'Workouts', icon: Dumbbell },
-  { href: '/coach', label: 'Coach', icon: BrainCircuit },
-  { href: '/progress', label: 'Progress', icon: LineChart },
+  { href: '/explore', label: 'Exercise Library', icon: Compass },
+  { href: '/workouts', label: 'My Workouts', icon: Dumbbell },
+  { href: '/coach', label: 'My AI Coach', icon: BrainCircuit },
+  { href: '/moments', label: 'Moments', icon: Users },
 ];
 
 export default function MobileBottomNav() {

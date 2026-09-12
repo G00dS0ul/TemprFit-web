@@ -73,6 +73,10 @@ const UserSchema = new mongoose.Schema(
     },
     weightUnit: { type: String, enum: ['lbs', 'kg'], default: 'lbs' },
     heightCm: { type: Number, default: null }, // canonical storage; UI converts to ft/in or cm for display
+    aiUsage: {
+      date: { type: String, default: '' },
+      count: { type: Number, default: 0 },
+    },
   },
   { timestamps: true }
 )

@@ -57,7 +57,7 @@ export default function WeightTracker() {
   if (!signedIn) {
     return (
       <div className={styles.container}>
-        <p style={{ color: 'var(--color-text-muted, #a1a1a8)', padding: '20px 0' }}>
+        <p style={{ color: 'var(--color-text-muted, var(--color-text-muted))', padding: '20px 0' }}>
           Sign in to track your weight and body fat over time.
         </p>
       </div>
@@ -169,7 +169,7 @@ export default function WeightTracker() {
           <button onClick={addEntry} disabled={saving}>{saving ? 'Saving…' : 'Add Entry'}</button>
         </div>
         {error && <p className={styles.negativeText}>{error}</p>}
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #a1a1a8)', marginTop: '6px' }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, var(--color-text-muted))', marginTop: '6px' }}>
           Logging again today updates today's entry instead of adding a duplicate.
         </p>
       </div>

@@ -81,10 +81,54 @@ export async function PATCH(request) {
       $inc: { 'trainerInfo.escrowBalance': releaseVal },
     });
 
+    const { default: Notification } = await import('@/models/Notification');
+    await Notification.create({
+      user: tx.trainer._id,
+      title: 'Funds Released! 💰',
+      message: `${user.username || 'A client'} has released $${releaseVal.toFixed(2)} from escrow into your wallet.`,
+      type: 'system',
+      link: '/trainer-dashboard'
+    });
+
   } else if (action === 'refund') {
     tx.status = 'refunded';
     tx.resolvedBy = user._id;
     tx.resolvedAt = new Date();
+  } else if (action === 'dispute') {
+    if (!isTrainee && !isAdmin && tx.trainer._id.toString() !== user._id.toString()) {
+      return NextResponse.json({ error: 'Not authorized to dispute this transaction' }, { status: 403 });
+    }
+    tx.status = 'disputed';
+    
+    // Notify all Admins
+    const admins = await User.find({ role: 'admin' }).select('_id');
+    if (admins.length > 0) {
+      const { default: Notification } = await import('@/models/Notification');
+      const adminNotifications = admins.map(admin => ({
+        user: admin._id,
+        title: 'Escrow Dispute Raised 🚨',
+        message: `A dispute was raised for a $${tx.amount.toFixed(2)} transaction between ${tx.trainee.username} and ${tx.trainer.username}.`,
+        type: 'system',
+        link: '/admin'
+      }));
+      await Notification.insertMany(adminNotifications);
+    }
+  } else if (action === 'request') {
+    if (tx.trainer._id.toString() !== user._id.toString()) {
+      return NextResponse.json({ error: 'Only the trainer can request funds' }, { status: 403 });
+    }
+    
+    // Notify the trainee
+    const { default: Notification } = await import('@/models/Notification');
+    await Notification.create({
+      user: tx.trainee._id,
+      title: 'Action Required: Release Funds 🔔',
+      message: `Your trainer ${tx.trainer.username} has requested the release of funds for your session. Please review and release from your dashboard.`,
+      type: 'system',
+      link: '/dashboard'
+    });
+    
+    // We don't change the transaction status, just save to trigger any updatedAt timestamps if needed, or just return success
   } else {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   }

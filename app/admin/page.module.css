@@ -1,6 +1,21 @@
 .page {
-  padding: 40px 20px;
+  padding: 0 20px 40px;
   min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.adminContainer {
+  margin-left: 76px;
+  width: calc(100% - 76px);
+  transition: margin-left 0.3s;
+}
+
+@media (max-width: 1024px) {
+  .adminContainer {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 
 .header {
@@ -46,7 +61,7 @@
 .statValue {
   font-size: 2rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text);
 }
 
 .trainersSection {
@@ -72,8 +87,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface);
   border-radius: 12px;
 }
 
@@ -99,7 +114,7 @@
 
 .approveBtn {
   background: #22c55e;
-  color: #fff;
+  color: var(--color-text);
   border: none;
   padding: 8px 16px;
   border-radius: 8px;

@@ -12,13 +12,14 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { displayName } from '@/lib/utils';
+import BackButton from '@/components/BackButton';
 import styles from './Navbar.module.css';
 
 const navLinks = [
-  { href: '/explore', label: 'Explore', icon: Compass },
-  { href: '/coach', label: 'Coach', icon: BrainCircuit },
-  { href: '/progress', label: 'Progress', icon: LineChart },
-  { href: '/community', label: 'Community', icon: Users },
+  { href: '/explore', label: 'Exercise Library', icon: Compass },
+  { href: '/workouts', label: 'My Workouts', icon: Dumbbell },
+  { href: '/coach', label: 'My AI Coach', icon: BrainCircuit },
+  { href: '/moments', label: 'Moments', icon: Users },
 ];
 
 const APP_PAGES = [
@@ -58,6 +59,20 @@ export default function Navbar() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState({ pages: [], exercises: [] });
   const searchTimeoutRef = useRef(null);
+  const navRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
+        setNotifOpen(false);
+        setSearchOpen(false);
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -153,13 +168,18 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
+    <nav ref={navRef} className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
       <div className="container">
         <div className={styles.navInner}>
-          <Link href="/" className={styles.logo}>
-            <Image src="/images/brand/logo-mark.png" alt="TemprFit" width={32} height={32} className={styles.logoMark} priority />
-            <span className={styles.logoText}>TemprFit</span>
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {pathname !== '/' && pathname !== '/dashboard' && pathname !== '/trainer-dashboard' && (
+              <BackButton className={styles.navbarBackBtn} />
+            )}
+            <Link href="/" className={styles.logo}>
+              <Image src="/images/brand/logo-mark.png" alt="TemprFit" width={32} height={32} className={styles.logoMark} priority />
+              <span className={styles.logoText}>TemprFit</span>
+            </Link>
+          </div>
 
           <div className={styles.desktopNav}>
             <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.active : ''}`}>Home</Link>
@@ -170,7 +190,8 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className={styles.desktopActions}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className={styles.desktopActions}>
             <div className={styles.searchWrapper}>
               <button 
                 className={styles.searchBarBtn} 
@@ -323,11 +344,11 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+            </div>
+            <button className={styles.mobileToggle} onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
-
-          <button className={styles.mobileToggle} onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
       </div>
 
@@ -343,27 +364,17 @@ export default function Navbar() {
           <hr className={styles.mobileDivider} />
           {user ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <button className={styles.mobileLink} style={{ textAlign: 'left', border: 'none', background: 'none' }} onClick={() => { setMenuOpen(false); setSearchOpen(true); }}>
-                <Search size={16} style={{ display: 'inline', marginRight: '8px' }} /> Search
-              </button>
-              <button className={styles.mobileLink} style={{ textAlign: 'left', border: 'none', background: 'none' }} onClick={() => { setMenuOpen(false); setNotifOpen(true); }}>
-                <Bell size={16} style={{ display: 'inline', marginRight: '8px' }} /> Notifications {unreadCount > 0 && `(${unreadCount})`}
-              </button>
               <hr className={styles.mobileDivider} />
-              {user.role === 'trainer' ? (
-                <>
-                  <Link href="/trainer-dashboard" className={styles.mobileLink} onClick={() => setMenuOpen(false)}><LayoutDashboard size={16} style={{ display: 'inline', marginRight: '8px' }} /> Trainer Dashboard</Link>
-                </>
-              ) : (
-                APP_PAGES.map(page => (
-                  <Link key={page.url} href={page.url} className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-                    <page.icon size={16} style={{ display: 'inline', marginRight: '8px' }} /> {page.title}
-                  </Link>
-                ))
+              {user.role === 'trainer' && (
+                <Link href="/trainer-dashboard" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+                  <LayoutDashboard size={16} style={{ display: 'inline', marginRight: '8px' }} /> Trainer Dashboard
+                </Link>
               )}
-              <Link href="/moments" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-                <Sparkles size={16} style={{ display: 'inline', marginRight: '8px' }} /> Moments Feed
-              </Link>
+              {navLinks.map((link) => (
+                <Link key={link.href} href={link.href} className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+                  <link.icon size={16} style={{ display: 'inline', marginRight: '8px' }} /> {link.label}
+                </Link>
+              ))}
               <hr className={styles.mobileDivider} />
               <button className={styles.mobileAuth} onClick={handleLogout}>Sign Out ({displayName(user).split(' ')[0]})</button>
             </div>

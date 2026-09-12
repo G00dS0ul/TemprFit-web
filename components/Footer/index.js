@@ -10,7 +10,7 @@ export default function Footer() {
           <div className={styles.brand}>
             <div className={styles.brandLogo}>
               <Dumbbell size={24} />
-              <span>Rep<span className={styles.brandAccent}>Forge</span></span>
+              <span>Tempr<span className={styles.brandAccent}>Fit</span></span>
             </div>
             <p className={styles.brandDesc}>
               Forge your body, one rep at a time. The ultimate fitness platform with AI coaching,

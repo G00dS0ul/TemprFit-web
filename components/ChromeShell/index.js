@@ -12,9 +12,16 @@ export default function ChromeShell({ children }) {
   useEffect(() => {
     document.body.style.overflow = isHome ? 'hidden' : '';
     document.body.style.height = isHome ? '100vh' : '';
+    
+    const mainEl = document.querySelector('main');
+    if (mainEl) {
+      mainEl.style.paddingTop = isHome ? '0' : '';
+    }
+
     return () => {
       document.body.style.overflow = '';
       document.body.style.height = '';
+      if (mainEl) mainEl.style.paddingTop = '';
     };
   }, [isHome]);
 
