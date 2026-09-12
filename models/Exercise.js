@@ -61,6 +61,12 @@ const ExerciseSchema = new mongoose.Schema(
     // prescribed dynamically per user + goal by lib/prescription.js (and
     // later the AI planner), not baked into the exercise record.
 
+    trackingType: { 
+      type: String, 
+      enum: ['weight_reps', 'reps_only', 'time_only'], 
+      default: 'weight_reps' 
+    },
+
     media: { type: mongoose.Schema.Types.Mixed },
 
     safetyNotes: [{ type: String }],

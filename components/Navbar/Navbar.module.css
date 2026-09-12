@@ -690,6 +690,20 @@
   border: none;
 }
 
+.mobileMenuOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .mobileMenu {
   position: fixed;
   top: 84px;
@@ -743,6 +757,34 @@
   margin: 6px 0;
 }
 
+.mobileCategoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mobileCategoryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+
+.mobileCategoryLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 8px;
+}
+
 .mobileDashboard, .mobileAuth {
   padding: 12px 14px;
   border-radius: var(--radius-sm);
@@ -757,6 +799,12 @@
 .mobileDashboard {
   background: var(--color-primary);
   color: var(--color-text);
+}
+
+.mobileUpgradeBtn {
+  color: #fbbf24 !important;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
 .mobileAuth {
@@ -788,7 +836,8 @@
   .searchBarKbd,
   .userName,
   .themeKnob,
-  .userBtn svg:last-child {
+  .userBtn svg:last-child,
+  .authButtons {
     display: none;
   }
   .searchBarBtn {
@@ -829,8 +878,14 @@
     border: none;
   }
   .omniDropdown {
-    width: 320px;
-    right: -40px;
+    position: fixed;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 400px;
+    right: auto;
+    z-index: 1000;
   }
 }
 

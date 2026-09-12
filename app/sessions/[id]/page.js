@@ -216,29 +216,27 @@ export default function WorkoutSessionPage() {
     if (!isNaN(w)) updateSet(currentIndex, currentSetIndex, { weight: w });
     
     const cur = session.exercises[currentIndex];
-    const set = cur.sets[currentSetIndex];
     
     setWizardStep('ACTIVE');
     
     // Check if timed
-    const targetStr = String(set.targetReps || '');
-    if (targetStr.endsWith('s')) {
-      const secs = parseInt(targetStr) || 60;
+    if (cur.exercise?.trackingType === 'time_only' || String(cur.sets[currentSetIndex]?.targetReps || '').endsWith('s')) {
+      const secs = parseInt(cur.sets[currentSetIndex]?.targetReps) || 60;
       setActiveTimerSeconds(secs);
       setAutoSpeakPrompt(`Starting timer for ${secs} seconds. Go!`);
     } else {
-      setAutoSpeakPrompt(`Starting set. Target is ${targetStr} reps. Go!`);
+      setAutoSpeakPrompt(`Starting set. Target is ${cur.sets[currentSetIndex]?.targetReps || 0} reps. Go!`);
     }
   };
   
   const finishActiveSet = () => {
     setWizardStep('POST_SET');
     
-    const targetStr = String(session.exercises[currentIndex].sets[currentSetIndex].targetReps || '');
-    if (!targetStr.endsWith('s')) {
-      setAutoSpeakPrompt("Great job. How many reps did you hit?");
-    } else {
+    const cur = session.exercises[currentIndex];
+    if (cur.exercise?.trackingType === 'time_only' || String(cur.sets[currentSetIndex]?.targetReps || '').endsWith('s')) {
       setAutoSpeakPrompt("Great job! You crushed that time!");
+    } else {
+      setAutoSpeakPrompt("Great job. How many reps did you hit?");
     }
   };
   
@@ -386,7 +384,7 @@ export default function WorkoutSessionPage() {
               <div className={styles.wizardTitle}>Set {currentSetIndex + 1} of {current.sets.length}</div>
               <div className={styles.wizardSubtitle}>Target: {activeSet.targetReps || '-'}</div>
               
-              {!(current?.exercise?.equipment === 'Bodyweight' || current?.exercise?.equipment === 'None' || String(activeSet.targetReps || '').endsWith('s')) && (
+              {current?.exercise?.trackingType === 'weight_reps' && (
                 <div className={styles.wizardInputRow}>
                   <input 
                     type="number"
@@ -424,11 +422,21 @@ export default function WorkoutSessionPage() {
              <div className={styles.wizardCard}>
               <div className={styles.wizardTitle}>Great job!</div>
               
-              {String(activeSet.targetReps || '').endsWith('s') ? (
+              {current?.exercise?.trackingType === 'time_only' || String(activeSet.targetReps || '').endsWith('s') ? (
                 <>
-                  <div className={styles.wizardSubtitle}>You held it!</div>
+                  <div className={styles.wizardSubtitle}>How many seconds did you hold it?</div>
+                  <div className={styles.wizardInputRow}>
+                    <input 
+                      type="number"
+                      className={styles.wizardInput}
+                      value={tempReps}
+                      onChange={(e) => setTempReps(e.target.value)}
+                      placeholder="Seconds"
+                      autoFocus
+                    />
+                    <span className={styles.wizardUnit}>sec</span>
+                  </div>
                   <button className={styles.wizardBtn} onClick={() => {
-                    setTempReps(parseInt(activeSet.targetReps) || 0);
                     saveCompletedSet();
                   }}>
                     <Check size={18} /> Continue

@@ -52,7 +52,7 @@ export default function AIModal({ isOpen, onClose }) {
         <div className={styles.header}>
           <div className={styles.aiInfo}>
             <div className={styles.aiAvatar}>
-              <Image src="/images/brand/logo-mark.png" alt="" width={22} height={22} />
+              <Image src="/images/brand/logo-mark.webp" alt="" width={22} height={22} />
             </div>
             <div>
               <h3>TemprFit AI Coach</h3>
@@ -69,7 +69,7 @@ export default function AIModal({ isOpen, onClose }) {
             <div key={i} className={`${styles.message} ${styles[msg.role]}`}>
               <div className={styles.avatar}>
                 {msg.role === 'ai' ? (
-                  <Image src="/images/brand/logo-mark.png" alt="" width={16} height={16} />
+                  <Image src="/images/brand/logo-mark.webp" alt="" width={16} height={16} />
                 ) : (
                   <User size={16} />
                 )}
@@ -86,7 +86,7 @@ export default function AIModal({ isOpen, onClose }) {
           {isTyping && (
             <div className={`${styles.message} ${styles.ai}`}>
               <div className={styles.avatar}>
-                <Image src="/images/brand/logo-mark.png" alt="" width={16} height={16} />
+                <Image src="/images/brand/logo-mark.webp" alt="" width={16} height={16} />
               </div>
               <div className={styles.typing}>
                 <span />

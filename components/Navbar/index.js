@@ -8,19 +8,15 @@ import {
   Search, Bell, Sun, Moon, ChevronDown, Menu, X, User,
   Settings, LogOut, Compass, BrainCircuit, LineChart, Users,
   Dumbbell, History, Activity, Sparkles, LayoutDashboard,
-  Apple, Salad, BookOpen, Loader2, MessageCircle, Calendar, CreditCard
+  Apple, Salad, BookOpen, Loader2, MessageCircle, Calendar, CreditCard,
+  ChevronRight, ArrowRight, Zap
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { displayName } from '@/lib/utils';
 import BackButton from '@/components/BackButton';
 import styles from './Navbar.module.css';
 
-const navLinks = [
-  { href: '/explore', label: 'Exercise Library', icon: Compass },
-  { href: '/workouts', label: 'My Workouts', icon: Dumbbell },
-  { href: '/coach', label: 'My AI Coach', icon: BrainCircuit },
-  { href: '/moments', label: 'Moments', icon: Users },
-];
+import { traineeCategories, trainerCategories } from '@/lib/navConfig';
 
 const APP_PAGES = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
@@ -60,6 +56,8 @@ export default function Navbar() {
   const [searchResults, setSearchResults] = useState({ pages: [], exercises: [] });
   const searchTimeoutRef = useRef(null);
   const navRef = useRef(null);
+  
+  const [openCategory, setOpenCategory] = useState('');
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -176,18 +174,16 @@ export default function Navbar() {
               <BackButton className={styles.navbarBackBtn} />
             )}
             <Link href="/" className={styles.logo}>
-              <Image src="/images/brand/logo-mark.png" alt="TemprFit" width={32} height={32} className={styles.logoMark} priority />
+              <Image src="/images/brand/logo-mark.webp" alt="TemprFit" width={32} height={32} className={styles.logoMark} priority />
               <span className={styles.logoText}>TemprFit</span>
             </Link>
           </div>
 
           <div className={styles.desktopNav}>
             <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.active : ''}`}>Home</Link>
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className={`${styles.navLink} ${pathname.startsWith(link.href) ? styles.active : ''}`}>
-                {link.label}
-              </Link>
-            ))}
+            <Link href="/explore" className={`${styles.navLink} ${pathname.startsWith('/explore') ? styles.active : ''}`}>Exercises</Link>
+            <Link href="/workouts" className={`${styles.navLink} ${pathname.startsWith('/workouts') ? styles.active : ''}`}>Workouts</Link>
+            <Link href="/coach" className={`${styles.navLink} ${pathname.startsWith('/coach') ? styles.active : ''}`}>AI Coach</Link>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -353,38 +349,57 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className={styles.mobileMenu}>
-          <div className={styles.mobileSectionTitle}>Navigation</div>
-          <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Home</Link>
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={`${styles.mobileLink} ${pathname.startsWith(link.href) ? styles.activeMobileLink : ''}`} onClick={() => setMenuOpen(false)}>
-              {link.label}
-            </Link>
-          ))}
-          <hr className={styles.mobileDivider} />
-          {user ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <hr className={styles.mobileDivider} />
-              {user.role === 'trainer' && (
-                <Link href="/trainer-dashboard" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-                  <LayoutDashboard size={16} style={{ display: 'inline', marginRight: '8px' }} /> Trainer Dashboard
-                </Link>
-              )}
-              {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-                  <link.icon size={16} style={{ display: 'inline', marginRight: '8px' }} /> {link.label}
-                </Link>
-              ))}
-              <hr className={styles.mobileDivider} />
-              <button className={styles.mobileAuth} onClick={handleLogout}>Sign Out ({displayName(user).split(' ')[0]})</button>
-            </div>
-          ) : (
+        <>
+          <div className={styles.mobileMenuOverlay} onClick={() => setMenuOpen(false)} />
+          <div className={styles.mobileMenu}>
+            <div className={styles.mobileSectionTitle}>Navigation</div>
+            <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Home</Link>
+            
+            {user ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                {(user.role === 'trainer' ? trainerCategories : traineeCategories).map(cat => (
+                  <div key={cat.title} className={styles.mobileCategoryGroup}>
+                    <button 
+                      className={styles.mobileCategoryHeader}
+                      onClick={() => setOpenCategory(openCategory === cat.title ? '' : cat.title)}
+                    >
+                      <span className={styles.mobileCategoryTitle}>{cat.title}</span>
+                      {openCategory === cat.title ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </button>
+                    {openCategory === cat.title && (
+                      <div className={styles.mobileCategoryLinks}>
+                        {cat.links.map(link => (
+                          <Link 
+                            key={link.href} 
+                            href={link.href} 
+                            className={`${styles.mobileLink} ${pathname === link.href ? styles.activeMobileLink : ''}`} 
+                            onClick={() => setMenuOpen(false)}
+                          >
+                            <link.icon size={16} style={{ display: 'inline', marginRight: '8px' }} /> {link.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                <hr className={styles.mobileDivider} />
+                
+                {user.role !== 'trainer' && (
+                  <Link href="/upgrade" className={`${styles.mobileLink} ${styles.mobileUpgradeBtn}`} onClick={() => setMenuOpen(false)}>
+                    <Zap size={16} style={{ display: 'inline', marginRight: '8px' }} /> Upgrade Plan
+                  </Link>
+                )}
+                <button className={styles.mobileAuth} onClick={handleLogout}>Sign Out ({displayName(user).split(' ')[0]})</button>
+              </div>
+            ) : (
             <>
               <Link href="/register" className={styles.mobileDashboard} onClick={() => setMenuOpen(false)}>Get Started</Link>
               <Link href="/login" className={styles.mobileAuth} onClick={() => setMenuOpen(false)}>Sign In</Link>
             </>
           )}
         </div>
+        </>
       )}
 
       {selectedNotif && (

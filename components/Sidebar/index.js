@@ -6,47 +6,19 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, BarChart3, LineChart, Users, MessageSquare,
   Apple, Dumbbell, BookOpen, Sparkles, DollarSign, Settings, LogOut,
-  Salad, ScanFace, Heart, CalendarDays, Star, TrendingUp, Megaphone, Wallet, Shield
+  Salad, ScanFace, Heart, CalendarDays, Star, TrendingUp, Megaphone, Wallet, Shield, ChevronDown, ChevronRight, Zap
 } from 'lucide-react';
 import { displayName } from '@/lib/utils';
 import styles from './Sidebar.module.css';
 
-/* ─── Role-specific menu configs ─── */
-
-const traineeMenu = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/transformation', label: 'Transformation', icon: Sparkles },
-  { href: '/dashboard/favorites', label: 'Favorites', icon: Heart },
-  { href: '/progress', label: 'Progress', icon: LineChart },
-  { href: '/tracker', label: 'Tracker', icon: BarChart3 },
-  { href: '/health/calculator', label: 'BMI Calc', icon: BarChart3 },
-  { href: '/trainers', label: 'Trainers', icon: Users },
-  { href: '/moments', label: 'Moments', icon: Sparkles },
-  { href: '/forum', label: 'Forum', icon: MessageSquare },
-  { href: '/diet', label: 'Diet Plans', icon: Apple },
-  { href: '/nutrition', label: 'Nutrition', icon: Salad },
-  { href: '/coach', label: 'AI Coach', icon: Sparkles },
-  { href: '/form-check', label: 'Form Check', icon: ScanFace },
-  { href: '/notes', label: 'Notes', icon: BookOpen },
-];
-
-const trainerMenu = [
-  { href: '/trainer-dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/trainer-dashboard/clients', label: 'My Clients', icon: Users },
-  { href: '/trainer-dashboard/messages', label: 'Messages', icon: MessageSquare },
-  { href: '/trainer-dashboard/earnings', label: 'Escrow & Earnings', icon: Wallet },
-  { href: '/trainer-dashboard/schedule', label: 'Schedule', icon: CalendarDays },
-  { href: '/trainer-dashboard/programs', label: 'My Programs', icon: Dumbbell },
-  { href: '/trainer-dashboard/analytics', label: 'Analytics', icon: TrendingUp },
-  { href: '/trainer-dashboard/reviews', label: 'Reviews', icon: Star },
-  { href: '/upgrade', label: 'Boost Profile', icon: Megaphone },
-];
+import { traineeCategories, trainerCategories } from '@/lib/navConfig';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [openCategory, setOpenCategory] = useState('');
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -66,7 +38,13 @@ export default function Sidebar() {
   };
 
   const isTrainer = user?.role === 'trainer';
-  const menuItems = isTrainer ? trainerMenu : traineeMenu;
+  const categories = isTrainer ? trainerCategories : traineeCategories;
+
+  useEffect(() => {
+    if (!categories) return;
+    const activeCat = categories.find(cat => cat.links.some(link => pathname === link.href || (link.href !== '/dashboard' && link.href !== '/trainer-dashboard' && pathname.startsWith(link.href))));
+    if (activeCat && !openCategory) setOpenCategory(activeCat.title);
+  }, [pathname, categories]);
 
   return (
     <aside className={styles.sidebar}>
@@ -97,23 +75,43 @@ export default function Sidebar() {
       )}
 
       <div className={styles.menu}>
-        {menuItems.map(item => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/trainer-dashboard' && item.href !== '/dashboard' && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`${styles.menuItem} ${isActive ? styles.active : ''}`}
+        {categories.map(category => (
+          <div key={category.title} className={styles.categoryGroup}>
+            <button 
+              className={styles.categoryHeader} 
+              onClick={() => setOpenCategory(openCategory === category.title ? '' : category.title)}
             >
-              <Icon size={20} />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+              <span className={styles.categoryTitle}>{category.title}</span>
+              {openCategory === category.title ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            </button>
+            
+            <div className={`${styles.categoryLinks} ${openCategory === category.title ? styles.open : ''}`}>
+              {category.links.map(item => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href || (item.href !== '/trainer-dashboard' && item.href !== '/dashboard' && pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${styles.menuItem} ${isActive ? styles.active : ''}`}
+                  >
+                    <Icon size={20} />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className={styles.bottom}>
+        {!isTrainer && (
+          <Link href="/upgrade" className={`${styles.menuItem} ${styles.upgradeBtn}`}>
+            <Zap size={20} />
+            <span>Upgrade Plan</span>
+          </Link>
+        )}
         {user?.role === 'admin' && (
           <Link href="/admin" className={styles.menuItem} style={{ color: '#ef4444' }}>
             <Shield size={20} />

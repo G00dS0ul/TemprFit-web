@@ -96,12 +96,49 @@
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 12px;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 4px;
   margin-right: -4px;
+}
+
+.categoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: color 0.2s;
+  width: 100%;
+}
+
+.categoryHeader:hover {
+  color: var(--color-text);
+}
+
+.categoryLinks {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.categoryLinks.open {
+  display: flex;
 }
 
 /* Custom scrollbar for sidebar menu */
@@ -151,6 +188,15 @@
   color: #22c55e;
 }
 
+.upgradeBtn {
+  color: #fbbf24 !important;
+  font-weight: 700;
+}
+.upgradeBtn:hover {
+  background: rgba(251, 191, 36, 0.1) !important;
+  color: #f59e0b !important;
+}
+
 .bottom {
   display: flex;
   flex-direction: column;
@@ -187,6 +233,10 @@
   }
 }
 
+.sidebar:not(:hover) .categoryHeader {
+  display: none;
+}
+
 .sidebar:not(:hover) .menuItem span,
 .sidebar:not(:hover) .profileInfo,
 .sidebar:not(:hover) .roleBadge span,
@@ -198,12 +248,13 @@
   position: absolute;
 }
 
+.sidebar .categoryHeader,
 .sidebar .menuItem span,
 .sidebar .profileInfo,
 .sidebar .roleBadge span,
 .sidebar .logout span,
 .sidebar .bottom span {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
   opacity: 1;
   visibility: visible;
   position: relative;
