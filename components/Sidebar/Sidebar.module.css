@@ -1,38 +1,108 @@
 .sidebar {
-  width: 76px;
   height: calc(100vh - 72px);
   position: fixed;
   left: 0;
   top: 72px;
-  background: rgba(15, 15, 17, 0.95);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   padding: 16px 10px;
   z-index: 100;
   overflow: hidden;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 76px;
 }
 
 .sidebar:hover {
   width: 260px;
 }
 
-.roleBadge {
+.expanded {
+  width: 260px;
+}
+
+.collapsed {
+  width: 76px !important;
+}
+
+.collapseToggle {
+  position: absolute;
+  top: 16px;
+  right: 10px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  background: var(--color-surface-elevated);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  margin-bottom: 10px;
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.15);
-  border-radius: 8px;
-  color: #22c55e;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+  z-index: 10;
+}
+
+.collapseToggle:hover {
+  color: var(--color-text);
+  background: var(--color-border);
+}
+
+.modeToggleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: var(--color-surface-elevated);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.collapsed .modeToggleContainer {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.modeLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text);
+}
+
+.toggleSwitch {
+  width: 44px;
+  height: 24px;
+  background: var(--color-border);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggleSwitch.toggleOn {
+  background: var(--color-primary);
+}
+
+.toggleKnob {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggleOn .toggleKnob {
+  transform: translateX(20px);
 }
 
 .profile {
@@ -42,13 +112,14 @@
   padding: 10px 12px;
   margin-bottom: 10px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   transition: all 0.2s ease;
   flex-shrink: 0;
+  margin-top: 24px; /* Space for collapse button */
 }
 
 .profile:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--color-surface-elevated);
 }
 
 .avatar {
@@ -141,7 +212,6 @@
   display: flex;
 }
 
-/* Custom scrollbar for sidebar menu */
 .menu::-webkit-scrollbar {
   width: 5px;
 }
@@ -151,7 +221,7 @@
 }
 
 .menu::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--color-border);
   border-radius: 10px;
 }
 
@@ -173,7 +243,7 @@
 }
 
 .menuItem:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-surface-elevated);
   color: var(--color-text);
 }
 
@@ -203,7 +273,7 @@
   gap: 3px;
   padding-top: 10px;
   margin-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
@@ -233,34 +303,48 @@
   }
 }
 
-.sidebar:not(:hover) .categoryHeader {
-  display: none;
-}
-
-.sidebar:not(:hover) .menuItem span,
-.sidebar:not(:hover) .profileInfo,
-.sidebar:not(:hover) .roleBadge span,
-.sidebar:not(:hover) .logout span,
-.sidebar:not(:hover) .bottom span {
+/* Collapsed State Overrides */
+/* Hide text elements when sidebar is NOT hovered AND it's not manually pinned expanded */
+.sidebar:not(:hover):not(.expanded) .categoryHeader .categoryTitle,
+.sidebar:not(:hover):not(.expanded) .categoryHeader .catIcon,
+.sidebar:not(:hover):not(.expanded) .menuItem span,
+.sidebar:not(:hover):not(.expanded) .profileInfo,
+.sidebar:not(:hover):not(.expanded) .logout span,
+.sidebar:not(:hover):not(.expanded) .bottom span,
+.sidebar:not(:hover):not(.expanded) .modeLabel,
+.collapsed .categoryHeader .categoryTitle,
+.collapsed .categoryHeader .catIcon,
+.collapsed .menuItem span,
+.collapsed .profileInfo,
+.collapsed .logout span,
+.collapsed .bottom span,
+.collapsed .modeLabel {
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
   position: absolute;
 }
 
-.sidebar .categoryHeader,
-.sidebar .menuItem span,
-.sidebar .profileInfo,
-.sidebar .roleBadge span,
-.sidebar .logout span,
-.sidebar .bottom span {
+.categoryHeader .categoryTitle,
+.categoryHeader .catIcon,
+.menuItem span,
+.profileInfo,
+.logout span,
+.bottom span,
+.modeLabel {
   transition: opacity 0.2s ease, visibility 0.2s ease;
   opacity: 1;
   visibility: visible;
   position: relative;
 }
 
-.sidebar:not(:hover) .roleBadge {
+.sidebar:not(:hover):not(.expanded) .categoryHeader,
+.collapsed .categoryHeader {
   justify-content: center;
-  padding: 6px;
+}
+
+.sidebar:not(:hover):not(.expanded) .modeToggleContainer,
+.collapsed .modeToggleContainer {
+  justify-content: center;
+  padding: 12px 0;
 }

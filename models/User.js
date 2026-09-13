@@ -57,6 +57,10 @@ const UserSchema = new mongoose.Schema(
       location: { type: String, default: 'Remote' },
       trainingMode: { type: String, enum: ['physical', 'remote', 'hybrid'], default: 'remote' },
       mediaGallery: [{ type: String }], // Array of URLs
+      resumeUrl: { type: String, default: '' },
+      introVideoUrl: { type: String, default: '' },
+      expertise: [{ type: String }],
+      experienceYears: { type: Number, default: 0 },
     },
     avatarUrl: { type: String, default: '' }, // data URL (uploaded photo) or an external URL
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

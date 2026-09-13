@@ -10,7 +10,7 @@ export default function Trainers() {
   const [specialty, setSpecialty] = useState('All');
   const [priceRange, setPriceRange] = useState('Any');
   const [filterOpen, setFilterOpen] = useState(false);
-  const [trainers, setTrainers] = useState([]);
+  const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,18 +24,16 @@ export default function Trainers() {
     if (priceRange === '$100+') minPrice = 100;
 
     const query = new URLSearchParams({
-      q: search,
-      specialty: specialty !== 'All' ? specialty : '',
-      minPrice,
-      maxPrice
+      category: specialty !== 'All' ? specialty : '',
     });
+    
+    if (search) query.append('q', search);
 
-    // Debounce search slightly
     const timeout = setTimeout(() => {
-      fetch(`/api/trainers?${query.toString()}`)
+      fetch(`/api/programs?${query.toString()}`)
         .then(r => r.json())
         .then(data => {
-          setTrainers(data.trainers || []);
+          setPrograms(data.programs || []);
           setLoading(false);
         })
         .catch(() => setLoading(false));
@@ -102,36 +100,36 @@ export default function Trainers() {
           <div style={{ textAlign: 'center', padding: '4rem 0', color: '#22c55e' }}>
             <Loader2 size={40} className="spin" />
           </div>
-        ) : trainers.length === 0 ? (
+        ) : programs.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
-            <p>No trainers found matching your search.</p>
+            <p>No programs found matching your search.</p>
           </div>
         ) : (
           <div className={styles.trainerGrid}>
-            {trainers.map(trainer => {
-              const isFeatured = trainer.trainerInfo?.isFeatured;
-              const price = trainer.trainerInfo?.price || 50;
-              const location = trainer.trainerInfo?.location || 'Remote';
-              const specs = trainer.trainerInfo?.specialties?.slice(0,2).join(', ') || 'General Fitness';
+            {programs.map(program => {
+              const trainer = program.trainer;
+              const isFeatured = trainer?.trainerInfo?.isFeatured;
+              const price = program.price;
+              const location = program.trainingMode;
 
               return (
-                <div key={trainer._id} className={styles.trainerCard}>
-                  {isFeatured && <div className={styles.featuredBadge}><Zap size={12} /> Featured</div>}
+                <div key={program._id} className={styles.trainerCard}>
+                  {isFeatured && <div className={styles.featuredBadge}><Zap size={12} /> Featured Trainer</div>}
                   <div className={styles.cardTop}>
-                    <img src={trainer.avatarUrl || `https://ui-avatars.com/api/?name=${trainer.username}&background=22c55e&color=fff`} alt={trainer.username} className={styles.avatar} />
+                    <img src={trainer?.avatarUrl || `https://ui-avatars.com/api/?name=${trainer?.username}&background=22c55e&color=fff`} alt={trainer?.username} className={styles.avatar} />
                     <div className={styles.info}>
-                      <h3>{trainer.username}</h3>
-                      <p className={styles.specialty}>{specs}</p>
-                      <p className={styles.location}>{location}</p>
+                      <h3 style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{program.title}</h3>
+                      <p className={styles.specialty}>by {trainer?.username}</p>
+                      <p className={styles.location} style={{ textTransform: 'capitalize' }}>{location} • {program.category}</p>
                     </div>
                   </div>
                   <div className={styles.cardBottom}>
                     <div className={styles.price}>
                       <span className={styles.amount}>${price}</span>
-                      <span className={styles.per}>/session</span>
+                      <span className={styles.per}>total</span>
                     </div>
-                    <Link href={`/trainers/${trainer._id}`} className={styles.viewProfileBtn}>
-                      View Profile
+                    <Link href={`/trainers/programs/${program._id}`} className={styles.viewProfileBtn}>
+                      View Program
                     </Link>
                   </div>
                 </div>

@@ -30,7 +30,7 @@ export default function Footer() {
             <Link href="/diet">Diet Plans</Link>
             <Link href="/tracker">Progress Tracker</Link>
             <Link href="/ai-coach">AI Coach</Link>
-            <Link href="/forum">Community</Link>
+            <Link href="/moments">Moments</Link>
           </div>
 
           <div className={styles.linksCol}>

@@ -30,7 +30,7 @@ const APP_PAGES = [
   { title: 'Form Check', url: '/form-check', icon: Activity },
   { title: 'Transformation Journey', url: '/transformation', icon: Sparkles },
   { title: 'Trainers', url: '/trainers', icon: Users },
-  { title: 'Forum', url: '/forum', icon: Users },
+  { title: 'Moments', url: '/moments', icon: Users },
   { title: 'Notes', url: '/notes', icon: BookOpen },
   { title: 'Settings', url: '/settings', icon: Settings },
 ];
@@ -44,6 +44,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  const [activeMode, setActiveMode] = useState('trainee');
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -102,6 +103,7 @@ export default function Navbar() {
   };
 
   const loadSession = () => {
+    setActiveMode(localStorage.getItem('activeMode') || 'trainee');
     fetch('/api/auth/me')
       .then((r) => r.json())
       .then((data) => {
@@ -165,6 +167,8 @@ export default function Navbar() {
     window.location.href = '/';
   };
 
+  if (pathname.startsWith('/admin')) return null;
+
   return (
     <nav ref={navRef} className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
       <div className="container">
@@ -180,10 +184,22 @@ export default function Navbar() {
           </div>
 
           <div className={styles.desktopNav}>
-            <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.active : ''}`}>Home</Link>
-            <Link href="/explore" className={`${styles.navLink} ${pathname.startsWith('/explore') ? styles.active : ''}`}>Exercises</Link>
-            <Link href="/workouts" className={`${styles.navLink} ${pathname.startsWith('/workouts') ? styles.active : ''}`}>Workouts</Link>
-            <Link href="/coach" className={`${styles.navLink} ${pathname.startsWith('/coach') ? styles.active : ''}`}>AI Coach</Link>
+            {user?.role === 'trainer' && activeMode === 'trainer' ? (
+              <>
+                <Link href="/trainer-dashboard" className={`${styles.navLink} ${pathname === '/trainer-dashboard' ? styles.active : ''}`}>Dashboard</Link>
+                <Link href="/trainer-dashboard/clients" className={`${styles.navLink} ${pathname.startsWith('/trainer-dashboard/clients') ? styles.active : ''}`}>My Clients</Link>
+                <Link href="/trainer-dashboard/programs" className={`${styles.navLink} ${pathname.startsWith('/trainer-dashboard/programs') ? styles.active : ''}`}>Programs</Link>
+                <Link href="/trainer-dashboard/schedule" className={`${styles.navLink} ${pathname.startsWith('/trainer-dashboard/schedule') ? styles.active : ''}`}>Schedule</Link>
+              </>
+            ) : (
+              <>
+                <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.active : ''}`}>Home</Link>
+                <Link href="/explore" className={`${styles.navLink} ${pathname.startsWith('/explore') ? styles.active : ''}`}>Exercise Library</Link>
+                <Link href="/workouts" className={`${styles.navLink} ${pathname.startsWith('/workouts') ? styles.active : ''}`}>My Workouts</Link>
+                <Link href="/coach" className={`${styles.navLink} ${pathname.startsWith('/coach') ? styles.active : ''}`}>My AI Coach</Link>
+                <Link href="/moments" className={`${styles.navLink} ${pathname.startsWith('/moments') ? styles.active : ''}`}>Moments</Link>
+              </>
+            )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -357,7 +373,7 @@ export default function Navbar() {
             
             {user ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
-                {(user.role === 'trainer' ? trainerCategories : traineeCategories).map(cat => (
+                {(user.role === 'trainer' && activeMode === 'trainer' ? trainerCategories : traineeCategories).map(cat => (
                   <div key={cat.title} className={styles.mobileCategoryGroup}>
                     <button 
                       className={styles.mobileCategoryHeader}
@@ -386,9 +402,14 @@ export default function Navbar() {
                 <hr className={styles.mobileDivider} />
                 
                 {user.role !== 'trainer' && (
-                  <Link href="/upgrade" className={`${styles.mobileLink} ${styles.mobileUpgradeBtn}`} onClick={() => setMenuOpen(false)}>
-                    <Zap size={16} style={{ display: 'inline', marginRight: '8px' }} /> Upgrade Plan
-                  </Link>
+                  <>
+                    <Link href="/upgrade" className={`${styles.mobileLink} ${styles.mobileUpgradeBtn}`} onClick={() => setMenuOpen(false)}>
+                      <Zap size={16} style={{ display: 'inline', marginRight: '8px' }} /> Upgrade Plan
+                    </Link>
+                    <Link href="/become-trainer" className={`${styles.mobileLink}`} style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }} onClick={() => setMenuOpen(false)}>
+                      <Dumbbell size={16} style={{ display: 'inline', marginRight: '8px' }} /> Become a Trainer
+                    </Link>
+                  </>
                 )}
                 <button className={styles.mobileAuth} onClick={handleLogout}>Sign Out ({displayName(user).split(' ')[0]})</button>
               </div>

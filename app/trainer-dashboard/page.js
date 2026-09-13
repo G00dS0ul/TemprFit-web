@@ -29,17 +29,17 @@ export default function TrainerDashboard() {
       .catch(() => router.push('/dashboard'))
       .finally(() => setLoading(false));
 
-    fetch('/api/escrow?status=held')
+    fetch('/api/bookings?escrowStatus=held')
       .then(r => r.json())
-      .then(d => { if (d.transactions) setEscrows(d.transactions); })
+      .then(d => { if (d.bookings) setEscrows(d.bookings); })
       .catch(() => {});
   }, [router]);
 
   const handleRequestFunds = async (txId) => {
-    const res = await fetch('/api/escrow', {
+    const res = await fetch('/api/bookings', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transactionId: txId, action: 'request' })
+      body: JSON.stringify({ bookingId: txId, action: 'request' })
     });
     const data = await res.json();
     if (data.success || res.ok) {
@@ -210,15 +210,33 @@ export default function TrainerDashboard() {
                       <div key={tx._id} style={{ background: 'var(--color-bg)', padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                           <span style={{ fontWeight: 600 }}>Session with {tx.trainee?.username || 'Client'}</span>
-                          <span style={{ color: '#22c55e', fontWeight: 600 }}>${tx.trainerEarnings.toFixed(2)}</span>
+                          <span style={{ color: '#22c55e', fontWeight: 600 }}>${tx.amountPaid.toFixed(2)}</span>
                         </div>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>{tx.description}</p>
-                        <button
-                          onClick={() => handleRequestFunds(tx._id)}
-                          style={{ width: '100%', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '8px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          Request Fund Release
-                        </button>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>{tx.program?.title || 'Program'}</p>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={async () => {
+                              const res = await fetch('/api/messages/init', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ targetUserId: tx.trainee._id })
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                router.push('/messages');
+                              }
+                            }}
+                            style={{ flex: 1, background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            Message
+                          </button>
+                          <button
+                            onClick={() => handleRequestFunds(tx._id)}
+                            style={{ flex: 1, background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '8px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            Request Fund Release
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>

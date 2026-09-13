@@ -7,12 +7,13 @@ import Notification from '@/models/Notification';
 export async function POST(req) {
   await connectDB();
   const user = await getSessionUser();
-  if (!user || user.role !== 'admin') {
+  const { cookies } = await import('next/headers');
+  if (!user || (user.role !== 'admin' && cookies().get('admin_token')?.value !== 'true')) {
     return NextResponse.json({ error: 'Unauthorized. Admins only.' }, { status: 403 });
   }
 
   try {
-    const { trainerId, isApproved } = await req.json();
+    const { trainerId, isApproved, reason } = await req.json();
     
     const trainer = await User.findById(trainerId);
     if (!trainer || trainer.role !== 'trainer') {
@@ -29,19 +30,20 @@ export async function POST(req) {
         user: trainer._id,
         title: 'Application Approved!',
         message: 'Congratulations! Your trainer application has been approved and you are now a verified trainer.',
-        type: 'system'
+        type: 'system',
+        link: '/trainer-dashboard'
       });
     } else {
-      // If rejected, you might change their role back to user or just leave them unapproved.
-      // We will revert them to a normal user.
+      // If rejected, we revert them to a normal user.
       trainer.role = 'user';
       await trainer.save();
 
       await Notification.create({
         user: trainer._id,
         title: 'Application Update',
-        message: 'Your trainer application was not approved at this time.',
-        type: 'system'
+        message: `Your trainer application was not approved at this time. Reason: ${reason || 'Does not meet criteria'}. Click to reapply when ready.`,
+        type: 'system',
+        link: '/become-trainer'
       });
     }
 

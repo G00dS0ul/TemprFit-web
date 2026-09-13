@@ -76,7 +76,7 @@ export default function AboutPage() {
             ))}
           </div>
           <div className={styles.sectionCta}>
-            <Link href="/forum" className={styles.linkBtn}>
+            <Link href="/moments" className={styles.linkBtn}>
               Join the Forum <ArrowRight size={16} />
             </Link>
           </div>

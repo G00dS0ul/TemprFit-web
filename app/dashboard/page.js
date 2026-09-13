@@ -37,8 +37,9 @@ export default function Dashboard() {
     fetch('/api/auth/me')
       .then((r) => r.json())
       .then((data) => {
-        // Redirect trainers to their dedicated dashboard
-        if (data.user?.role === 'trainer') {
+        // Redirect approved trainers to their dedicated dashboard if they are in trainer mode
+        const activeMode = typeof window !== 'undefined' ? localStorage.getItem('activeMode') : 'trainee';
+        if (data.user?.role === 'trainer' && data.user?.trainerInfo?.isApproved && activeMode === 'trainer') {
           router.replace('/trainer-dashboard');
           return;
         }
@@ -62,11 +63,11 @@ export default function Dashboard() {
         if (e.message === 'signin') setSignedIn(false);
       });
 
-    // Fetch active bookings (escrows)
-    fetch('/api/escrow?status=held')
+    // Fetch active bookings
+    fetch('/api/bookings?escrowStatus=held')
       .then(r => r.json())
       .then(data => {
-        if (data.transactions) setEscrows(data.transactions);
+        if (data.bookings) setEscrows(data.bookings);
       })
       .catch(() => {});
 
@@ -81,14 +82,14 @@ export default function Dashboard() {
 
   const handleReleaseFunds = async (txId, amount) => {
     if (!confirm('Are you sure you want to release funds to the trainer? This cannot be undone.')) return;
-    const res = await fetch('/api/escrow', {
+    const res = await fetch('/api/bookings', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transactionId: txId, action: 'release', amountToRelease: amount })
+      body: JSON.stringify({ bookingId: txId, action: 'release', amountToRelease: amount })
     });
     const data = await res.json();
     if (data.success) {
-      setEscrows(prev => prev.map(t => t._id === txId ? data.transaction : t).filter(t => t.status === 'held'));
+      setEscrows(prev => prev.map(t => t._id === txId ? data.booking : t).filter(t => t.escrowStatus !== 'released'));
       alert('Funds released successfully! Thank you.');
     } else {
       alert(data.error || 'Failed to release funds.');
@@ -97,10 +98,10 @@ export default function Dashboard() {
 
   const handleDisputeEscrow = async (txId) => {
     if (!confirm('Are you sure you want to dispute this transaction? This will freeze the funds and notify an Admin to intervene.')) return;
-    const res = await fetch('/api/escrow', {
+    const res = await fetch('/api/bookings', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transactionId: txId, action: 'dispute' })
+      body: JSON.stringify({ bookingId: txId, action: 'dispute' })
     });
     const data = await res.json();
     if (data.success) {
@@ -289,19 +290,35 @@ export default function Dashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {escrows.map(escrow => {
                   const trainerName = escrow.trainer?.username || 'Trainer';
-                  const remaining = escrow.trainerEarnings - (escrow.releasedAmount || 0);
-                  const stepVal = escrow.trainerEarnings * 0.25;
+                  const remaining = escrow.amountPaid - (escrow.releasedAmount || 0);
+                  const stepVal = escrow.amountPaid * 0.25;
 
                   return (
                     <div key={escrow._id} style={{ background: 'var(--color-bg-elevated)', padding: '24px', borderRadius: '12px', border: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <h4 style={{ marginBottom: '8px' }}>Training with {trainerName}</h4>
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>{escrow.description}</p>
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>{escrow.program?.title || 'Program'}</p>
                         <div style={{ color: '#22c55e', fontSize: '0.85rem' }}>
-                          Released: ${(escrow.releasedAmount || 0).toFixed(2)} / ${escrow.trainerEarnings.toFixed(2)}
+                          Released: ${(escrow.releasedAmount || 0).toFixed(2)} / ${escrow.amountPaid.toFixed(2)}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '12px' }}>
+                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <button 
+                          onClick={async () => {
+                            const res = await fetch('/api/messages/init', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ targetUserId: escrow.trainer._id })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                              router.push('/messages');
+                            }
+                          }}
+                          style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Message
+                        </button>
                         <button 
                           onClick={() => handleDisputeEscrow(escrow._id)} 
                           style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}

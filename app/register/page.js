@@ -13,18 +13,16 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    role: '', 
+    role: 'user', 
     username: '', email: '', password: '',
     age: '', sex: '', heardAboutUs: '',
     goal: '', experience: '',
     weightUnit: 'lbs', startingWeight: '', heightUnit: 'cm', heightCm: '', heightFt: '', heightIn: '',
-    bio: '', specialties: '', price: '50', location: 'Remote', trainingMode: 'remote'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const isTrainer = formData.role === 'trainer';
-  const TOTAL_STEPS = isTrainer ? 3 : 6;
+  const TOTAL_STEPS = 5;
 
   const goals = ['Lose Weight', 'Build Muscle', 'Increase Strength', 'Improve Endurance', 'General Fitness'];
   const experiences = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
@@ -61,31 +59,16 @@ export default function Register() {
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        role: formData.role || 'user',
+        role: 'user',
+        age: formData.age ? parseInt(formData.age, 10) : null,
+        sex: formData.sex,
+        heardAboutUs: formData.heardAboutUs,
+        goal: formData.goal,
+        experience: formData.experience,
+        weightUnit: formData.weightUnit,
+        startingWeight: formData.startingWeight ? parseFloat(formData.startingWeight) : null,
+        heightCm,
       };
-
-      if (isTrainer) {
-        payload.trainerInfo = {
-          bio: formData.bio,
-          specialties: formData.specialties.split(',').map(s => s.trim()).filter(Boolean),
-          price: parseInt(formData.price, 10) || 50,
-          location: formData.location || 'Remote',
-          trainingMode: formData.trainingMode || 'remote',
-          isApproved: false,
-        };
-      } else {
-        payload = {
-          ...payload,
-          age: formData.age ? parseInt(formData.age, 10) : null,
-          sex: formData.sex,
-          heardAboutUs: formData.heardAboutUs,
-          goal: formData.goal,
-          experience: formData.experience,
-          weightUnit: formData.weightUnit,
-          startingWeight: formData.startingWeight ? parseFloat(formData.startingWeight) : null,
-          heightCm,
-        };
-      }
 
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -99,7 +82,7 @@ export default function Register() {
         return;
       }
       
-      router.push(isTrainer ? '/trainer-dashboard' : '/dashboard');
+      router.push('/dashboard');
     } catch (err) {
       setError('Could not reach the server. Is it running?');
       setLoading(false);
@@ -134,38 +117,8 @@ export default function Register() {
 
           {step === 1 && (
             <form onSubmit={handleSubmit} className={styles.form}>
-              <h1>Choose your path</h1>
-              <p>Step 1 of {TOTAL_STEPS} - Are you here to train, or to coach others?</p>
-              <div className={styles.optionsGrid} style={{ gridTemplateColumns: '1fr 1fr' }}>
-                <button
-                  type="button"
-                  className={`${styles.optionBtn} ${formData.role === 'user' ? styles.selected : ''}`}
-                  onClick={() => setFormData({...formData, role: 'user'})}
-                  style={{ height: '120px', display: 'flex', flexDirection: 'column', gap: '8px' }}
-                >
-                  <User size={24} />
-                  <span><strong>Trainee</strong><br/><small style={{opacity:0.7}}>Personal development</small></span>
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.optionBtn} ${formData.role === 'trainer' ? styles.selected : ''}`}
-                  onClick={() => setFormData({...formData, role: 'trainer'})}
-                  style={{ height: '120px', display: 'flex', flexDirection: 'column', gap: '8px' }}
-                >
-                  <Dumbbell size={24} />
-                  <span><strong>Trainer</strong><br/><small style={{opacity:0.7}}>Coach clients & earn</small></span>
-                </button>
-              </div>
-              <button type="submit" className={styles.submitBtn} disabled={!formData.role}>
-                Continue <ArrowRight size={16} />
-              </button>
-            </form>
-          )}
-
-          {step === 2 && (
-            <form onSubmit={handleSubmit} className={styles.form}>
               <h1>Create Account</h1>
-              <p>Step 2 of {TOTAL_STEPS} - Basic Info</p>
+              <p>Step 1 of {TOTAL_STEPS} - Basic Info</p>
               <div className={styles.inputGroup}>
                 <label>Username</label>
                 <input type="text" placeholder="e.g. john_doe" required minLength={3} maxLength={24}
@@ -189,89 +142,15 @@ export default function Register() {
               </div>
               
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="button" className={styles.backBtn} onClick={() => setStep(step - 1)}>Back</button>
                 <button type="submit" className={styles.submitBtn}>Continue <ArrowRight size={16} /></button>
               </div>
             </form>
           )}
 
-          {step === 3 && isTrainer && (
-            <div className={styles.form}>
-              <h1>Trainer Profile</h1>
-              <p>Step 3 of {TOTAL_STEPS} - Set up your coaching profile</p>
-              
-              <div className={styles.inputGroup}>
-                <label>Specialties (comma separated)</label>
-                <input type="text" placeholder="e.g. Hypertrophy, Powerlifting, Yoga" required
-                  value={formData.specialties} onChange={e => setFormData({...formData, specialties: e.target.value})} />
-              </div>
-              
-              <div className={styles.inputGroup}>
-                <label>Short Bio</label>
-                <textarea 
-                  placeholder="Tell clients about your experience..." 
-                  required
-                  rows={3}
-                  style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text)', resize: 'none' }}
-                  value={formData.bio} 
-                  onChange={e => setFormData({...formData, bio: e.target.value})} 
-                />
-              </div>
-
-              <div className={styles.optionsGrid} style={{ gridTemplateColumns: '1fr 1fr', marginBottom: '16px' }}>
-                <div className={styles.inputGroup} style={{ marginBottom: 0 }}>
-                  <label>Session Price ($)</label>
-                  <input type="number" placeholder="50" required min={5}
-                    value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
-                </div>
-                <div className={styles.inputGroup} style={{ marginBottom: 0 }}>
-                  <label>Location</label>
-                  <input type="text" placeholder="e.g. Remote, NYC, London" required
-                    value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
-                </div>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label>Training Mode</label>
-                <div className={styles.optionsGrid} style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-                  {['remote', 'physical', 'hybrid'].map(mode => (
-                    <button
-                      key={mode}
-                      type="button"
-                      style={{ textTransform: 'capitalize', padding: '8px' }}
-                      className={`${styles.optionBtn} ${formData.trainingMode === mode ? styles.selected : ''}`}
-                      onClick={() => setFormData({...formData, trainingMode: mode})}
-                    >
-                      {mode}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.85rem' }}>
-                <ShieldAlert size={16} style={{ display: 'inline', verticalAlign: '-3px', marginRight: '6px', color: '#3b82f6' }} />
-                <strong>Note on Payments:</strong> All sessions are booked securely via Escrow. A 15% platform fee will be deducted from your payout. Your profile will be manually reviewed by an Admin before it goes live.
-              </div>
-
-              {error && <p className={styles.errorText}>{error}</p>}
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="button" className={styles.backBtn} onClick={() => setStep(step - 1)} disabled={loading}>Back</button>
-                <button
-                  type="button"
-                  className={styles.submitBtn}
-                  onClick={handleCompleteRegistration}
-                  disabled={loading || !formData.specialties || !formData.bio}
-                >
-                  {loading ? 'Creating account…' : 'Complete'} <ArrowRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && !isTrainer && (
+          {step === 2 && (
             <form onSubmit={handleSubmit} className={styles.form}>
               <h1>About You</h1>
-              <p>Step 3 of {TOTAL_STEPS} - Helps us personalize TemprFit for you</p>
+              <p>Step 2 of {TOTAL_STEPS} - Helps us personalize TemprFit for you</p>
               <div className={styles.inputGroup}>
                 <label>Age</label>
                 <input type="number" placeholder="e.g. 27" required min={13} max={120}
@@ -316,10 +195,10 @@ export default function Register() {
             </form>
           )}
 
-          {step === 4 && !isTrainer && (
+          {step === 3 && (
             <form onSubmit={handleSubmit} className={styles.form}>
               <h1>Your Goal</h1>
-              <p>Step 4 of {TOTAL_STEPS} - Fitness Goals</p>
+              <p>Step 3 of {TOTAL_STEPS} - Fitness Goals</p>
               <div className={styles.optionsGrid}>
                 {goals.map(goal => (
                   <button
@@ -341,10 +220,10 @@ export default function Register() {
             </form>
           )}
 
-          {step === 5 && !isTrainer && (
+          {step === 4 && (
             <form onSubmit={handleSubmit} className={styles.form}>
               <h1>Almost Done!</h1>
-              <p>Step 5 of {TOTAL_STEPS} - Experience Level</p>
+              <p>Step 4 of {TOTAL_STEPS} - Experience Level</p>
               <div className={styles.optionsGrid}>
                 {experiences.map(exp => (
                   <button
@@ -366,10 +245,10 @@ export default function Register() {
             </form>
           )}
 
-          {step === 6 && !isTrainer && (
+          {step === 5 && (
             <div className={styles.form}>
               <h1>Body Stats</h1>
-              <p>Step 6 of {TOTAL_STEPS} - Optional, helps personalize your dashboard and progress charts. Skip if you&apos;d rather add this later in Settings.</p>
+              <p>Step 5 of {TOTAL_STEPS} - Optional, helps personalize your dashboard and progress charts. Skip if you&apos;d rather add this later in Settings.</p>
 
               <div className={styles.inputGroup}>
                 <label>Starting Weight</label>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Camera, Check, Loader2 } from 'lucide-react';
+import { Camera, Check, Loader2, Link as LinkIcon, FileText, Video } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import { PRESET_AVATAR_URLS } from '@/lib/avatars';
 import styles from './settings.module.css';
@@ -20,6 +20,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [activeMode, setActiveMode] = useState('trainee');
   
   const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' });
   const [passwordMessage, setPasswordMessage] = useState('');
@@ -28,6 +29,9 @@ export default function SettingsPage() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    const mode = localStorage.getItem('activeMode') || 'trainee';
+    setActiveMode(mode);
+
     fetch('/api/user/profile')
       .then((r) => {
         if (r.status === 401) throw new Error('signin');
@@ -51,8 +55,12 @@ export default function SettingsPage() {
           trainerLocation: data.user.trainerInfo?.location || '',
           trainerMode: data.user.trainerInfo?.trainingMode || 'remote',
           trainerMediaGallery: data.user.trainerInfo?.mediaGallery?.join(', ') || '',
+          trainerResumeUrl: data.user.trainerInfo?.resumeUrl || '',
+          trainerIntroVideoUrl: data.user.trainerInfo?.introVideoUrl || '',
+          trainerExpertise: data.user.trainerInfo?.expertise?.join(', ') || '',
+          trainerExperienceYears: data.user.trainerInfo?.experienceYears || 0,
         });
-        // Resolve the saved target exercise's display name for the search box.
+        
         if (data.user.goals?.targetExerciseSlug) {
           fetch(`/api/exercises/${data.user.goals.targetExerciseSlug}`)
             .then((r) => (r.ok ? r.json() : null))
@@ -82,7 +90,7 @@ export default function SettingsPage() {
         .catch(() => setExerciseResults([]));
     }, 250);
     return () => clearTimeout(t);
-  }, [exerciseQuery]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [exerciseQuery]);
 
   const handleAvatarPick = (e) => {
     const file = e.target.files?.[0];
@@ -122,6 +130,10 @@ export default function SettingsPage() {
             location: form.trainerLocation,
             trainingMode: form.trainerMode,
             mediaGallery: form.trainerMediaGallery.split(',').map(s => s.trim()).filter(Boolean),
+            resumeUrl: form.trainerResumeUrl,
+            introVideoUrl: form.trainerIntroVideoUrl,
+            expertise: form.trainerExpertise.split(',').map(s => s.trim()).filter(Boolean),
+            experienceYears: Number(form.trainerExperienceYears) || 0,
           } : undefined,
         }),
       });
@@ -222,8 +234,12 @@ export default function SettingsPage() {
       <div className={styles.content}>
         <div className="container">
           <div className={styles.header}>
-            <h1>Settings</h1>
-            <p>Manage your profile, photo, and goals. Everything here is saved to your account.</p>
+            <h1>{activeMode === 'trainer' ? 'Trainer Profile' : 'Settings'}</h1>
+            <p>
+              {activeMode === 'trainer' 
+                ? 'Manage your professional coaching profile, CV, and videos.' 
+                : 'Manage your profile, photo, and goals. Everything here is saved to your account.'}
+            </p>
           </div>
 
           <div className={styles.card}>
@@ -276,9 +292,10 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* BASIC PROFILE (COMMON) */}
           <div className={styles.card}>
-            <h3>Profile</h3>
-
+            <h3>Basic Info</h3>
+            
             <div className={styles.field}>
               <label>Email Address</label>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -304,38 +321,6 @@ export default function SettingsPage() {
             </div>
 
             <div className={styles.field}>
-              <label>Fitness Goal</label>
-              <div className={styles.optionRow}>
-                {GOALS.map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    className={`${styles.optionBtn} ${form.goal === g ? styles.selected : ''}`}
-                    onClick={() => setForm({ ...form, goal: g })}
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.field}>
-              <label>Experience Level</label>
-              <div className={styles.optionRow}>
-                {EXPERIENCES.map((exp) => (
-                  <button
-                    key={exp}
-                    type="button"
-                    className={`${styles.optionBtn} ${form.experience === exp ? styles.selected : ''}`}
-                    onClick={() => setForm({ ...form, experience: exp })}
-                  >
-                    {exp}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.field}>
               <label>Weight Unit</label>
               <div className={styles.optionRow}>
                 {['lbs', 'kg'].map((u) => (
@@ -352,70 +337,225 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className={styles.card}>
-            <h3>Goals</h3>
-            <p className={styles.cardHint}>These drive the progress bars on your Dashboard.</p>
+          {/* TRAINEE SECTION */}
+          {activeMode !== 'trainer' && (
+            <>
+              <div className={styles.card}>
+                <h3>Fitness Profile</h3>
+                <div className={styles.field}>
+                  <label>Fitness Goal</label>
+                  <div className={styles.optionRow}>
+                    {GOALS.map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        className={`${styles.optionBtn} ${form.goal === g ? styles.selected : ''}`}
+                        onClick={() => setForm({ ...form, goal: g })}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            <div className={styles.field}>
-              <label>Weekly Session Target</label>
-              <input
-                type="number"
-                min="1"
-                max="14"
-                value={form.weeklySessions}
-                onChange={(e) => setForm({ ...form, weeklySessions: e.target.value })}
-              />
-            </div>
+                <div className={styles.field}>
+                  <label>Experience Level</label>
+                  <div className={styles.optionRow}>
+                    {EXPERIENCES.map((exp) => (
+                      <button
+                        key={exp}
+                        type="button"
+                        className={`${styles.optionBtn} ${form.experience === exp ? styles.selected : ''}`}
+                        onClick={() => setForm({ ...form, experience: exp })}
+                      >
+                        {exp}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-            <div className={styles.field} style={{ position: 'relative' }}>
-              <label>Target Lift</label>
-              <input
-                placeholder="Search exercises… e.g. Barbell Bench Press"
-                value={exerciseQuery}
-                onChange={(e) => {
-                  setExerciseQuery(e.target.value);
-                  setForm((f) => ({ ...f, targetExerciseSlug: '', targetExerciseName: '' }));
-                }}
-              />
-              {exerciseResults.length > 0 && (
-                <div className={styles.dropdown}>
-                  {exerciseResults.map((ex) => (
+              <div className={styles.card}>
+                <h3>Goals</h3>
+                <p className={styles.cardHint}>These drive the progress bars on your Dashboard.</p>
+
+                <div className={styles.field}>
+                  <label>Weekly Session Target</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="14"
+                    value={form.weeklySessions}
+                    onChange={(e) => setForm({ ...form, weeklySessions: e.target.value })}
+                  />
+                </div>
+
+                <div className={styles.field} style={{ position: 'relative' }}>
+                  <label>Target Lift</label>
+                  <input
+                    placeholder="Search exercises… e.g. Barbell Bench Press"
+                    value={exerciseQuery}
+                    onChange={(e) => {
+                      setExerciseQuery(e.target.value);
+                      setForm((f) => ({ ...f, targetExerciseSlug: '', targetExerciseName: '' }));
+                    }}
+                  />
+                  {exerciseResults.length > 0 && (
+                    <div className={styles.dropdown}>
+                      {exerciseResults.map((ex) => (
+                        <button
+                          key={ex.slug}
+                          type="button"
+                          className={styles.dropdownItem}
+                          onClick={() => {
+                            setForm((f) => ({ ...f, targetExerciseSlug: ex.slug, targetExerciseName: ex.name }));
+                            setExerciseQuery(ex.name);
+                            setExerciseResults([]);
+                          }}
+                        >
+                          {ex.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.field}>
+                  <label>Target Weight ({form.weightUnit}, estimated 1RM)</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 225"
+                    value={form.targetWeight}
+                    onChange={(e) => setForm({ ...form, targetWeight: e.target.value })}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* TRAINER SECTION */}
+          {activeMode === 'trainer' && user?.role === 'trainer' && (
+            <div className={styles.card} style={{ border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                <div>
+                  <h3 style={{ margin: 0, color: '#22c55e' }}>Professional Profile</h3>
+                  <p className={styles.cardHint} style={{ marginTop: '4px' }}>This information is publicly visible to potential clients.</p>
+                </div>
+                {user.trainerInfo?.isVerified && (
+                  <span style={{ background: '#22c55e', color: '#000', padding: '4px 12px', borderRadius: '999px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Check size={14} /> Verified Trainer
+                  </span>
+                )}
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div className={styles.field}>
+                  <label>Years of Experience</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.trainerExperienceYears}
+                    onChange={(e) => setForm({ ...form, trainerExperienceYears: e.target.value })}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label>Session Price ($)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.trainerPrice}
+                    onChange={(e) => setForm({ ...form, trainerPrice: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.field}>
+                <label>Location</label>
+                <input
+                  placeholder="e.g. New York, NY or Remote"
+                  value={form.trainerLocation}
+                  onChange={(e) => setForm({ ...form, trainerLocation: e.target.value })}
+                />
+              </div>
+              
+              <div className={styles.field}>
+                <label>Training Mode</label>
+                <div className={styles.optionRow}>
+                  {['remote', 'physical', 'hybrid'].map((m) => (
                     <button
-                      key={ex.slug}
+                      key={m}
                       type="button"
-                      className={styles.dropdownItem}
-                      onClick={() => {
-                        setForm((f) => ({ ...f, targetExerciseSlug: ex.slug, targetExerciseName: ex.name }));
-                        setExerciseQuery(ex.name);
-                        setExerciseResults([]);
-                      }}
+                      className={`${styles.optionBtn} ${form.trainerMode === m ? styles.selected : ''}`}
+                      onClick={() => setForm({ ...form, trainerMode: m })}
+                      style={{ textTransform: 'capitalize' }}
                     >
-                      {ex.name}
+                      {m}
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
 
-            <div className={styles.field}>
-              <label>Target Weight ({form.weightUnit}, estimated 1RM)</label>
-              <input
-                type="number"
-                placeholder="e.g. 225"
-                value={form.targetWeight}
-                onChange={(e) => setForm({ ...form, targetWeight: e.target.value })}
-              />
+              <div className={styles.field}>
+                <label>Expertise Categories (comma separated)</label>
+                <input
+                  placeholder="e.g. Weightlifting, Cardio, Yoga"
+                  value={form.trainerExpertise}
+                  onChange={(e) => setForm({ ...form, trainerExpertise: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label>Professional Bio</label>
+                <textarea
+                  placeholder="Tell clients about your background and coaching philosophy..."
+                  value={form.trainerBio}
+                  onChange={(e) => setForm({ ...form, trainerBio: e.target.value })}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', resize: 'vertical', minHeight: '120px' }}
+                />
+              </div>
+
+              <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '24px 0' }} />
+
+              <h4 style={{ marginBottom: '16px', fontSize: '1.1rem' }}>Media & Documents</h4>
+
+              <div className={styles.field}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={16} /> Resume / CV (URL)</label>
+                <input
+                  placeholder="Link to your Google Drive PDF or LinkedIn"
+                  value={form.trainerResumeUrl}
+                  onChange={(e) => setForm({ ...form, trainerResumeUrl: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Video size={16} /> Intro Video (YouTube URL)</label>
+                <input
+                  placeholder="https://youtube.com/watch?v=..."
+                  value={form.trainerIntroVideoUrl}
+                  onChange={(e) => setForm({ ...form, trainerIntroVideoUrl: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><LinkIcon size={16} /> Image Gallery (comma separated URLs)</label>
+                <textarea
+                  placeholder="https://example.com/photo1.jpg, https://example.com/photo2.jpg"
+                  value={form.trainerMediaGallery}
+                  onChange={(e) => setForm({ ...form, trainerMediaGallery: e.target.value })}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', resize: 'vertical', minHeight: '80px' }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {error && <p className={styles.errorText}>{error}</p>}
 
-          <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-            {saving ? <Loader2 size={16} className={styles.spin} /> : saved ? <Check size={16} /> : null}
-            {saving ? 'Saving…' : saved ? 'Saved' : 'Save Changes'}
+          <button className={styles.saveBtn} onClick={handleSave} disabled={saving} style={{ marginBottom: '40px', width: '100%', padding: '16px', fontSize: '1.1rem' }}>
+            {saving ? <Loader2 size={20} className={styles.spin} /> : saved ? <Check size={20} /> : null}
+            {saving ? 'Saving Profile…' : saved ? 'Saved Successfully' : 'Save Profile Changes'}
           </button>
 
-          <div className={styles.card} style={{ marginTop: '40px' }}>
+          <div className={styles.card}>
             <h3>Security</h3>
             <p className={styles.cardHint}>Change your account password.</p>
             
@@ -455,71 +595,6 @@ export default function SettingsPage() {
               Update Password
             </button>
           </div>
-
-          {user?.role === 'trainer' && (
-            <div className={styles.card} style={{ marginTop: '40px' }}>
-              <h3>Trainer Profile</h3>
-              <p className={styles.cardHint}>Update your coaching bio and specialties.</p>
-              
-              <div className={styles.field}>
-                <label>Specialties (comma separated)</label>
-                <input
-                  value={form.trainerSpecialties}
-                  onChange={(e) => setForm({ ...form, trainerSpecialties: e.target.value })}
-                />
-              </div>
-              <div className={styles.field}>
-                <label>Bio</label>
-                <textarea
-                  value={form.trainerBio}
-                  onChange={(e) => setForm({ ...form, trainerBio: e.target.value })}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', resize: 'vertical', minHeight: '100px' }}
-                />
-              </div>
-              <div className={styles.field}>
-                <label>Session Price ($)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={form.trainerPrice}
-                  onChange={(e) => setForm({ ...form, trainerPrice: e.target.value })}
-                />
-              </div>
-              <div className={styles.field}>
-                <label>Location</label>
-                <input
-                  placeholder="e.g. New York, NY or Remote"
-                  value={form.trainerLocation}
-                  onChange={(e) => setForm({ ...form, trainerLocation: e.target.value })}
-                />
-              </div>
-              <div className={styles.field}>
-                <label>Training Mode</label>
-                <div className={styles.optionRow}>
-                  {['remote', 'physical', 'hybrid'].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      className={`${styles.optionBtn} ${form.trainerMode === m ? styles.selected : ''}`}
-                      onClick={() => setForm({ ...form, trainerMode: m })}
-                      style={{ textTransform: 'capitalize' }}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className={styles.field}>
-                <label>Media Gallery URLs (comma separated image/video links)</label>
-                <textarea
-                  placeholder="e.g. https://example.com/photo.jpg, https://youtube.com/..."
-                  value={form.trainerMediaGallery}
-                  onChange={(e) => setForm({ ...form, trainerMediaGallery: e.target.value })}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', resize: 'vertical', minHeight: '80px' }}
-                />
-              </div>
-            </div>
-          )}
 
           <div className={styles.card} style={{ marginTop: '40px', border: '1px solid rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.05)' }}>
             <h3 style={{ color: '#ef4444' }}>Danger Zone</h3>

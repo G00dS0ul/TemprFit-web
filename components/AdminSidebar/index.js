@@ -1,62 +1,62 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import {
-  LayoutDashboard, Users, Wallet, TicketCheck, BarChart3,
-  Settings, LogOut, Shield
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { 
+  Activity, ShieldCheck, Users, Tag, Dumbbell, 
+  MessageSquare, Settings, LogOut 
 } from 'lucide-react';
+import Image from 'next/image';
 import styles from './AdminSidebar.module.css';
 
-export default function AdminSidebar({ activeTab, onTabChange }) {
-  const router = useRouter();
-
-  const menuItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'users', label: 'User Management', icon: Users },
-    { id: 'applications', label: 'Applications', icon: Shield },
-    { id: 'escrow', label: 'Escrow & Disputes', icon: Wallet },
-    { id: 'coupons', label: 'Coupons', icon: TicketCheck },
-    { id: 'reports', label: 'Reports & Analytics', icon: BarChart3 },
-    { id: 'settings', label: 'System Settings', icon: Settings },
-  ];
+export default function AdminSidebar() {
+  const pathname = usePathname();
 
   const handleLogout = async () => {
-    // Clear admin cookie
-    document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/');
-    router.refresh();
+    // Admins log out by clearing the token and returning to normal dashboard
+    document.cookie = "admin_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = '/dashboard';
   };
+
+  const menuItems = [
+    { href: '/admin', label: 'Overview', icon: Activity, exact: true },
+    { href: '/admin/trainers', label: 'Trainers', icon: ShieldCheck, exact: false },
+    { href: '/admin/users', label: 'Users', icon: Users, exact: false },
+    { href: '/admin/coupons', label: 'Coupons', icon: Tag, exact: false },
+    { href: '/admin/exercises', label: 'Exercises', icon: Dumbbell, exact: false },
+    { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare, exact: false },
+    { href: '/admin/bookings', label: 'Bookings', icon: Activity, exact: false },
+  ];
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.brand}>
-        <div className={styles.brandIcon}><Shield size={20} /></div>
-        <div className={styles.brandInfo}>
-          <span className={styles.brandName}>TemprFit</span>
-          <span className={styles.brandRole}>Admin Console</span>
-        </div>
-      </div>
+      <Link href="/admin" className={styles.logo}>
+        <Image src="/images/brand/logo-mark.webp" alt="TemprFit" width={32} height={32} priority />
+        <span className={styles.logoText}>TemprFit</span>
+        <span className={styles.logoAdmin}>Admin</span>
+      </Link>
 
       <div className={styles.menu}>
         {menuItems.map(item => {
           const Icon = item.icon;
-          const isActive = activeTab === item.id;
+          const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+          
           return (
-            <button
-              key={item.id}
-              className={`${styles.menuItem} ${isActive ? styles.active : ''}`}
-              onClick={() => onTabChange(item.id)}
-            >
-              <Icon size={18} />
+            <Link key={item.href} href={item.href} className={`${styles.menuItem} ${isActive ? styles.active : ''}`}>
+              <Icon size={20} />
               <span>{item.label}</span>
-            </button>
+            </Link>
           );
         })}
       </div>
 
       <div className={styles.bottom}>
-        <button className={styles.logout} onClick={handleLogout}>
-          <LogOut size={18} />
+        <Link href="/admin/settings" className={`${styles.menuItem} ${pathname.startsWith('/admin/settings') ? styles.active : ''}`}>
+          <Settings size={20} />
+          <span>Settings</span>
+        </Link>
+        <button onClick={handleLogout} className={styles.menuItem} style={{ background: 'transparent', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', color: '#ef4444' }}>
+          <LogOut size={20} />
           <span>Exit Admin</span>
         </button>
       </div>

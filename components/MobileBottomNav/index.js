@@ -34,6 +34,8 @@ export default function MobileBottomNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  if (pathname.startsWith('/admin')) return null;
+
   return (
     <nav className={`${styles.bottomNav} ${hidden ? styles.hidden : ''}`}>
       {TABS.map(({ href, label, icon: Icon }) => {

@@ -21,7 +21,6 @@ export async function POST(request) {
       username, email, password, goal, experience,
       age, sex, heardAboutUs,
       weightUnit, startingWeight, heightCm,
-      role, trainerInfo,
     } = await request.json()
 
     if (!username || !email || !password) {
@@ -95,8 +94,8 @@ export async function POST(request) {
         heightCm: resolvedHeightCm,
         avatarUrl: randomAvatarUrl(normalizedUsername),
         firstLoginCompleted: false,
-        role: role === 'trainer' ? 'trainer' : 'user',
-        trainerInfo: role === 'trainer' ? trainerInfo : undefined,
+        role: 'user',
+        trainerInfo: undefined,
       })
 
       // Insert welcome notification
@@ -107,19 +106,7 @@ export async function POST(request) {
         type: 'system',
       })
 
-      if (user.role === 'trainer') {
-        const admins = await User.find({ role: 'admin' }).select('_id');
-        if (admins.length > 0) {
-          const adminNotifications = admins.map(admin => ({
-            user: admin._id,
-            title: 'New Trainer Application',
-            message: `${user.username} has applied to be a trainer. Please review their profile.`,
-            type: 'system',
-            link: '/admin'
-          }));
-          await Notification.insertMany(adminNotifications);
-        }
-      }
+
 
       const resolvedWeight = Number(startingWeight)
       if (Number.isFinite(resolvedWeight) && resolvedWeight > 0 && resolvedWeight < 2000) {

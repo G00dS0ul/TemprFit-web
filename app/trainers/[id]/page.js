@@ -124,11 +124,15 @@ export default function TrainerProfile({ params }) {
               <span className={styles.metaItem}><Users size={16} /> {followersCount} Followers</span>
               <span className={styles.metaItem}><Eye size={16} /> {viewsCount} Views</span>
               <span className={styles.metaItem}><Heart size={16} /> {likesCount} Likes</span>
+              {trainerInfo.experienceYears > 0 && <span className={styles.metaItem}><Award size={16} /> {trainerInfo.experienceYears} Years Exp.</span>}
             </div>
 
             <div className={styles.specialties}>
               {specialties.map(spec => (
                 <span key={spec} className={styles.tag}>{spec}</span>
+              ))}
+              {trainerInfo.expertise?.map(exp => (
+                <span key={exp} className={styles.tag} style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.3)' }}>{exp}</span>
               ))}
             </div>
           </div>
@@ -191,6 +195,21 @@ export default function TrainerProfile({ params }) {
               <h2>About Me</h2>
               <p className={styles.bio}>{bio}</p>
             </section>
+
+            {(trainerInfo.introVideoUrl || trainerInfo.resumeUrl) && (
+              <section className={styles.section} style={{ display: 'flex', gap: '16px' }}>
+                {trainerInfo.introVideoUrl && (
+                  <a href={trainerInfo.introVideoUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', fontWeight: '600' }}>
+                    <PlayCircle size={20} /> Watch Intro Video
+                  </a>
+                )}
+                {trainerInfo.resumeUrl && (
+                  <a href={trainerInfo.resumeUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', fontWeight: '600' }}>
+                    <Award size={20} /> View CV / Resume
+                  </a>
+                )}
+              </section>
+            )}
 
             {mediaGallery.length > 0 && (
               <section className={styles.section}>

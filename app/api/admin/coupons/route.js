@@ -14,7 +14,7 @@ export async function GET() {
 // Create a new coupon
 export async function POST(req) {
   await connectDB();
-  const { code, planLevel } = await req.json();
+  const { code, planLevel, expiresInDays } = await req.json();
   if (!code || !planLevel) {
     return NextResponse.json({ error: 'code and planLevel required' }, { status: 400 });
   }
@@ -24,10 +24,17 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Coupon code already exists' }, { status: 409 });
   }
 
+  let expiresAt = null;
+  if (expiresInDays) {
+    expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + parseInt(expiresInDays, 10));
+  }
+
   const coupon = await CouponCode.create({
     code: code.toUpperCase(),
     planLevel,
     isActive: true,
+    expiresAt
   });
 
   return NextResponse.json({ coupon }, { status: 201 });

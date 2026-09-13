@@ -72,6 +72,18 @@ async function pickEditableFields(body, currentUserId) {
     if (Array.isArray(body.trainerInfo.mediaGallery)) {
       update['trainerInfo.mediaGallery'] = body.trainerInfo.mediaGallery.filter(url => typeof url === 'string')
     }
+    if (typeof body.trainerInfo.resumeUrl === 'string') {
+      update['trainerInfo.resumeUrl'] = body.trainerInfo.resumeUrl.trim()
+    }
+    if (typeof body.trainerInfo.introVideoUrl === 'string') {
+      update['trainerInfo.introVideoUrl'] = body.trainerInfo.introVideoUrl.trim()
+    }
+    if (Array.isArray(body.trainerInfo.expertise)) {
+      update['trainerInfo.expertise'] = body.trainerInfo.expertise.map(s => s.trim()).filter(Boolean)
+    }
+    if (typeof body.trainerInfo.experienceYears === 'number') {
+      update['trainerInfo.experienceYears'] = body.trainerInfo.experienceYears
+    }
   }
 
   return update

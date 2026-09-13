@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Search, X, Dumbbell, Loader2 } from 'lucide-react';
 import styles from './FloatingSearch.module.css';
 
@@ -12,6 +13,8 @@ export default function FloatingSearch() {
   const [searching, setSearching] = useState(false);
   const [role, setRole] = useState('user');
 
+  const pathname = usePathname();
+
   useEffect(() => {
     fetch('/api/auth/me')
       .then(r => r.json())
@@ -21,7 +24,7 @@ export default function FloatingSearch() {
       .catch(() => {});
   }, []);
 
-  if (role === 'trainer') return null;
+  if (role === 'trainer' || pathname.startsWith('/admin')) return null;
 
   const handleSearch = async (e) => {
     e.preventDefault();
