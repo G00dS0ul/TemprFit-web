@@ -27,7 +27,7 @@ export default function Footer() {
           <div className={styles.linksCol}>
             <h4>Platform</h4>
             <Link href="/trainers">Find Trainers</Link>
-            <Link href="/diet">Diet Plans</Link>
+            <Link href="/nutrition">Diet Plans & Nutrition</Link>
             <Link href="/tracker">Progress Tracker</Link>
             <Link href="/ai-coach">AI Coach</Link>
             <Link href="/moments">Moments</Link>

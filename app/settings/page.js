@@ -204,6 +204,22 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDeleteTrainerProfile = async () => {
+    if (!window.confirm("Are you sure you want to delete your trainer profile? You will lose access to the trainer dashboard and revert to a regular user. This action cannot be undone.")) return;
+    try {
+      const res = await fetch('/api/trainer/delete', { method: 'DELETE' });
+      if (res.ok) {
+        localStorage.setItem('activeMode', 'trainee');
+        window.location.href = '/dashboard';
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to delete trainer profile');
+      }
+    } catch (e) {
+      setError('Network error');
+    }
+  };
+
   if (!signedIn) {
     return (
       <div className={styles.page}>
@@ -544,6 +560,21 @@ export default function SettingsPage() {
                   onChange={(e) => setForm({ ...form, trainerMediaGallery: e.target.value })}
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', resize: 'vertical', minHeight: '80px' }}
                 />
+              </div>
+
+              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
+                <h4 style={{ color: '#ef4444', marginBottom: '8px' }}>Danger Zone</h4>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>
+                  Permanently delete your trainer profile. You will lose access to the trainer dashboard and revert to a regular trainee account. You can register again later.
+                </p>
+                <button 
+                  type="button"
+                  className={styles.saveBtn} 
+                  style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444' }} 
+                  onClick={handleDeleteTrainerProfile}
+                >
+                  Delete Trainer Profile
+                </button>
               </div>
             </div>
           )}

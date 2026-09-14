@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -11,6 +12,18 @@ import styles from './AdminSidebar.module.css';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [counters, setCounters] = useState({ trainers: 0, users: 0, bookings: 0 });
+
+  useEffect(() => {
+    fetch('/api/admin/sidebar-counters')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) {
+          setCounters(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogout = async () => {
     // Admins log out by clearing the token and returning to normal dashboard
@@ -20,12 +33,12 @@ export default function AdminSidebar() {
 
   const menuItems = [
     { href: '/admin', label: 'Overview', icon: Activity, exact: true },
-    { href: '/admin/trainers', label: 'Trainers', icon: ShieldCheck, exact: false },
-    { href: '/admin/users', label: 'Users', icon: Users, exact: false },
+    { href: '/admin/trainers', label: 'Trainers', icon: ShieldCheck, exact: false, count: counters.trainers },
+    { href: '/admin/users', label: 'Users', icon: Users, exact: false, count: counters.users },
     { href: '/admin/coupons', label: 'Coupons', icon: Tag, exact: false },
     { href: '/admin/exercises', label: 'Exercises', icon: Dumbbell, exact: false },
     { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare, exact: false },
-    { href: '/admin/bookings', label: 'Bookings', icon: Activity, exact: false },
+    { href: '/admin/bookings', label: 'Bookings', icon: Activity, exact: false, count: counters.bookings },
   ];
 
   return (
@@ -45,6 +58,7 @@ export default function AdminSidebar() {
             <Link key={item.href} href={item.href} className={`${styles.menuItem} ${isActive ? styles.active : ''}`}>
               <Icon size={20} />
               <span>{item.label}</span>
+              {item.count > 0 && <span className={styles.badge}>{item.count}</span>}
             </Link>
           );
         })}

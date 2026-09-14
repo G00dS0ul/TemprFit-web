@@ -367,15 +367,17 @@ export default function Dashboard() {
             </div>
           )}
 
-          <div style={{ marginTop: '40px', background: 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(16,185,129,0.1))', padding: '32px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(34,197,94,0.2)' }}>
-            <div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', color: '#22c55e' }}>Are you a fitness professional?</h3>
-              <p style={{ color: 'var(--color-text-muted)' }}>Join the TemprFit Trainer Network to coach clients and earn money.</p>
+          {!user?.trainerInfo && user?.role !== 'trainer' && user?.originalRole !== 'trainer' && (
+            <div style={{ marginTop: '40px', background: 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(16,185,129,0.1))', padding: '32px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(34,197,94,0.2)' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', color: '#22c55e' }}>Are you a fitness professional?</h3>
+                <p style={{ color: 'var(--color-text-muted)' }}>Join the TemprFit Trainer Network to coach clients and earn money.</p>
+              </div>
+              <Link href="/become-trainer" style={{ background: '#22c55e', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
+                Become a Trainer
+              </Link>
             </div>
-            <Link href="/become-trainer" style={{ background: '#22c55e', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
-              Become a Trainer
-            </Link>
-          </div>
+          )}
 
           <div style={{ marginTop: '20px', background: 'var(--color-bg-elevated)', padding: '24px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div>

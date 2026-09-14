@@ -167,6 +167,24 @@ export default function Navbar() {
     window.location.href = '/';
   };
 
+  const handleModeToggle = () => {
+    if (!user || (!user.trainerInfo?.isApproved && user.role !== 'trainer' && user.originalRole !== 'trainer')) return;
+
+    if (activeMode === 'trainee') {
+      if (!user.trainerInfo?.isApproved) {
+        window.alert('Your trainer profile is pending admin approval. You cannot access the trainer dashboard yet.');
+        return;
+      }
+      setActiveMode('trainer');
+      localStorage.setItem('activeMode', 'trainer');
+      router.push('/trainer-dashboard');
+    } else {
+      setActiveMode('trainee');
+      localStorage.setItem('activeMode', 'trainee');
+      router.push('/dashboard');
+    }
+  };
+
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname.startsWith('/admin');
   if (isAuthPage) return null;
 
@@ -374,6 +392,23 @@ export default function Navbar() {
             
             {user ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                {(user.role === 'trainer' || user.originalRole === 'trainer' || user.trainerInfo?.isApproved) && (
+                  <div className={styles.mobileModeToggleContainer}>
+                    <span className={styles.mobileModeLabel}>{activeMode === 'trainer' ? 'Trainer Mode' : 'Trainee Mode'}</span>
+                    <div 
+                      className={`${styles.mobileToggleSwitch} ${activeMode === 'trainer' ? styles.mobileToggleOn : ''}`}
+                      onClick={() => {
+                        handleModeToggle();
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <div className={styles.mobileToggleKnob}>
+                        {activeMode === 'trainer' ? <Dumbbell size={10} color="#000" /> : <Users size={10} color="#000" />}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 {(user.role === 'trainer' && activeMode === 'trainer' ? trainerCategories : traineeCategories).map(cat => (
                   <div key={cat.title} className={styles.mobileCategoryGroup}>
                     <button 

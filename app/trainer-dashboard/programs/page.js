@@ -76,7 +76,7 @@ export default function TrainerPrograms() {
                     <span className={styles.priceTag}>${program.price}</span>
                   </div>
                   <h3 className={styles.programTitle}>{program.title}</h3>
-                  <p className={styles.programDesc}>{program.description.substring(0, 100)}...</p>
+                  <p className={styles.programDesc}>{program.description}</p>
                   
                   <div className={styles.metaList}>
                     <div className={styles.metaItem}>

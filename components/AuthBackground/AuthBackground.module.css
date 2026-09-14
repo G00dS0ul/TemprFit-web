@@ -31,11 +31,7 @@
   z-index: 1;
 }
 
-/* For light mode, make the scrim a bit lighter */
+/* For light mode, remove the white overlay since images are already bright */
 :global([data-theme='light']) .scrim {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.8) 100%
-  );
+  background: transparent;
 }

@@ -16,7 +16,7 @@ export default function ChromeShell({ children }) {
     
     const mainEl = document.querySelector('main');
     if (mainEl) {
-      mainEl.style.paddingTop = isHome ? '0' : '';
+      mainEl.style.paddingTop = (isHome || isAuthPage) ? '0' : '';
     }
 
     return () => {
