@@ -1,6 +1,6 @@
 .footer {
-  background: linear-gradient(180deg, #0f0f11 0%, #1a1a1e 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 100%);
+  border-top: 1px solid var(--color-border);
   padding: 60px 0 24px;
   margin-top: 80px;
 }
@@ -50,8 +50,8 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,8 +104,8 @@
 .subscribe input {
   flex: 1;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   color: var(--color-text);
   font-size: 0.9rem;
@@ -136,7 +136,7 @@
 }
 
 .bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--color-border);
   padding-top: 24px;
   display: flex;
   justify-content: space-between;

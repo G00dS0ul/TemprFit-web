@@ -167,7 +167,8 @@ export default function Navbar() {
     window.location.href = '/';
   };
 
-  if (pathname.startsWith('/admin')) return null;
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname.startsWith('/admin');
+  if (isAuthPage) return null;
 
   return (
     <nav ref={navRef} className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>

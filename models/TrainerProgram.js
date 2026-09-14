@@ -12,6 +12,10 @@ const TrainerProgramSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    programProfilePicture: {
+      type: String,
+      required: false,
+    },
     category: {
       type: String,
       enum: ['General Fitness', 'Hypertrophy', 'Strength', 'Endurance', 'Flexibility', 'Weight Loss', 'Athletic Performance', 'Rehabilitation'],
@@ -60,6 +64,17 @@ const TrainerProgramSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    requirements: [{
+      type: String,
+    }],
+    targetAudience: {
+      type: String,
+      default: 'Everyone',
+    },
+    faq: [{
+      question: { type: String, required: true },
+      answer: { type: String, required: true }
+    }],
     // Keep track of how many users have booked this program
     bookingCount: {
       type: Number,

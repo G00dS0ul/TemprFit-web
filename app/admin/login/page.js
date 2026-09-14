@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, ArrowRight, Lock } from 'lucide-react';
+import { Lock, Eye, EyeOff, ShieldAlert, ArrowRight } from 'lucide-react';
 import Logo3D from '@/components/Logo3D';
-import AnimatedBackground from '@/components/AnimatedBackground';
+import AuthBackground from '@/components/AuthBackground';
+import AuthBackButton from '@/components/AuthBackButton';
 import styles from '../../login/page.module.css';
 
 export default function AdminLogin() {
   const router = useRouter();
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -41,16 +43,19 @@ export default function AdminLogin() {
 
   return (
     <div className={styles.page}>
+      <AuthBackButton />
+      <div className={styles.bgWrapperFull}>
+        <AuthBackground />
+      </div>
       <div className={styles.left}>
-        <div className={styles.bgWrapper}>
-          <AnimatedBackground />
-        </div>
         <div className={styles.leftContent}>
-          <Logo3D size={120} />
+          <div style={{ marginBottom: '20px' }}>
+            <Logo3D size={60} />
+          </div>
           <h2>Command Center</h2>
           <p>Restricted access. Only authorized platform administrators may proceed past this point.</p>
           <div className={styles.benefits}>
-            <div className={styles.benefit}><Shield size={16} /> Secure access required</div>
+            <div className={styles.benefit}><ShieldAlert size={16} /> Secure access required</div>
           </div>
         </div>
       </div>

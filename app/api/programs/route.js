@@ -56,11 +56,28 @@ export async function POST(request) {
     const {
       title, category, description, price,
       sessionsPerWeek, totalSessions, freeSessions,
-      trainingMode, language, country, mediaGallery
+      trainingMode, language, country, mediaGallery, programProfilePicture,
+      requirements, targetAudience, faq
     } = await request.json();
 
     if (!title || !description || !price || !sessionsPerWeek || !totalSessions) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const freeSess = Number(freeSessions || 1);
+    if (freeSess < 1) {
+      return NextResponse.json({ error: 'At least 1 free trial session is mandatory.' }, { status: 400 });
+    }
+
+    if (!mediaGallery || !Array.isArray(mediaGallery)) {
+      return NextResponse.json({ error: 'Media gallery is required.' }, { status: 400 });
+    }
+
+    const imageCount = mediaGallery.filter(url => !url.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i)).length;
+    const videoCount = mediaGallery.filter(url => url.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i)).length;
+
+    if (imageCount < 2 || videoCount < 1) {
+      return NextResponse.json({ error: 'You must upload at least 2 images and 1 video.' }, { status: 400 });
     }
 
     await connectDB();
@@ -83,11 +100,15 @@ export async function POST(request) {
       price: Number(price),
       sessionsPerWeek: Number(sessionsPerWeek),
       totalSessions: Number(totalSessions),
-      freeSessions: Number(freeSessions || 0),
+      freeSessions: freeSess,
       trainingMode,
       language,
       country,
       mediaGallery: mediaGallery || [],
+      programProfilePicture: programProfilePicture || '',
+      requirements: requirements || [],
+      targetAudience: targetAudience || 'Everyone',
+      faq: faq || [],
       isActive
     });
 

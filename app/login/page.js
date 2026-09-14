@@ -6,7 +6,8 @@ import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dumbbell, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import Logo3D from '@/components/Logo3D';
-import AnimatedBackground from '@/components/AnimatedBackground';
+import AuthBackground from '@/components/AuthBackground';
+import AuthBackButton from '@/components/AuthBackButton';
 import styles from './page.module.css';
 
 export default function Login() {
@@ -58,12 +59,15 @@ function LoginForm() {
 
   return (
     <div className={styles.page}>
+      <AuthBackButton />
+      <div className={styles.bgWrapperFull}>
+        <AuthBackground />
+      </div>
       <div className={styles.left}>
-        <div className={styles.bgWrapper}>
-          <AnimatedBackground />
-        </div>
         <div className={styles.leftContent}>
-          <Logo3D size={120} />
+          <div style={{ marginBottom: '20px' }}>
+            <Logo3D size={60} />
+          </div>
           <h2>Welcome Back to TemprFit</h2>
           <p>Sign in to continue your fitness journey with AI-powered coaching.</p>
         </div>

@@ -36,7 +36,7 @@ export default function Sidebar() {
       .then((data) => {
         if (data.user) {
           setUser(data.user);
-          if (data.user.role === 'trainer' && !storedMode) {
+          if ((data.user.role === 'trainer' || data.user.originalRole === 'trainer') && !storedMode) {
             // Default to trainer mode if they are an approved trainer
             if (data.user.trainerInfo?.isApproved) {
               setActiveMode('trainer');
@@ -56,7 +56,7 @@ export default function Sidebar() {
   };
 
   const handleModeToggle = () => {
-    if (!user || user.role !== 'trainer') return;
+    if (!user || (!user.trainerInfo?.isApproved && user.role !== 'trainer' && user.originalRole !== 'trainer')) return;
 
     if (activeMode === 'trainee') {
       if (!user.trainerInfo?.isApproved) {
@@ -84,7 +84,7 @@ export default function Sidebar() {
     }
   };
 
-  const isTrainer = user?.role === 'trainer';
+  const isTrainer = user?.role === 'trainer' || user?.originalRole === 'trainer' || user?.trainerInfo?.isApproved;
   const showTrainerMenu = isTrainer && activeMode === 'trainer' && user?.trainerInfo?.isApproved;
   const categories = showTrainerMenu ? trainerCategories : traineeCategories;
 
@@ -124,7 +124,7 @@ export default function Sidebar() {
 
       {isTrainer && (
         <div className={styles.modeToggleContainer}>
-          {!isCollapsed && <span className={styles.modeLabel}>{activeMode === 'trainer' ? 'Trainer Mode' : 'Trainee Mode'}</span>}
+          <span className={styles.modeLabel}>{activeMode === 'trainer' ? 'Trainer Mode' : 'Trainee Mode'}</span>
           <div 
             className={`${styles.toggleSwitch} ${activeMode === 'trainer' ? styles.toggleOn : ''}`}
             onClick={handleModeToggle}

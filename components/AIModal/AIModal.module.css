@@ -236,3 +236,33 @@
     border-radius: 0;
   }
 }
+
+/* Light Theme Overrides */
+:global([data-theme='light']) .modal {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+}
+
+:global([data-theme='light']) .header {
+  border-bottom-color: var(--color-border);
+}
+
+:global([data-theme='light']) .closeBtn {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+:global([data-theme='light']) .inputArea {
+  border-top-color: var(--color-border);
+}
+
+:global([data-theme='light']) .inputArea input {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+:global([data-theme='light']) .message.ai .bubble {
+  color: var(--color-text);
+}

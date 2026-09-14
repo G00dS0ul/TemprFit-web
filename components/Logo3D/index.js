@@ -27,28 +27,30 @@ export default function Logo3D({ size = 200 }) {
   }, []);
 
   return (
-    <div className={styles.scene} style={{ width: size, height: size }}>
-      <div className={styles.cube} ref={cubeRef}>
-        <div className={`${styles.face} ${styles.front}`}>
-          <span className={styles.faceText}>R</span>
+    <div style={{ width: size, height: size, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className={styles.scene} style={{ width: 200, height: 200, transform: `scale(${size / 200})` }}>
+        <div className={styles.cube} ref={cubeRef}>
+          <div className={`${styles.face} ${styles.front}`}>
+            <span className={styles.faceText}>T</span>
+          </div>
+          <div className={`${styles.face} ${styles.back}`}>
+            <span className={styles.faceText}>E</span>
+          </div>
+          <div className={`${styles.face} ${styles.right}`}>
+            <span className={styles.faceText}>M</span>
+          </div>
+          <div className={`${styles.face} ${styles.left}`}>
+            <span className={styles.faceText}>P</span>
+          </div>
+          <div className={`${styles.face} ${styles.top}`}>
+            <span className={styles.faceText}>🔥</span>
+          </div>
+          <div className={`${styles.face} ${styles.bottom}`}>
+            <span className={styles.faceText}>💪</span>
+          </div>
         </div>
-        <div className={`${styles.face} ${styles.back}`}>
-          <span className={styles.faceText}>F</span>
-        </div>
-        <div className={`${styles.face} ${styles.right}`}>
-          <span className={styles.faceText}>E</span>
-        </div>
-        <div className={`${styles.face} ${styles.left}`}>
-          <span className={styles.faceText}>P</span>
-        </div>
-        <div className={`${styles.face} ${styles.top}`}>
-          <span className={styles.faceText}>🔥</span>
-        </div>
-        <div className={`${styles.face} ${styles.bottom}`}>
-          <span className={styles.faceText}>💪</span>
-        </div>
+        <div className={styles.glow} />
       </div>
-      <div className={styles.glow} />
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Image as ImageIcon, Video, X, Plus, Trash2 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import styles from './page.module.css';
 
@@ -11,6 +11,9 @@ export default function NewProgram() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [profilePicFile, setProfilePicFile] = useState(null);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -22,8 +25,12 @@ export default function NewProgram() {
     freeSessions: 1,
     trainingMode: 'remote',
     language: 'English',
-    country: 'Global'
+    country: 'Global',
+    targetAudience: '',
   });
+
+  const [requirements, setRequirements] = useState(['']);
+  const [faqs, setFaqs] = useState([{ question: '', answer: '' }]);
 
   const CATEGORIES = [
     'General Fitness', 'Hypertrophy', 'Strength', 'Endurance', 
@@ -36,10 +43,54 @@ export default function NewProgram() {
     setError('');
 
     try {
+      const imageCount = mediaFiles.filter(f => f.type.startsWith('image/')).length;
+      const videoCount = mediaFiles.filter(f => f.type.startsWith('video/')).length;
+
+      if (imageCount < 2 || videoCount < 1) {
+        setError('You must upload at least 2 images and 1 video for the program media gallery.');
+        setLoading(false);
+        return;
+      }
+
+      setUploadingMedia(true);
+      const mediaUrls = [];
+      let profilePicUrl = '';
+
+      if (profilePicFile) {
+        const pData = new FormData();
+        pData.append('file', profilePicFile);
+        const pRes = await fetch('/api/upload', { method: 'POST', body: pData });
+        const pJson = await pRes.json();
+        if (pJson.fileUrl) profilePicUrl = pJson.fileUrl;
+      }
+      
+      // Upload media files one by one
+      for (const file of mediaFiles) {
+        const fileData = new FormData();
+        fileData.append('file', file);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: fileData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.fileUrl) {
+          mediaUrls.push(uploadData.fileUrl);
+        }
+      }
+      setUploadingMedia(false);
+
+      const payload = { 
+        ...formData, 
+        mediaGallery: mediaUrls, 
+        programProfilePicture: profilePicUrl,
+        requirements: requirements.filter(req => req.trim() !== ''),
+        faq: faqs.filter(faq => faq.question.trim() !== '' && faq.answer.trim() !== '')
+      };
+
       const res = await fetch('/api/programs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       
@@ -52,7 +103,18 @@ export default function NewProgram() {
       setError('An error occurred while creating the program.');
     } finally {
       setLoading(false);
+      setUploadingMedia(false);
     }
+  };
+
+  const handleMediaChange = (e) => {
+    if (e.target.files) {
+      setMediaFiles(prev => [...prev, ...Array.from(e.target.files)]);
+    }
+  };
+
+  const removeMedia = (index) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -84,6 +146,25 @@ export default function NewProgram() {
                   value={formData.title}
                   onChange={e => setFormData({...formData, title: e.target.value})}
                 />
+              </div>
+
+              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                <label>Program Profile Picture (Optional)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  {profilePicFile ? (
+                    <img src={URL.createObjectURL(profilePicFile)} alt="Profile Preview" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <ImageIcon size={24} color="#888" />
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setProfilePicFile(e.target.files[0]);
+                    }
+                  }} />
+                </div>
+                <small style={{ color: 'var(--color-text-muted)' }}>If not provided, your main trainer profile picture will be used.</small>
               </div>
 
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -188,13 +269,120 @@ export default function NewProgram() {
                 />
               </div>
 
+              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                <label>Target Audience</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Beginners looking to build a foundation, Advanced Lifters..." 
+                  required 
+                  value={formData.targetAudience}
+                  onChange={e => setFormData({...formData, targetAudience: e.target.value})}
+                />
+              </div>
+
+              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                <label>Program Requirements / Prerequisites</label>
+                {requirements.map((req, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Access to a fully equipped gym" 
+                      value={req}
+                      onChange={(e) => {
+                        const newReqs = [...requirements];
+                        newReqs[i] = e.target.value;
+                        setRequirements(newReqs);
+                      }}
+                    />
+                    {requirements.length > 1 && (
+                      <button type="button" onClick={() => setRequirements(requirements.filter((_, idx) => idx !== i))} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0 8px' }}>
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={() => setRequirements([...requirements, ''])} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', width: 'max-content', fontSize: '0.9rem', fontWeight: 600, padding: 0 }}>
+                  <Plus size={16} /> Add Requirement
+                </button>
+              </div>
+
+              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                <label>Frequently Asked Questions (FAQ)</label>
+                {faqs.map((faq, i) => (
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', position: 'relative' }}>
+                    {faqs.length > 1 && (
+                      <button type="button" onClick={() => setFaqs(faqs.filter((_, idx) => idx !== i))} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                    <input 
+                      type="text" 
+                      placeholder="Question: e.g. Do I need any special equipment?" 
+                      value={faq.question}
+                      style={{ paddingRight: '40px' }}
+                      onChange={(e) => {
+                        const newFaqs = [...faqs];
+                        newFaqs[i].question = e.target.value;
+                        setFaqs(newFaqs);
+                      }}
+                    />
+                    <textarea 
+                      placeholder="Answer: e.g. You will only need basic dumbbells." 
+                      value={faq.answer}
+                      rows={2}
+                      style={{ minHeight: '60px' }}
+                      onChange={(e) => {
+                        const newFaqs = [...faqs];
+                        newFaqs[i].answer = e.target.value;
+                        setFaqs(newFaqs);
+                      }}
+                    />
+                  </div>
+                ))}
+                <button type="button" onClick={() => setFaqs([...faqs, { question: '', answer: '' }])} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', width: 'max-content', fontSize: '0.9rem', fontWeight: 600, padding: 0 }}>
+                  <Plus size={16} /> Add FAQ
+                </button>
+              </div>
+
+              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                <label>Media Gallery <span style={{ color: '#ef4444' }}>* (Min 2 images & 1 video required)</span></label>
+                <div className={styles.mediaUploadContainer}>
+                  <label className={styles.uploadBox}>
+                    <input 
+                      type="file" 
+                      accept="image/*,video/*"
+                      multiple
+                      onChange={handleMediaChange}
+                      style={{ display: 'none' }}
+                    />
+                    <ImageIcon size={24} color="var(--color-text-muted)" />
+                    <span>Click to add images/videos</span>
+                  </label>
+                  
+                  {mediaFiles.length > 0 && (
+                    <div className={styles.mediaPreviewGrid}>
+                      {mediaFiles.map((file, i) => (
+                        <div key={i} className={styles.mediaPreviewItem}>
+                          {file.type.startsWith('image/') ? (
+                            <img src={URL.createObjectURL(file)} alt="preview" />
+                          ) : (
+                            <div className={styles.videoPreview}><Video size={24} /></div>
+                          )}
+                          <button type="button" onClick={() => removeMedia(i)} className={styles.removeMediaBtn}><X size={14} /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className={`${styles.actions} ${styles.fullWidth}`}>
                 <Link href="/trainer-dashboard/programs" className={styles.cancelBtn}>
                   Cancel
                 </Link>
                 <button type="submit" className={styles.submitBtn} disabled={loading}>
                   {loading ? <Loader2 size={18} className={styles.spin} /> : <Save size={18} />}
-                  Publish Program
+                  {uploadingMedia ? 'Uploading Media...' : 'Publish Program'}
                 </button>
               </div>
             </div>

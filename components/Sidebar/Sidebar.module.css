@@ -71,6 +71,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text);
+  white-space: nowrap;
 }
 
 .toggleSwitch {
@@ -202,6 +203,10 @@
   color: var(--color-text);
 }
 
+.categoryTitle {
+  white-space: nowrap;
+}
+
 .categoryLinks {
   display: none;
   flex-direction: column;
@@ -242,6 +247,10 @@
   flex-shrink: 0;
 }
 
+.menuItem span {
+  white-space: nowrap;
+}
+
 .menuItem:hover {
   background: var(--color-surface-elevated);
   color: var(--color-text);
@@ -275,6 +284,10 @@
   margin-top: 6px;
   border-top: 1px solid var(--color-border);
   flex-shrink: 0;
+}
+
+.bottom span {
+  white-space: nowrap;
 }
 
 .logout {

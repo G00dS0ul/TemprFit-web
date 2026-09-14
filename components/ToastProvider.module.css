@@ -1,44 +1,151 @@
 .toastContainer {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 32px;
+  right: 32px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   z-index: 9999;
   pointer-events: none;
 }
 
 .toast {
-  padding: 14px 24px;
-  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  padding-right: 48px; /* Space for close button */
+  border-radius: 16px;
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--color-text);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  background: rgba(15, 15, 17, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: slideInToast 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   pointer-events: auto;
+  overflow: hidden;
+  min-width: 280px;
+  max-width: 400px;
 }
 
-.success {
-  background: var(--color-success, #10b981);
+:global([data-theme='light']) .toast {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: #111;
 }
 
-.error {
-  background: var(--color-error, #ef4444);
+.toastIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.info {
-  background: var(--color-primary, #3b82f6);
+.iconSuccess {
+  color: #10b981;
 }
 
-@keyframes slideIn {
-  from {
+.iconError {
+  color: #ef4444;
+}
+
+.iconInfo {
+  color: #3b82f6;
+}
+
+.toastMessage {
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.toastCloseBtn {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toastCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+}
+
+:global([data-theme='light']) .toastCloseBtn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #111;
+}
+
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  width: 100%;
+  animation: progress 5s linear forwards;
+}
+
+:global([data-theme='light']) .progressBar {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.success .progressBar {
+  background: #10b981;
+}
+
+.error .progressBar {
+  background: #ef4444;
+}
+
+.info .progressBar {
+  background: #3b82f6;
+}
+
+@keyframes slideInToast {
+  0% {
     opacity: 0;
-    transform: translateY(20px) scale(0.9);
+    transform: translateX(100%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
   }
   to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+    width: 0%;
+  }
+}
+
+@media (max-width: 640px) {
+  .toastContainer {
+    bottom: 80px; /* Above mobile bottom nav */
+    right: 16px;
+    left: 16px;
+    align-items: center;
+  }
+  
+  .toast {
+    width: 100%;
+    max-width: 100%;
   }
 }

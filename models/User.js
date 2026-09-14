@@ -53,6 +53,13 @@ const UserSchema = new mongoose.Schema(
       isVerified: { type: Boolean, default: false }, // Check tick mark
       views: { type: Number, default: 0 },
       likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+      rating: { type: Number, default: 0 },
+      reviews: [{
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        rating: { type: Number, required: true },
+        comment: { type: String, required: true },
+        createdAt: { type: Date, default: Date.now }
+      }],
       price: { type: Number, default: 50 }, // Per session rate
       location: { type: String, default: 'Remote' },
       trainingMode: { type: String, enum: ['physical', 'remote', 'hybrid'], default: 'remote' },
@@ -61,6 +68,7 @@ const UserSchema = new mongoose.Schema(
       introVideoUrl: { type: String, default: '' },
       expertise: [{ type: String }],
       experienceYears: { type: Number, default: 0 },
+      availability: { type: String, default: 'Available Mon-Fri, 9AM - 5PM' },
     },
     avatarUrl: { type: String, default: '' }, // data URL (uploaded photo) or an external URL
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

@@ -29,6 +29,7 @@ export async function GET() {
   }
 
   const safeUser = user.toSafeObject();
+  safeUser.originalRole = safeUser.role;
   
   // Upgrade role to admin in memory if the admin_token cookie is present
   const adminToken = cookies().get('admin_token')?.value;

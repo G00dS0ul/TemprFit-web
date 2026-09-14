@@ -14,9 +14,22 @@ export default function TrainerProfile({ params }) {
   const [error, setError] = useState('');
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
+
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const [currentUser, setCurrentUser] = useState(null);
+
   const router = useRouter();
 
   useEffect(() => {
+    fetch('/api/auth/me').then(r => r.json()).then(d => {
+      if (d.user) setCurrentUser(d.user);
+    }).catch(console.error);
     fetch(`/api/trainers/${params.id}`)
       .then(r => r.json())
       .then(data => {
@@ -25,6 +38,11 @@ export default function TrainerProfile({ params }) {
         } else {
           setTrainer(data.trainer);
           setIsFollowing(data.isFollowing || false);
+          
+          if (currentUser) {
+            const hasLiked = data.trainer.trainerInfo?.likes?.includes(currentUser._id || currentUser.id);
+            setIsLiked(hasLiked || false);
+          }
         }
         setLoading(false);
       })
@@ -55,6 +73,66 @@ export default function TrainerProfile({ params }) {
       console.error(err);
     }
     setFollowLoading(false);
+  };
+
+  const toggleLike = async () => {
+    if (!trainer) return;
+    setLikeLoading(true);
+    try {
+      const res = await fetch(`/api/trainers/${params.id}/like`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setIsLiked(data.isLiked);
+        setTrainer(prev => ({
+          ...prev,
+          trainerInfo: {
+            ...prev.trainerInfo,
+            likes: data.isLiked 
+              ? [...(prev.trainerInfo.likes || []), 'temp'] 
+              : (prev.trainerInfo.likes || []).slice(0, -1)
+          }
+        }));
+      } else {
+        alert(data.error || 'Failed to like profile');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setLikeLoading(false);
+  };
+
+  const submitReview = async (e) => {
+    e.preventDefault();
+    setSubmittingReview(true);
+    try {
+      const res = await fetch(`/api/trainers/${params.id}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTrainer(prev => ({
+          ...prev,
+          trainerInfo: {
+            ...prev.trainerInfo,
+            rating: data.rating,
+            reviews: [
+              ...prev.trainerInfo.reviews || [],
+              { user: currentUser, rating: reviewForm.rating, comment: reviewForm.comment, createdAt: new Date() }
+            ]
+          }
+        }));
+        setShowReviewModal(false);
+        setReviewForm({ rating: 5, comment: '' });
+      } else {
+        alert(data.error || 'Failed to submit review');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error submitting review');
+    }
+    setSubmittingReview(false);
   };
 
   if (loading) {
@@ -92,6 +170,8 @@ export default function TrainerProfile({ params }) {
   const followersCount = trainer?.followers?.length || 0;
   const viewsCount = trainerInfo.views || 0;
   const likesCount = trainerInfo.likes?.length || 0;
+  const reviewsCount = trainerInfo.reviews?.length || 0;
+  const ratingValue = trainerInfo.rating || 0;
 
   return (
     <div className={styles.page}>
@@ -115,7 +195,10 @@ export default function TrainerProfile({ params }) {
                 {username} 
                 {isVerified && <BadgeCheck size={24} color="#3b82f6" fill="#fff" style={{ marginTop: '4px' }} />}
               </h1>
-              <div className={styles.rating}><Star size={18} fill="currentColor" /> 4.9 (12 reviews)</div>
+              <div className={styles.rating}>
+                <Star size={18} fill={ratingValue > 0 ? "currentColor" : "none"} /> 
+                {ratingValue > 0 ? `${ratingValue.toFixed(1)} (${reviewsCount} review${reviewsCount === 1 ? '' : 's'})` : 'No reviews yet'}
+              </div>
             </div>
             
             <div className={styles.metaRow}>
@@ -146,20 +229,38 @@ export default function TrainerProfile({ params }) {
             <button className={styles.bookBtn} onClick={() => setShowEscrow(true)}>
               Book Session
             </button>
-            <button 
-              className={styles.followBtn} 
-              onClick={toggleFollow} 
-              disabled={followLoading}
-              style={{
-                marginTop: '10px', width: '100%', padding: '12px', borderRadius: '12px',
-                background: isFollowing ? 'transparent' : 'rgba(255,255,255,0.05)',
-                border: isFollowing ? '1px solid var(--color-border)' : '1px solid rgba(255,255,255,0.1)',
-                color: '#fff', fontWeight: '600', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
-                cursor: 'pointer', transition: 'all 0.2s'
-              }}
-            >
-              {isFollowing ? <><UserCheck size={18} /> Following</> : <><UserPlus size={18} /> Follow</>}
-            </button>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+              <button 
+                className={styles.followBtn} 
+                onClick={toggleFollow} 
+                disabled={followLoading}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '12px',
+                  background: isFollowing ? 'transparent' : 'rgba(255,255,255,0.05)',
+                  border: isFollowing ? '1px solid var(--color-border)' : '1px solid rgba(255,255,255,0.1)',
+                  color: '#fff', fontWeight: '600', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
+                  cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                {isFollowing ? <><UserCheck size={18} /> Following</> : <><UserPlus size={18} /> Follow</>}
+              </button>
+
+              <button 
+                className={styles.likeBtn} 
+                onClick={toggleLike} 
+                disabled={likeLoading}
+                style={{
+                  padding: '12px', borderRadius: '12px',
+                  background: isLiked ? 'rgba(236, 72, 153, 0.1)' : 'rgba(255,255,255,0.05)',
+                  border: isLiked ? '1px solid rgba(236, 72, 153, 0.3)' : '1px solid rgba(255,255,255,0.1)',
+                  color: isLiked ? '#ec4899' : '#fff', 
+                  display: 'flex', justifyContent: 'center', alignItems: 'center',
+                  cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                <Heart size={20} fill={isLiked ? '#ec4899' : 'none'} />
+              </button>
+            </div>
             <button 
               onClick={async () => {
                 try {
@@ -223,6 +324,50 @@ export default function TrainerProfile({ params }) {
                 </div>
               </section>
             )}
+
+            <section className={styles.section}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <h2>Reviews & Testimonials</h2>
+                {currentUser && currentUser._id !== trainer._id && (
+                  <button 
+                    onClick={() => setShowReviewModal(true)}
+                    style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '8px 16px', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}
+                  >
+                    Write a Review
+                  </button>
+                )}
+              </div>
+
+              {trainerInfo.reviews && trainerInfo.reviews.length > 0 ? (
+                <div className={styles.reviewsList}>
+                  {trainerInfo.reviews.map((review, i) => (
+                    <div key={i} className={styles.reviewCard}>
+                      <div className={styles.reviewHeader}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <img src={`https://ui-avatars.com/api/?name=${review.user?.username || 'User'}&background=random`} alt="User" className={styles.reviewAvatar} />
+                          <div>
+                            <strong>{review.user?.username || 'Verified User'}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', color: 'gold' }}>
+                          {[...Array(5)].map((_, idx) => (
+                            <Star key={idx} size={14} fill={idx < review.rating ? "gold" : "none"} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className={styles.reviewComment}>{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ padding: '32px', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', color: 'var(--color-text-muted)' }}>
+                  No reviews yet. Be the first to leave a testimony!
+                </div>
+              )}
+            </section>
           </div>
         </div>
 
@@ -230,6 +375,49 @@ export default function TrainerProfile({ params }) {
           <div className={styles.escrowOverlay} onClick={() => setShowEscrow(false)}>
             <div className={styles.escrowModal} onClick={e => e.stopPropagation()}>
               <EscrowWidget trainer={trainer} price={price} onClose={() => setShowEscrow(false)} />
+            </div>
+          </div>
+        )}
+
+        {showReviewModal && (
+          <div className={styles.escrowOverlay} onClick={() => setShowReviewModal(false)}>
+            <div className={styles.reviewModal} onClick={e => e.stopPropagation()}>
+              <h2>Write a Review</h2>
+              <p style={{ color: 'var(--color-text-muted)', marginBottom: '20px', fontSize: '0.95rem' }}>Share your experience training with {username}.</p>
+              <form onSubmit={submitReview}>
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Rating</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                        style={{ cursor: 'pointer', background: 'none', border: 'none' }}
+                      >
+                        <Star size={28} fill={reviewForm.rating >= star ? "gold" : "none"} color="gold" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Testimony</label>
+                  <textarea 
+                    rows={4}
+                    required
+                    value={reviewForm.comment}
+                    onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    placeholder="Describe your progress and experience..."
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontFamily: 'inherit' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                  <button type="button" onClick={() => setShowReviewModal(false)} style={{ padding: '10px 16px', background: 'transparent', color: 'var(--color-text-muted)', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+                  <button type="submit" disabled={submittingReview} style={{ padding: '10px 24px', background: 'var(--color-primary)', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

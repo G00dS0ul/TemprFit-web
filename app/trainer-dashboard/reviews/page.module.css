@@ -1,4 +1,5 @@
 .page {
+  padding-left: 280px;
   min-height: 100vh;
   background: var(--bg);
   padding: 100px 20px 60px;
@@ -105,4 +106,11 @@
   color: var(--color-text);
   margin: 0;
   font-style: italic;
+}
+
+
+@media (max-width: 1024px) {
+  .page {
+    padding-left: 20px;
+  }
 }

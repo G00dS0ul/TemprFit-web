@@ -8,6 +8,7 @@ import styles from './ChromeShell.module.css';
 export default function ChromeShell({ children }) {
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname.startsWith('/admin');
 
   useEffect(() => {
     document.body.style.overflow = isHome ? 'hidden' : '';
@@ -27,10 +28,10 @@ export default function ChromeShell({ children }) {
 
   return (
     <>
-      <div className={isHome ? '' : styles.withBottomNavPadding}>
+      <div className={isHome || isAuthPage ? '' : styles.withBottomNavPadding}>
         {children}
       </div>
-      {!isHome && <Footer />}
+      {!isHome && !isAuthPage && <Footer />}
     </>
   );
 }

@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Dumbbell, Eye, EyeOff, ArrowRight, Check, User, ShieldAlert } from 'lucide-react';
 import Logo3D from '@/components/Logo3D';
-import AnimatedBackground from '@/components/AnimatedBackground';
+import AuthBackground from '@/components/AuthBackground';
+import AuthBackButton from '@/components/AuthBackButton';
 import styles from './page.module.css';
 
 export default function Register() {
@@ -91,13 +92,16 @@ export default function Register() {
 
   return (
     <div className={styles.page}>
+      <AuthBackButton />
+      <div className={styles.bgWrapperFull}>
+        <AuthBackground />
+      </div>
       <div className={styles.left}>
-        <div className={styles.bgWrapper}>
-          <AnimatedBackground />
-        </div>
         <div className={styles.leftContent}>
-          <Logo3D size={120} />
-          <h2>Join the Forge</h2>
+          <div style={{ marginBottom: '20px' }}>
+            <Logo3D size={60} />
+          </div>
+          <h2>Join the Evolution of Fitness</h2>
           <p>Create your account and unlock personalized training, diet plans, and your own AI coach.</p>
           <div className={styles.benefits}>
             <div className={styles.benefit}><Check size={16} /> Free AI form checking</div>
