@@ -98,25 +98,25 @@
   overflow-x: auto;
 }
 
-table {
+.tableWrapper table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th, td {
+.tableWrapper th, .tableWrapper td {
   padding: 16px;
   text-align: left;
   border-bottom: 1px solid var(--border);
 }
 
-th {
+.tableWrapper th {
   color: var(--color-text-muted);
   font-weight: 600;
   font-size: 0.9rem;
   text-transform: uppercase;
 }
 
-td {
+.tableWrapper td {
   font-size: 0.95rem;
 }
 

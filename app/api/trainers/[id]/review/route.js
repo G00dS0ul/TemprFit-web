@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
-import connectMongo from '@/lib/mongodb';
+import { connectDB } from '@/lib/db';
 import User from '@/models/User';
-import { verifyAuth } from '@/lib/auth';
+import { getSessionUser } from '@/lib/auth';
 
 export async function POST(req, { params }) {
   try {
-    const authResult = await verifyAuth(req);
-    if (!authResult.user) {
+    await connectDB();
+    const user = await getSessionUser();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id: trainerId } = params;
-    const userId = authResult.user.id;
+    const userId = user._id;
     
     const body = await req.json();
     const { rating, comment } = body;
@@ -22,8 +23,6 @@ export async function POST(req, { params }) {
     if (!comment || comment.trim().length === 0) {
       return NextResponse.json({ error: 'Review comment is required' }, { status: 400 });
     }
-
-    await connectMongo();
 
     const trainer = await User.findById(trainerId);
     if (!trainer || (trainer.role !== 'trainer' && trainer.originalRole !== 'trainer')) {
