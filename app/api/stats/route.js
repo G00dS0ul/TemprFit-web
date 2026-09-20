@@ -85,6 +85,8 @@ export async function GET() {
     sessionsThisWeek: thisWeekSessions.length,
     currentStreak: user.currentStreak || 0,
     longestStreak: user.longestStreak || 0,
+    totalCheckInStreak: user.totalCheckInStreak || 0,
+    longestCheckInStreak: user.longestCheckInStreak || 0,
     workoutSecondsThisWeek: totalDurationSecondsThisWeek,
     workoutSecondsAllTime: totalDurationSecondsAllTime,
     caloriesThisWeek,

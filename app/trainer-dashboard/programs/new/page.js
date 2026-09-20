@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, Save, Image as ImageIcon, Video, X, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Image as ImageIcon, Video, X, Plus, Trash2, PenTool } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
+import DigitalSignatureModal from '@/components/DigitalSignatureModal';
 import styles from './page.module.css';
 
 export default function NewProgram() {
@@ -14,6 +15,7 @@ export default function NewProgram() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [profilePicFile, setProfilePicFile] = useState(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -51,8 +53,21 @@ export default function NewProgram() {
         setLoading(false);
         return;
       }
+      
+      // Open the signature modal before proceeding to upload
+      setShowSignatureModal(true);
+    } catch (err) {
+      setError('Validation failed.');
+      setLoading(false);
+    }
+  };
 
-      setUploadingMedia(true);
+  const handleSignatureComplete = async (signaturePayload) => {
+    setShowSignatureModal(false);
+    setUploadingMedia(true);
+    setError('');
+
+    try {
       const mediaUrls = [];
       let profilePicUrl = '';
 
@@ -84,7 +99,8 @@ export default function NewProgram() {
         mediaGallery: mediaUrls, 
         programProfilePicture: profilePicUrl,
         requirements: requirements.filter(req => req.trim() !== ''),
-        faq: faqs.filter(faq => faq.question.trim() !== '' && faq.answer.trim() !== '')
+        faq: faqs.filter(faq => faq.question.trim() !== '' && faq.answer.trim() !== ''),
+        signature: signaturePayload
       };
 
       const res = await fetch('/api/programs', {
@@ -389,6 +405,16 @@ export default function NewProgram() {
           </form>
         </div>
       </div>
+      
+      <DigitalSignatureModal 
+        isOpen={showSignatureModal} 
+        onClose={() => {
+          setShowSignatureModal(false);
+          setLoading(false);
+        }}
+        onSign={handleSignatureComplete}
+        type="trainer_revenue_share"
+      />
     </div>
   );
 }

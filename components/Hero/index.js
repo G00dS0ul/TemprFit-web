@@ -92,7 +92,7 @@ export default function Hero() {
 
       <div className={styles.scrim} />
 
-      <div className={`container ${styles.heroInner}`}>
+      <div className={`container ${styles.heroInner}`} data-tour="tour-home-hero">
         <div className={styles.eyebrow}>TRAIN / IMPROVE / EVOLVE</div>
 
         <AnimatePresence mode="wait">
@@ -149,7 +149,7 @@ export default function Hero() {
           instead of scrolling to an in-page section (spec: no infinite
           scroll on the homepage; supplementary content lives behind
           routes/modals, triggered from here). */}
-      <div className={styles.quickNav}>
+      <div className={styles.quickNav} data-tour="tour-home-features">
         {QUICK_NAV.map(({ label, href, icon: Icon }) => (
           <Link key={href} href={href} className={styles.quickNavItem}>
             <Icon size={18} />

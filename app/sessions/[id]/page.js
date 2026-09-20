@@ -1,39 +1,39 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ChevronLeft, ChevronRight, Check, SkipForward, Repeat2,
-  Trophy, Flame, Clock, Search, X, Play
+  Trophy, Flame, Clock, Lightbulb, Share2
 } from 'lucide-react';
 import ExercisePreview from '@/components/ExercisePreview';
+import SetRow from '@/components/SetRow';
+import RestTimer from '@/components/RestTimer';
+import VoiceLogger from '@/components/VoiceLogger';
 import VoiceCoach from '@/components/VoiceCoach';
+import ExerciseSwapModal from '@/components/ExerciseSwapModal';
+import SocialShareModal from '@/components/SocialShareModal';
+import { saveWorkoutLocally } from '@/lib/offlineSync';
 import styles from './session.module.css';
 
 export default function WorkoutSessionPage() {
   const { id } = useParams();
+  const router = useRouter();
+  
   const [session, setSession] = useState(null);
   const [error, setError] = useState('');
   
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentSetIndex, setCurrentSetIndex] = useState(0);
-  
-  // 'PRE_SET' (ask weight), 'ACTIVE' (timer or working), 'POST_SET' (ask reps)
-  const [wizardStep, setWizardStep] = useState('PRE_SET');
+  const [autoSpeakPrompt, setAutoSpeakPrompt] = useState('');
   
   const [restSeconds, setRestSeconds] = useState(null);
-  const [activeTimerSeconds, setActiveTimerSeconds] = useState(null);
   
   const [summary, setSummary] = useState(null);
   const [finishing, setFinishing] = useState(false);
-  const [replacing, setReplacing] = useState(false);
-  const [replaceQuery, setReplaceQuery] = useState('');
-  const [replaceResults, setReplaceResults] = useState([]);
-  const [autoSpeakPrompt, setAutoSpeakPrompt] = useState('');
   
-  const [tempWeight, setTempWeight] = useState('');
-  const [tempReps, setTempReps] = useState('');
+  const [swapModalOpen, setSwapModalOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const saveTimer = useRef(null);
 
@@ -43,28 +43,18 @@ export default function WorkoutSessionPage() {
       .then((data) => {
         if (data.session) {
           setSession(data.session);
-          // Initialize indexes
+          // Auto-advance to first uncompleted exercise
           let exIdx = 0;
-          let setIdx = 0;
           for (let i = 0; i < data.session.exercises.length; i++) {
             if (!data.session.exercises[i].skipped) {
               const sets = data.session.exercises[i].sets;
-              const uncompleted = sets.findIndex(s => !s.completed);
-              if (uncompleted !== -1) {
+              if (sets.some(s => !s.completed)) {
                 exIdx = i;
-                setIdx = uncompleted;
                 break;
               }
             }
           }
           setCurrentIndex(exIdx);
-          setCurrentSetIndex(setIdx);
-          
-          const curEx = data.session.exercises[exIdx];
-          if (curEx) {
-            setTempWeight(curEx.sets[setIdx]?.weight || '');
-            setTempReps(curEx.sets[setIdx]?.targetReps || '');
-          }
         } else {
           setError(data.error || 'Session not found.');
         }
@@ -72,59 +62,11 @@ export default function WorkoutSessionPage() {
       .catch(() => setError('Something went wrong.'));
   }, [id]);
 
-  // Handle Exercise change
   useEffect(() => {
-    if (!session || !session.exercises[currentIndex]) return;
-    const ex = session.exercises[currentIndex];
-    
-    // Find first uncompleted set for this new exercise
-    const uncompleted = ex.sets.findIndex(s => !s.completed);
-    const newSetIdx = Math.max(0, uncompleted);
-    
-    setCurrentSetIndex(newSetIdx);
-    setWizardStep('PRE_SET');
-    setTempWeight(ex.sets[newSetIdx]?.weight || '');
-    setTempReps(ex.sets[newSetIdx]?.targetReps || '');
-    
-    if (ex.exercise) {
-      setAutoSpeakPrompt(`Alright, moving on to ${ex.exercise.name}. Let's crush this!`);
+    if (session && session.exercises[currentIndex]?.exercise) {
+      setAutoSpeakPrompt(`Moving on to ${session.exercises[currentIndex].exercise.name}. Let's crush this!`);
     }
   }, [currentIndex, session?.exercises?.length]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Handle Rest Timer
-  useEffect(() => {
-    if (restSeconds === null) return;
-    if (restSeconds <= 0) {
-      setRestSeconds(null);
-      setAutoSpeakPrompt("Rest is over! Get back to it!");
-      return;
-    }
-    if (restSeconds === 10) {
-      setAutoSpeakPrompt("10 seconds left! Get in position!");
-    } else if (restSeconds === 5) {
-      setAutoSpeakPrompt("I have exactly 5 seconds left on my rest timer.");
-    }
-    const t = setTimeout(() => setRestSeconds(s => (s !== null ? s - 1 : null)), 1000);
-    return () => clearTimeout(t);
-  }, [restSeconds]);
-
-  // Handle Active Timer
-  useEffect(() => {
-    if (activeTimerSeconds === null) return;
-    if (activeTimerSeconds <= 0) {
-      setActiveTimerSeconds(null);
-      setWizardStep('POST_SET');
-      setAutoSpeakPrompt("Time's up! Great job!");
-      return;
-    }
-    if (activeTimerSeconds === 10) {
-      setAutoSpeakPrompt("10 seconds left! Hold it!");
-    } else if (activeTimerSeconds === 5) {
-      setAutoSpeakPrompt("I have exactly 5 seconds left on my active timer.");
-    }
-    const t = setTimeout(() => setActiveTimerSeconds(s => (s !== null ? s - 1 : null)), 1000);
-    return () => clearTimeout(t);
-  }, [activeTimerSeconds]);
 
   const autosave = (nextExercises) => {
     clearTimeout(saveTimer.current);
@@ -163,100 +105,95 @@ export default function WorkoutSessionPage() {
       setCurrentIndex(i => i + 1);
     }
   };
+  
   const goPrev = () => {
     if (currentIndex > 0) {
       setCurrentIndex(i => i - 1);
     }
   };
 
-  // Replace
-  useEffect(() => {
-    if (!replaceQuery.trim()) { setReplaceResults([]); return; }
-    const t = setTimeout(() => {
-      fetch(`/api/exercises?q=${encodeURIComponent(replaceQuery)}`)
-        .then((r) => r.json())
-        .then((d) => setReplaceResults(d.items || []))
-        .catch(() => {});
-    }, 300);
-    return () => clearTimeout(t);
-  }, [replaceQuery]);
-
-  const doReplace = (newExercise) => {
-    setSession((prev) => {
-      const exercises = [...prev.exercises];
-      exercises[currentIndex] = { ...exercises[currentIndex], exercise: newExercise, replaced: true };
-      autosave(exercises);
-      return { ...prev, exercises };
-    });
-    setReplacing(false);
-    setReplaceQuery('');
-    setReplaceResults([]);
-  };
-
   const finish = async () => {
     setFinishing(true);
+    
+    const payload = { exercises: session.exercises, id };
+    
+    // Check if offline
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      await saveWorkoutLocally(payload);
+      setSummary({ session: { durationSeconds: 0, totalVolume: 0, prCount: 0, offline: true } });
+      setAutoSpeakPrompt("Workout saved offline! We'll sync it when you reconnect.");
+      setFinishing(false);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/sessions/${id}/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ exercises: session.exercises }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSummary(data);
-    } catch {
-      setError('Could not finish the workout.');
-      setFinishing(false);
+      setAutoSpeakPrompt("Workout complete! Awesome job today!");
+    } catch (err) {
+      // If network fails during fetch, save offline
+      await saveWorkoutLocally(payload);
+      setSummary({ session: { durationSeconds: 0, totalVolume: 0, prCount: 0, offline: true } });
+      setAutoSpeakPrompt("Network error. Workout saved offline! We'll sync it when you reconnect.");
     }
+    setFinishing(false);
   };
   
-  // WIZARD ACTIONS
-  const startSet = () => {
-    const w = Number(tempWeight);
-    if (!isNaN(w)) updateSet(currentIndex, currentSetIndex, { weight: w });
+  const handleSetComplete = (setIdx, data, restTime) => {
+    updateSet(currentIndex, setIdx, { ...data, completed: true });
     
-    const cur = session.exercises[currentIndex];
-    
-    setWizardStep('ACTIVE');
-    
-    // Check if timed
-    if (cur.exercise?.trackingType === 'time_only' || String(cur.sets[currentSetIndex]?.targetReps || '').endsWith('s')) {
-      const secs = parseInt(cur.sets[currentSetIndex]?.targetReps) || 60;
-      setActiveTimerSeconds(secs);
-      setAutoSpeakPrompt(`Starting timer for ${secs} seconds. Go!`);
+    // Trigger rest timer
+    if (restTime > 0) {
+      setRestSeconds(restTime);
+      setAutoSpeakPrompt(`Great set. Rest for ${restTime} seconds.`);
     } else {
-      setAutoSpeakPrompt(`Starting set. Target is ${cur.sets[currentSetIndex]?.targetReps || 0} reps. Go!`);
+      setAutoSpeakPrompt(`Great set.`);
+      checkExerciseComplete(setIdx);
     }
   };
-  
-  const finishActiveSet = () => {
-    setWizardStep('POST_SET');
-    
+
+  const checkExerciseComplete = (justCompletedSetIdx) => {
     const cur = session.exercises[currentIndex];
-    if (cur.exercise?.trackingType === 'time_only' || String(cur.sets[currentSetIndex]?.targetReps || '').endsWith('s')) {
-      setAutoSpeakPrompt("Great job! You crushed that time!");
-    } else {
-      setAutoSpeakPrompt("Great job. How many reps did you hit?");
-    }
-  };
-  
-  const saveCompletedSet = () => {
-    const r = Number(tempReps);
-    updateSet(currentIndex, currentSetIndex, { reps: isNaN(r) ? 0 : r, completed: true });
-    
-    const cur = session.exercises[currentIndex];
-    const isLastSet = currentSetIndex >= cur.sets.length - 1;
-    
-    if (isLastSet) {
+    const allCompleted = cur.sets.every((s, i) => s.completed || i === justCompletedSetIdx);
+    if (allCompleted) {
        goNext();
-    } else {
-       const rest = cur.sets[currentSetIndex].restSeconds || 60;
-       setRestSeconds(rest > 0 ? rest : null);
-       setCurrentSetIndex(i => i + 1);
-       setWizardStep('PRE_SET');
-       setTempWeight(cur.sets[currentSetIndex + 1]?.weight || tempWeight);
-       setTempReps(cur.sets[currentSetIndex + 1]?.targetReps || '');
     }
+  };
+
+  const handleRestComplete = () => {
+    setRestSeconds(null);
+    setAutoSpeakPrompt("Rest is over! Get back in position.");
+    
+    // Auto advance if we just finished the last set before this rest
+    const cur = session.exercises[currentIndex];
+    if (cur && cur.sets.every(s => s.completed)) {
+      goNext();
+    }
+  };
+
+  const handleVoiceLog = (data) => {
+    // Find first uncompleted set
+    const cur = session.exercises[currentIndex];
+    const idx = cur.sets.findIndex(s => !s.completed);
+    if (idx !== -1) {
+      handleSetComplete(idx, data, cur.sets[idx].restSeconds || 60);
+    }
+  };
+
+  const handleSwap = (alt) => {
+    setSession((prev) => {
+      const exercises = [...prev.exercises];
+      exercises[currentIndex] = { ...exercises[currentIndex], exercise: alt, replaced: true };
+      autosave(exercises);
+      return { ...prev, exercises };
+    });
+    setSwapModalOpen(false);
   };
 
   if (error) return <div className={styles.page}><div className="container"><p className={styles.error}>{error}</p></div></div>;
@@ -278,41 +215,52 @@ export default function WorkoutSessionPage() {
             </div>
             <div className={styles.summaryActions}>
               <Link href="/history" className={styles.secondaryBtn}>View History</Link>
+              <button 
+                className={styles.primaryBtn} 
+                onClick={() => setShareOpen(true)} 
+                style={{ background: 'linear-gradient(135deg, #a855f7, #06b6d4)', display: 'inline-flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer' }}
+              >
+                <Share2 size={16} /> Share Workout
+              </button>
               <Link href="/workouts" className={styles.primaryBtn}>Back to Workouts</Link>
             </div>
           </div>
         </div>
+        <SocialShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} stats={summary.session} />
       </div>
     );
   }
 
   const current = session.exercises[currentIndex];
-  const activeSet = current?.sets[currentSetIndex];
   
-  // Voice Context
-  const voiceContext = {
-    planName: session.name,
-    currentExercise: current?.exercise?.name,
-    currentIndex: currentIndex + 1,
-    totalExercises: session.exercises.length,
-    wizardStep,
-    currentSet: currentSetIndex + 1,
-    totalSets: current?.sets.length,
-    activeTimerSeconds
-  };
+  const isBodyweight = current?.exercise?.name?.toLowerCase().includes('pushup') || current?.exercise?.name?.toLowerCase().includes('pull up') || current?.exercise?.name?.toLowerCase().includes('bodyweight');
+  const isTimeBased = current?.exercise?.name?.toLowerCase().includes('plank') || current?.exercise?.name?.toLowerCase().includes('hold') || current?.exercise?.name?.toLowerCase().includes('wall sit');
 
   return (
     <div className={styles.page}>
-      <div className="container">
+      <div className="container" style={{ paddingBottom: '100px' }}>
         <div className={styles.progressBar}>
           Exercise {currentIndex + 1} of {session.exercises.length}
+        </div>
+
+        <div className={styles.tipsCard}>
+          <div className={styles.tipsHeader}>
+            <Lightbulb size={18} className={styles.tipsIcon} />
+            <h4>Pro Tips</h4>
+          </div>
+          <ul>
+            <li><strong>Voice Logging:</strong> Tap the glowing mic at the bottom to record sets hands-free.</li>
+            <li><strong>Swipe Right:</strong> Swipe a set row to complete it instantly.</li>
+            <li><strong>Edit & Correct:</strong> Tap a completed set to edit it. Tap unit labels (kg/reps) to toggle Bodyweight/Time.</li>
+            <li><strong>AI Coach:</strong> Keep the AI coach running to track your rest times and motivate you!</li>
+          </ul>
         </div>
 
         <div className={styles.exerciseCard}>
           <div className={styles.exerciseHeader}>
             <h2>{current?.exercise?.name || 'Exercise'}</h2>
             <div className={styles.headerActions}>
-              <button onClick={() => setReplacing(!replacing)} title="Replace exercise"><Repeat2 size={16} /></button>
+              <button onClick={() => setSwapModalOpen(true)} title="AI Equipment Swap"><Repeat2 size={16} /></button>
               <button onClick={skipExercise} title="Skip exercise"><SkipForward size={16} /></button>
             </div>
           </div>
@@ -340,140 +288,46 @@ export default function WorkoutSessionPage() {
           <div style={{ margin: '20px 0' }}>
             <VoiceCoach 
               autoSpeakPrompt={autoSpeakPrompt}
-              context={voiceContext} 
+              context={{
+                planName: session?.name,
+                currentExercise: current?.exercise?.name,
+                currentIndex: currentIndex + 1,
+                totalExercises: session.exercises.length
+              }} 
             />
           </div>
 
-          {replacing && (
-            <div className={styles.replaceBox}>
-              <div className={styles.replaceSearchRow}>
-                <Search size={14} />
-                <input
-                  autoFocus
-                  placeholder="Search a replacement..."
-                  value={replaceQuery}
-                  onChange={(e) => setReplaceQuery(e.target.value)}
-                />
-                <button onClick={() => setReplacing(false)}><X size={14} /></button>
-              </div>
-              {replaceResults.map((ex) => (
-                <button key={ex.slug} className={styles.replaceResult} onClick={() => doReplace(ex)}>
-                  {ex.name}
-                </button>
-              ))}
+          <div className={styles.setsList}>
+            <div className={styles.setsListHeader}>
+              <div style={{ width: 24 }}>Set</div>
+              <div style={{ flex: 1, textAlign: 'center' }}>Weight</div>
+              <div style={{ flex: 1, textAlign: 'center' }}>{isTimeBased ? 'Time (sec)' : 'Reps'}</div>
             </div>
-          )}
-          
-          <div className={styles.setIndicator}>
             {current?.sets.map((s, i) => (
-              <div key={i} className={`${styles.setDot} ${s.completed ? styles.completed : ''} ${i === currentSetIndex ? styles.active : ''}`} />
+              <SetRow
+                key={`${currentIndex}-${i}`}
+                setIndex={i}
+                set={s}
+                isCompleted={s.completed}
+                isBodyweight={isBodyweight}
+                isTimeBased={isTimeBased}
+                onUpdate={(data) => updateSet(currentIndex, i, data)}
+                onComplete={(data) => handleSetComplete(i, data || { weight: s.weight, reps: s.reps || s.targetReps }, s.restSeconds || 60)}
+                onUndo={() => updateSet(currentIndex, i, { completed: false })}
+              />
             ))}
           </div>
-
-          {/* WIZARD UI */}
-          {restSeconds !== null ? (
-            <div className={styles.wizardCard}>
-              <div className={styles.timerCircle}>{restSeconds}</div>
-              <div className={styles.wizardTitle}>Resting</div>
-              <button className={styles.wizardBtn} onClick={() => setRestSeconds(0)}>
-                <SkipForward size={18} /> Skip Rest
-              </button>
-            </div>
-          ) : activeSet && wizardStep === 'PRE_SET' ? (
-            <div className={styles.wizardCard}>
-              <div className={styles.wizardTitle}>Set {currentSetIndex + 1} of {current.sets.length}</div>
-              <div className={styles.wizardSubtitle}>Target: {activeSet.targetReps || '-'}</div>
-              
-              {current?.exercise?.trackingType === 'weight_reps' && (
-                <div className={styles.wizardInputRow}>
-                  <input 
-                    type="number"
-                    className={styles.wizardInput}
-                    value={tempWeight}
-                    onChange={(e) => setTempWeight(e.target.value)}
-                    placeholder="Weight"
-                  />
-                  <span className={styles.wizardUnit}>kg</span>
-                </div>
-              )}
-              
-              <button className={styles.wizardBtn} onClick={startSet}>
-                <Play size={18} /> Start Set
-              </button>
-            </div>
-          ) : activeSet && wizardStep === 'ACTIVE' ? (
-             <div className={styles.wizardCard}>
-                {activeTimerSeconds !== null ? (
-                  <>
-                    <div className={styles.wizardTitle}>Hold It!</div>
-                    <div className={styles.timerCircle}>{activeTimerSeconds}</div>
-                  </>
-                ) : (
-                  <>
-                    <div className={styles.wizardTitle}>Go! Push hard!</div>
-                    <div className={styles.wizardSubtitle}>Target: {activeSet.targetReps || '-'}</div>
-                  </>
-                )}
-                <button className={styles.wizardBtn} onClick={finishActiveSet}>
-                  <Check size={18} /> Finish Set
-                </button>
-             </div>
-          ) : activeSet && wizardStep === 'POST_SET' ? (
-             <div className={styles.wizardCard}>
-              <div className={styles.wizardTitle}>Great job!</div>
-              
-              {current?.exercise?.trackingType === 'time_only' || String(activeSet.targetReps || '').endsWith('s') ? (
-                <>
-                  <div className={styles.wizardSubtitle}>How many seconds did you hold it?</div>
-                  <div className={styles.wizardInputRow}>
-                    <input 
-                      type="number"
-                      className={styles.wizardInput}
-                      value={tempReps}
-                      onChange={(e) => setTempReps(e.target.value)}
-                      placeholder="Seconds"
-                      autoFocus
-                    />
-                    <span className={styles.wizardUnit}>sec</span>
-                  </div>
-                  <button className={styles.wizardBtn} onClick={() => {
-                    saveCompletedSet();
-                  }}>
-                    <Check size={18} /> Continue
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className={styles.wizardSubtitle}>How many reps did you complete?</div>
-                  <div className={styles.wizardInputRow}>
-                    <input 
-                      type="number"
-                      className={styles.wizardInput}
-                      value={tempReps}
-                      onChange={(e) => setTempReps(e.target.value)}
-                      placeholder="Reps"
-                      autoFocus
-                    />
-                    <span className={styles.wizardUnit}>reps</span>
-                  </div>
-                  <button className={styles.wizardBtn} onClick={saveCompletedSet}>
-                    <Check size={18} /> Save & Continue
-                  </button>
-                </>
-              )}
-             </div>
-          ) : (
-            <div className={styles.wizardCard}>
-              <div className={styles.wizardTitle}>All sets completed!</div>
-            </div>
-          )}
-
         </div>
 
         <div className={styles.navRow}>
           <button className={styles.navBtn} onClick={goPrev} disabled={currentIndex === 0}>
             <ChevronLeft size={16} /> Previous
           </button>
+          
+          <div className={styles.voiceLoggerWrap}>
+            <VoiceLogger onLogSet={handleVoiceLog} />
+          </div>
+
           {currentIndex < session.exercises.length - 1 ? (
             <button className={styles.navBtn} onClick={goNext}>
               Next <ChevronRight size={16} />
@@ -485,6 +339,22 @@ export default function WorkoutSessionPage() {
           )}
         </div>
       </div>
+
+      {restSeconds !== null && (
+        <RestTimer 
+          initialSeconds={restSeconds} 
+          onComplete={handleRestComplete}
+          onSkip={handleRestComplete}
+          onWarning={() => setAutoSpeakPrompt('5 seconds left, get into position!')}
+        />
+      )}
+
+      <ExerciseSwapModal 
+        isOpen={swapModalOpen} 
+        onClose={() => setSwapModalOpen(false)}
+        currentExerciseName={current?.exercise?.name}
+        onSwap={handleSwap}
+      />
     </div>
   );
 }

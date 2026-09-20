@@ -1,0 +1,180 @@
+.tourOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none; /* Let clicks pass through to the highlighted element */
+}
+
+.backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  pointer-events: auto; /* Block clicks outside the highlighted element */
+}
+
+.highlightHole {
+  position: absolute;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.popover {
+  position: absolute;
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+  border-radius: 40px; /* Cloud-like rounded edges */
+  padding: 24px 30px;
+  width: 340px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2), 0 0 0 4px var(--color-background);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.popover::before, .popover::after {
+  content: '';
+  position: absolute;
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.popover::before {
+  width: 100px;
+  height: 100px;
+  top: -40px;
+  left: 40px;
+  border-bottom: none;
+  border-right: none;
+}
+
+.popover::after {
+  width: 140px;
+  height: 140px;
+  top: -60px;
+  right: 50px;
+  border-bottom: none;
+  border-left: none;
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.arrow {
+  position: absolute;
+  top: var(--arrow-top, -30px);
+  bottom: var(--arrow-bottom, auto);
+  left: var(--arrow-left, 50px);
+  width: 24px;
+  height: 24px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+  border-radius: 50%; /* Thought bubble tail circles */
+  box-shadow: 0 0 0 2px var(--color-background);
+}
+
+.arrow::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  top: -20px;
+  left: -20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.header h3 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.closeBtn:hover {
+  background: var(--color-surface);
+}
+
+.content {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.stepCounter {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.navControls {
+  display: flex;
+  gap: 8px;
+}
+
+.navBtn {
+  padding: 6px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.navBtn:hover:not(:disabled) {
+  background: var(--color-border);
+}
+
+.navBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.navBtn.primary {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+}
+
+.navBtn.primary:hover:not(:disabled) {
+  opacity: 0.9;
+}

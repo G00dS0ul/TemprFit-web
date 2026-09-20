@@ -123,7 +123,7 @@ function LogTab({ profile }) {
 
   return (
     <div className={styles.logGrid}>
-      <div className={styles.logMain}>
+      <div className={styles.logMain} data-tour="tour-nutrition-log">
         <form onSubmit={search} className={styles.searchBar}>
           <Search size={18} />
           <input
@@ -164,7 +164,7 @@ function LogTab({ profile }) {
         </div>
       </div>
 
-      <div className={styles.logSide}>
+      <div className={styles.logSide} data-tour="tour-nutrition-macros">
         <MacroSummary totals={totals} targets={profile} />
       </div>
     </div>
@@ -250,6 +250,8 @@ function ProfileTab({ profile, setProfile }) {
       location: profile?.location || '',
       age: profile?.age || '',
       budget: profile?.budget || '',
+      cookingSkill: profile?.cookingSkill || '',
+      cookingTime: profile?.cookingTime || '',
       allergies: profile?.allergies || [],
       exclusions: profile?.exclusions || [],
       pantry: profile?.pantry || [],
@@ -326,6 +328,24 @@ function ProfileTab({ profile, setProfile }) {
             <option value="low">Budget-friendly</option>
             <option value="medium">Moderate</option>
             <option value="high">Premium</option>
+          </select>
+        </div>
+        <div className={styles.formRow}>
+          <label>Cooking Skill</label>
+          <select value={form.cookingSkill} onChange={(e) => setForm({ ...form, cookingSkill: e.target.value })}>
+            <option value="">Any</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+        <div className={styles.formRow}>
+          <label>Time to Cook</label>
+          <select value={form.cookingTime} onChange={(e) => setForm({ ...form, cookingTime: e.target.value })}>
+            <option value="">Any</option>
+            <option value="quick">Quick (Under 20m)</option>
+            <option value="moderate">Moderate (20m-45m)</option>
+            <option value="extensive">Extensive (45m+)</option>
           </select>
         </div>
       </div>

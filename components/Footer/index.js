@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Dumbbell, Github, Twitter, Instagram, Youtube, Mail } from 'lucide-react';
 import styles from './Footer.module.css';
 
@@ -9,7 +10,7 @@ export default function Footer() {
         <div className={styles.footerGrid}>
           <div className={styles.brand}>
             <div className={styles.brandLogo}>
-              <Dumbbell size={24} />
+              <Image src="/images/brand/my-logo.png" alt="TemprFit" width={32} height={32} priority />
               <span>Tempr<span className={styles.brandAccent}>Fit</span></span>
             </div>
             <p className={styles.brandDesc}>

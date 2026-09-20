@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Users, DollarSign, Wallet, ShieldCheck, Loader2, Check, X, PieChart as PieChartIcon, TrendingUp, BarChart2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import UserManagement from './UserManagement';
 import styles from './page.module.css';
 
 const COLORS = ['#94a3b8', '#3b82f6', '#f59e0b']; // Free, Pro, Max
@@ -211,6 +212,8 @@ export default function AdminOverview() {
           </div>
         )}
       </div>
+      
+      <UserManagement />
     </div>
   );
 }

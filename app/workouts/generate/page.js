@@ -10,7 +10,7 @@ import styles from './generate.module.css';
 
 const MUSCLES = ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'quads', 'hamstrings', 'glutes', 'abdominals', 'calves'];
 const EQUIPMENT = ['bodyweight', 'barbell', 'dumbbell', 'kettlebell', 'cable machine', 'machine', 'resistance band'];
-const GOALS = ['strength', 'hypertrophy', 'endurance', 'fat-loss'];
+const GOALS = ['strength', 'hypertrophy', 'endurance', 'fat-loss', 'power', 'flexibility', 'rehab', 'general-fitness'];
 
 function toggle(arr, value) {
   return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
@@ -22,6 +22,8 @@ export default function GenerateWorkoutPage() {
   const [goal, setGoal] = useState('hypertrophy');
   const [muscles, setMuscles] = useState([]);
   const [equipment, setEquipment] = useState(['bodyweight']);
+  const [customEquipment, setCustomEquipment] = useState('');
+  const [equipmentImages, setEquipmentImages] = useState([]);
   const [useAI, setUseAI] = useState(false);
   const [notes, setNotes] = useState('');
   const [injuries, setInjuries] = useState('');
@@ -31,6 +33,25 @@ export default function GenerateWorkoutPage() {
   const [error, setError] = useState('');
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const { showToast } = useToast();
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    const promises = files.map(file => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => resolve({ dataUrl: ev.target.result, type: file.type || 'image/jpeg' });
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(promises).then(newImages => {
+      setEquipmentImages(prev => [...prev, ...newImages]);
+    });
+    
+    e.target.value = '';
+  };
 
   const generate = async () => {
     setLoading(true);
@@ -42,6 +63,7 @@ export default function GenerateWorkoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           timeMinutes, goal, muscles, equipment, useAI, 
+          customEquipment, equipmentImages,
           notes: `Preferences: ${notes}\nInjuries/Medical: ${injuries}` 
         }),
       });
@@ -148,6 +170,49 @@ export default function GenerateWorkoutPage() {
             ))}
           </div>
 
+          <label className={styles.label}>Other equipment or Snap a Photo (AI Mode Only)</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+            <input 
+              type="text" 
+              className={styles.textarea} 
+              style={{ padding: '12px' }}
+              placeholder="e.g. A rusty tire, a sandbag, a pullup bar"
+              value={customEquipment}
+              onChange={(e) => setCustomEquipment(e.target.value)}
+              disabled={!useAI}
+            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                multiple
+                id="equipmentUpload"
+                style={{ display: 'none' }}
+                onChange={handleImageUpload}
+                disabled={!useAI}
+              />
+              <label 
+                htmlFor="equipmentUpload" 
+                className={`${styles.chip} ${!useAI ? styles.chipDisabled : ''}`}
+                style={{ display: 'inline-flex', cursor: useAI ? 'pointer' : 'not-allowed', opacity: useAI ? 1 : 0.5 }}
+              >
+                📸 Snap / Upload Equipment
+              </label>
+              {equipmentImages.length > 0 && (
+                <span style={{ fontSize: '0.9rem', color: 'var(--color-primary)' }}>
+                  {equipmentImages.length} Image{equipmentImages.length !== 1 ? 's' : ''} attached ✓
+                  <button 
+                    onClick={(e) => { e.preventDefault(); setEquipmentImages([]); }} 
+                    style={{ marginLeft: '8px', color: 'var(--color-text-muted)', fontSize: '0.8rem', textDecoration: 'underline' }}
+                  >
+                    Clear
+                  </button>
+                </span>
+              )}
+            </div>
+            {!useAI && <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>*Custom equipment requires AI-assisted mode.</span>}
+          </div>
+
           <label className={styles.label}>Generation mode</label>
           <div className={styles.chipRow}>
             <button
@@ -162,6 +227,14 @@ export default function GenerateWorkoutPage() {
             >
               <Sparkles size={13} style={{ marginRight: 4 }} /> AI-assisted
             </button>
+          </div>
+          
+          <div className={styles.modeTipBox}>
+            {useAI ? (
+              <p><strong><Sparkles size={13} /> AI-assisted:</strong> A smart, personalized engine that analyzes your history, custom notes, and uploaded photos to intelligently build and sequence the perfect routine.</p>
+            ) : (
+              <p><strong>Rules-based:</strong> A fast, deterministic engine that strictly uses standard fitness algorithms to generate a balanced routine. Ignores custom text and images.</p>
+            )}
           </div>
 
           <>
@@ -206,7 +279,7 @@ export default function GenerateWorkoutPage() {
                   <tr>
                     <th>Exercise</th>
                     <th>Target Volume / Sets</th>
-                    <th>Rest</th>
+                    <th>Targets & Alternatives</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -219,9 +292,17 @@ export default function GenerateWorkoutPage() {
                       </td>
                       <td>
                         <span className={styles.setHighlight}>{ex.sets.length} sets</span> &times; {ex.sets[0]?.targetReps ? `${ex.sets[0].targetReps} reps` : `${ex.sets[0]?.targetWeight || 0}kg`}
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>Rest: {ex.sets[0]?.restSeconds ? `${ex.sets[0].restSeconds}s` : '60s'}</div>
                       </td>
                       <td>
-                        {ex.sets[0]?.restSeconds ? `${ex.sets[0].restSeconds}s` : '60s'}
+                        <div style={{ fontSize: '0.85rem' }}>
+                          <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>Targets:</span> {ex.targetMuscles?.primary}
+                        </div>
+                        {ex.alternatives && ex.alternatives.length > 0 && (
+                          <div style={{ fontSize: '0.85rem', marginTop: '4px', color: 'var(--color-text-muted)' }}>
+                            <span style={{ fontWeight: 500 }}>Alts:</span> {ex.alternatives.join(', ')}
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}

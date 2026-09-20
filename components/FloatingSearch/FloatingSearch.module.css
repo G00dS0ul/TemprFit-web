@@ -42,8 +42,8 @@
 }
 
 .modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   width: 90%;
   max-width: 450px;
@@ -60,7 +60,7 @@
   right: 15px;
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   cursor: pointer;
 }
 
@@ -72,15 +72,15 @@
 .searchForm {
   display: flex;
   align-items: center;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 5px 5px 5px 12px;
   margin-bottom: 20px;
 }
 
 .searchIcon {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .searchInput {
@@ -88,7 +88,7 @@
   background: transparent;
   border: none;
   padding: 10px;
-  color: var(--text);
+  color: var(--color-text);
   outline: none;
 }
 
@@ -126,8 +126,8 @@
 .exerciseCard {
   display: flex;
   gap: 15px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 12px;
 }
@@ -138,7 +138,7 @@
   flex-shrink: 0;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--surface-hover);
+  background: var(--color-surface-hover);
 }
 
 .image {
@@ -154,7 +154,7 @@
 
 .info p {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin-bottom: 5px;
 }
 
@@ -163,7 +163,7 @@
   padding: 8px 10px;
   border-radius: 6px;
   font-size: 0.8rem;
-  color: var(--text);
+  color: var(--color-text);
   margin-top: 10px;
   display: flex;
   gap: 8px;
@@ -177,4 +177,20 @@
   border-radius: 4px;
   font-size: 0.65rem;
   font-weight: bold;
+}
+
+.scrollHint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  padding-top: 15px;
+  border-top: 1px solid var(--color-border);
+  margin-top: 15px;
+  animation: pulseOpacity 2s infinite;
+}
+
+@keyframes pulseOpacity {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
 }

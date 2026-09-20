@@ -1,0 +1,242 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.wizardCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 700px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 30px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+}
+
+.progressBar {
+  height: 6px;
+  background: var(--color-border);
+  width: 100%;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.body {
+  padding: 40px 30px;
+  min-height: 350px;
+}
+
+.stepTitle {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+}
+
+.optionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.optionCard {
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  background: var(--color-background);
+}
+
+.optionCard:hover {
+  border-color: var(--color-text-muted);
+}
+
+.optionCard.selected {
+  border-color: var(--color-primary);
+  background: rgba(34, 197, 94, 0.05); /* Soft primary tint */
+}
+
+.optionIcon {
+  color: var(--color-primary);
+}
+
+.optionCard h4 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.optionCard p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.inputGroup label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.inputGroup input, .inputGroup select {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+.row .inputGroup {
+  flex: 1;
+}
+
+.footer {
+  padding: 20px 30px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-surface);
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.backBtn:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.nextBtn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 24px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.nextBtn.primary {
+  /* No change needed, it's already primary */
+}
+
+.nextBtn:hover {
+  opacity: 0.9;
+}
+
+.nextBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .content {
+    padding: 20px 16px;
+  }
+  .wizardCard {
+    border-radius: var(--radius-lg);
+  }
+  .header {
+    padding: 20px;
+  }
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  .header p {
+    font-size: 0.95rem;
+  }
+  .body {
+    padding: 20px;
+    min-height: auto;
+  }
+  .stepTitle {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+  }
+  .optionsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .optionCard {
+    padding: 16px;
+  }
+  .row {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .footer {
+    padding: 16px;
+    flex-direction: column-reverse;
+    gap: 16px;
+  }
+  .nextBtn {
+    width: 100%;
+    justify-content: center;
+  }
+  .backBtn {
+    width: 100%;
+    text-align: center;
+  }
+}

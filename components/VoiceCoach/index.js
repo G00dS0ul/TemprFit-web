@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, Loader2, Sparkles, Bot } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, Loader2, Sparkles, Bot } from 'lucide-react';
 import styles from './VoiceCoach.module.css';
 
 export default function VoiceCoach({ context = {}, autoSpeakPrompt = '' }) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const isMutedRef = useRef(false);
   const [transcript, setTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [supported, setSupported] = useState(true);
@@ -68,10 +70,10 @@ export default function VoiceCoach({ context = {}, autoSpeakPrompt = '' }) {
 
   // Handle active auto-speak triggers
   useEffect(() => {
-    if (autoSpeakPrompt && supported) {
+    if (autoSpeakPrompt && supported && !isMuted) {
       handleVoiceQuery(autoSpeakPrompt);
     }
-  }, [autoSpeakPrompt]);
+  }, [autoSpeakPrompt, isMuted, supported]);
 
   const toggleListen = () => {
     if (isListening) {
@@ -109,7 +111,7 @@ export default function VoiceCoach({ context = {}, autoSpeakPrompt = '' }) {
   };
 
   const speakResponse = (text) => {
-    if (!window.speechSynthesis) return;
+    if (!window.speechSynthesis || isMutedRef.current) return;
     window.speechSynthesis.cancel(); // Clear queue
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -145,6 +147,23 @@ export default function VoiceCoach({ context = {}, autoSpeakPrompt = '' }) {
 
       <div className={styles.controls}>
         <button 
+          className={`${styles.muteButton} ${isMuted ? styles.muted : ''}`}
+          onClick={() => {
+            const nextMuted = !isMuted;
+            setIsMuted(nextMuted);
+            isMutedRef.current = nextMuted;
+            if (nextMuted && window.speechSynthesis) {
+              window.speechSynthesis.pause();
+              window.speechSynthesis.cancel();
+            }
+            setIsSpeaking(false);
+          }}
+          title={isMuted ? "Unmute AI Coach" : "Mute AI Coach"}
+        >
+          {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+        </button>
+
+        <button 
           className={`${styles.micButton} ${isListening ? styles.activeMic : ''}`}
           onClick={toggleListen}
           title={isListening ? "Stop listening" : "Talk to Coach"}
@@ -170,7 +189,18 @@ export default function VoiceCoach({ context = {}, autoSpeakPrompt = '' }) {
       <div className={styles.statusArea}>
         {isListening && <div className={styles.pulseIndicator}>Listening...</div>}
         {isProcessing && <div className={styles.processing}><Loader2 size={16} className="spin" /> Coach is thinking...</div>}
-        {isSpeaking && <div className={styles.speakingIndicator}><Volume2 size={16} /> Coach is speaking</div>}
+        {isSpeaking && (
+          <div className={styles.speakingIndicator}>
+            <Volume2 size={16} /> Coach is speaking
+            <div className={styles.visualizer}>
+              <div className={styles.bar}></div>
+              <div className={styles.bar}></div>
+              <div className={styles.bar}></div>
+              <div className={styles.bar}></div>
+              <div className={styles.bar}></div>
+            </div>
+          </div>
+        )}
       </div>
 
       {transcript && !isListening && !isProcessing && !isSpeaking && (

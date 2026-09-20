@@ -1,0 +1,247 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 72px;
+}
+
+.content {
+  margin-left: 260px;
+  flex: 1;
+  padding: 32px 0;
+  transition: margin-left 0.3s ease;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.podsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.podCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.podCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.podHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.podIconWrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.podName {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.podMembers {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.podDesc {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  flex: 1;
+}
+
+.joinBtn {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 10px 0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.joinBtn:hover {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.joinedBtn {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: var(--color-primary);
+}
+
+.feedSection {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.feedHeader {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.3rem;
+  color: var(--color-text);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.feedList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feedItem {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: var(--color-bg);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.feedAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.feedContent h4 {
+  margin: 0 0 4px 0;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.feedContent p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.feedTime {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin-top: 8px;
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    margin-left: 0;
+  }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  color: var(--color-text);
+}
+
+.createBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.createBtn:hover {
+  background: #15803d;
+}

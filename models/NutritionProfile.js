@@ -18,6 +18,8 @@ const NutritionProfileSchema = new mongoose.Schema(
     location: { type: String, trim: true, default: '' },
     age: { type: Number, default: null },
     budget: { type: String, enum: ['low', 'medium', 'high', ''], default: '' },
+    cookingSkill: { type: String, enum: ['beginner', 'intermediate', 'advanced', ''], default: '' },
+    cookingTime: { type: String, enum: ['quick', 'moderate', 'extensive', ''], default: '' },
 
     goal: {
       type: String,

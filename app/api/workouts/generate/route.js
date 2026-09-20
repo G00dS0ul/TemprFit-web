@@ -53,7 +53,7 @@ function parseJsonLoose(text) {
  * chosen order], reasoning } or null if anything about the AI response is
  * unusable (caller falls back to rules-based selection).
  */
-async function aiAssistedSelection({ candidates, targetCount, goal, user, notes }) {
+async function aiAssistedSelection({ candidates, targetCount, goal, user, notes, customEquipment, equipmentImages }) {
   const candidateList = candidates
     .map((ex) => `${ex.slug} | ${ex.name} | primary: ${ex.targetMuscles.primary} | equipment: ${ex.equipment} | difficulty: ${ex.difficulty}`)
     .join('\n')
@@ -65,11 +65,20 @@ async function aiAssistedSelection({ candidates, targetCount, goal, user, notes 
     userContext = '(user history unavailable this turn)'
   }
 
+  let equipmentContext = ''
+  if (customEquipment) {
+    equipmentContext += `\nCUSTOM EQUIPMENT SPECIFIED BY USER: "${customEquipment}". Try to incorporate exercises that could use this.`
+  }
+  if (equipmentImages && equipmentImages.length > 0) {
+    equipmentContext += `\nUSER UPLOADED ${equipmentImages.length} IMAGE(S) OF THEIR EQUIPMENT. Identify the equipment in the images and select exercises from the candidate list that can be performed with it.`
+  }
+
   const systemPrompt = `You are REPForge's workout-generation assistant. You must choose exercises ONLY from the CANDIDATE LIST below by their exact "slug" value — never invent an exercise or slug that isn't listed. Pick exactly ${targetCount} exercises (fewer only if the list has fewer than that), ordered sensibly (e.g. compound/larger muscle groups before isolation/smaller ones, or a logical warmup-to-main progression). Respond with ONLY raw JSON, no markdown fences, no commentary outside the JSON, in exactly this shape:
-{"exercises": ["slug-one", "slug-two", ...], "reasoning": "one or two sentences on why this selection fits the user"}`
+{"exercises": [{"slug": "slug-one", "alternatives": ["alternative exercise 1", "alternative exercise 2"]}, {"slug": "slug-two", "alternatives": []}], "reasoning": "one or two sentences on why this selection fits the user"}`
 
   const userMessage = `GOAL: ${goal}
 USER NOTES / CONSTRAINTS (e.g. injuries, preferences — respect these if present): ${notes || 'none given'}
+${equipmentContext}
 
 USER CONTEXT:
 ${userContext}
@@ -77,7 +86,7 @@ ${userContext}
 CANDIDATE LIST (slug | name | primary muscle | equipment | difficulty):
 ${candidateList}`
 
-  const raw = await askGemini({ systemPrompt, history: [], userMessage })
+  const raw = await askGemini({ systemPrompt, history: [], userMessage, attachments: equipmentImages, responseMimeType: 'application/json' })
 
   let parsed
   try {
@@ -89,7 +98,12 @@ ${candidateList}`
 
   const bySlug = new Map(candidates.map((ex) => [ex.slug, ex]))
   const selected = parsed.exercises
-    .map((slug) => bySlug.get(slug))
+    .map((item) => {
+      const slug = typeof item === 'string' ? item : item.slug
+      const ex = bySlug.get(slug)
+      if (!ex) return null
+      return { ...ex, alternatives: item.alternatives || [] }
+    })
     .filter(Boolean)
     .slice(0, targetCount)
 
@@ -107,6 +121,8 @@ export async function POST(request) {
   const {
     timeMinutes = 45,
     equipment = [],
+    customEquipment = '',
+    equipmentImages = [],
     muscles = [],
     goal = 'hypertrophy',
     useAI = false,
@@ -147,7 +163,7 @@ export async function POST(request) {
 
   if (useAI) {
     try {
-      const aiResult = await aiAssistedSelection({ candidates, targetCount, goal, user, notes })
+      const aiResult = await aiAssistedSelection({ candidates, targetCount, goal, user, notes, customEquipment, equipmentImages })
       if (aiResult) {
         selected = aiResult.selected
         aiReasoning = aiResult.reasoning
@@ -176,7 +192,7 @@ export async function POST(request) {
       restSeconds: plan.restSeconds,
       tempo: '',
     }))
-    return { exercise: ex._id, name: ex.name, slug: ex.slug, sets }
+    return { exercise: ex._id, name: ex.name, slug: ex.slug, sets, targetMuscles: ex.targetMuscles, alternatives: ex.alternatives || [] }
   })
 
   return NextResponse.json({

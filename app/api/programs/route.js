@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { connectDB } from '@/lib/db';
 import TrainerProgram from '@/models/TrainerProgram';
 import User from '@/models/User';
+import Contract from '@/models/Contract';
 import { verifyToken, AUTH_COOKIE_NAME } from '@/lib/auth';
 
 export async function GET(request) {
@@ -57,11 +58,15 @@ export async function POST(request) {
       title, category, description, price,
       sessionsPerWeek, totalSessions, freeSessions,
       trainingMode, language, country, mediaGallery, programProfilePicture,
-      requirements, targetAudience, faq
+      requirements, targetAudience, faq, signature
     } = await request.json();
 
     if (!title || !description || !price || !sessionsPerWeek || !totalSessions) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (!signature || !signature.agreedToCommission) {
+      return NextResponse.json({ error: 'You must agree to the platform commission terms to publish a program.' }, { status: 400 });
     }
 
     const freeSess = Number(freeSessions || 1);
@@ -110,6 +115,16 @@ export async function POST(request) {
       targetAudience: targetAudience || 'Everyone',
       faq: faq || [],
       isActive
+    });
+
+    await Contract.create({
+      trainer: payload.userId,
+      program: program._id,
+      termsType: signature.termsType || 'trainer_revenue_share',
+      termsVersion: '1.0.0',
+      signatureData: signature.signatureData,
+      agreedToCommission: signature.agreedToCommission,
+      signerIp: request.headers.get('x-forwarded-for') || 'unknown'
     });
 
     return NextResponse.json({ program }, { status: 201 });

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Activity, Flame, Timer, Trophy, TrendingUp, TrendingDown,
-  Dumbbell, Calendar, Target, Zap
+  Dumbbell, Calendar, Target, Zap, Star, Shield, Medal, Award, CheckCircle
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
@@ -13,6 +13,7 @@ import WeightTracker from '@/components/WeightTracker';
 import AIModal from '@/components/AIModal';
 import HealthGraphs from '@/components/HealthGraphs';
 import DashboardMeals from '@/components/DashboardMeals';
+import MysteryBoxModal from '@/components/MysteryBoxModal';
 import { displayName } from '@/lib/utils';
 import styles from './page.module.css';
 
@@ -32,6 +33,45 @@ export default function Dashboard() {
   const [savedWorkouts, setSavedWorkouts] = useState([]);
   const [signedIn, setSignedIn] = useState(true);
   const [showFirstWelcome, setShowFirstWelcome] = useState(false);
+  const [checkedIn, setCheckedIn] = useState(false);
+  const [showMysteryBox, setShowMysteryBox] = useState(false);
+
+  const handleCheckIn = async () => {
+    if (checkedIn) return;
+    try {
+      const res = await fetch('/api/user/checkin', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setCheckedIn(true);
+        alert(`Daily check-in complete! You earned ${data.xpAward} XP. Streak: ${data.totalCheckInStreak} days. Total XP: ${data.xp}`);
+        if (user) {
+          setUser({ 
+            ...user, 
+            xp: data.xp, 
+            lastCheckInDate: data.lastCheckInDate,
+            checkInStreak: data.checkInStreak,
+            totalCheckInStreak: data.totalCheckInStreak
+          });
+          
+          if (stats) {
+            setStats(prev => ({
+              ...prev,
+              totalCheckInStreak: data.totalCheckInStreak
+            }));
+          }
+        }
+        
+        // Trigger Mystery Box if they hit a 7-day milestone
+        if (data.checkInStreak > 0 && data.checkInStreak % 7 === 0) {
+          setShowMysteryBox(true);
+        }
+      } else {
+        alert(data.error || 'Failed to check in.');
+      }
+    } catch (e) {
+      alert('Error during check-in');
+    }
+  };
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -44,6 +84,19 @@ export default function Dashboard() {
           return;
         }
         setUser(data.user);
+        
+        if (data.user && !data.user.hasCompletedOnboarding) {
+          router.replace('/onboarding');
+          return;
+        }
+
+        // Check if user already checked in today
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        if (data.user?.lastCheckInDate === todayStr) {
+          setCheckedIn(true);
+        }
+
         // First-ever dashboard visit gets a distinct greeting. The flag is
         // flipped server-side right after we read it here, so a refresh
         // (even an immediate one) correctly shows "Welcome back" from then on.
@@ -138,6 +191,8 @@ export default function Dashboard() {
       ? Math.min(100, Math.round((currentBest1RM / targetWeight) * 100))
       : null;
 
+  const primaryGoal = user?.fitnessProfile?.primaryGoal || 'general_health';
+
   return (
     <div className={styles.page}>
       <Sidebar />
@@ -154,21 +209,47 @@ export default function Dashboard() {
                   : 'Here is your fitness overview.'}
               </p>
             </div>
-            <button className={styles.aiBtn} onClick={() => setAiOpen(true)}>
-              <Zap size={18} /> Ask AI Coach
-            </button>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button 
+                className={styles.aiBtn} 
+                style={{ background: checkedIn ? 'var(--color-surface-elevated)' : 'linear-gradient(135deg, #f59e0b, #d97706)', color: checkedIn ? 'var(--color-text-muted)' : '#fff' }}
+                onClick={handleCheckIn}
+                disabled={checkedIn}
+              >
+                <CheckCircle size={18} /> {checkedIn ? 'Checked In' : 'Daily Check-in'}
+              </button>
+              <button className={styles.aiBtn} onClick={() => setAiOpen(true)} data-tour="tour-ai">
+                <Zap size={18} /> Ask AI Coach
+              </button>
+            </div>
           </div>
 
-          <div className={styles.quickStats}>
-            <div className={styles.qsCard}>
-              <div className={styles.qsIcon} style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
-                <Flame size={22} />
+          <div className={styles.quickStats} data-tour="tour-quickstats">
+            {/* Adaptive re-ordering based on goal */}
+            {primaryGoal === 'fat_loss' || primaryGoal === 'general_health' ? (
+              <div className={styles.qsCard}>
+                <div className={styles.qsIcon} style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
+                  <Flame size={22} />
+                </div>
+                <div>
+                  <span className={styles.qsValue}>{stats ? stats.caloriesThisWeek.toLocaleString() : '—'}</span>
+                  <span className={styles.qsLabel}>Est. Calories (7d)</span>
+                </div>
               </div>
-              <div>
-                <span className={styles.qsValue}>{stats ? stats.caloriesThisWeek.toLocaleString() : '—'}</span>
-                <span className={styles.qsLabel}>Est. Calories (7d)</span>
+            ) : null}
+
+            {primaryGoal === 'hypertrophy' || primaryGoal === 'strength_endurance' || primaryGoal === 'recomp' ? (
+              <div className={styles.qsCard}>
+                <div className={styles.qsIcon} style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>
+                  <TrendingUp size={22} />
+                </div>
+                <div>
+                  <span className={styles.qsValue}>{stats ? stats.totalSessions : '—'}</span>
+                  <span className={styles.qsLabel}>Weekly Volume</span>
+                </div>
               </div>
-            </div>
+            ) : null}
+
             <div className={styles.qsCard}>
               <div className={styles.qsIcon} style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}>
                 <Timer size={22} />
@@ -192,7 +273,7 @@ export default function Dashboard() {
                 <Trophy size={22} />
               </div>
               <div>
-                <span className={styles.qsValue}>{stats ? stats.currentStreak : '—'}</span>
+                <span className={styles.qsValue}>{stats ? Math.max(stats.currentStreak || 0, stats.totalCheckInStreak || 0) : '—'}</span>
                 <span className={styles.qsLabel}>Day Streak</span>
               </div>
             </div>
@@ -205,7 +286,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          <div className={styles.chartsRow}>
+          <div className={styles.chartsRow} data-tour="tour-charts">
             <ChartWidget
               data={stats ? stats.weeklyVolume : Array(8).fill({ value: 0 })}
               type="bar"
@@ -220,7 +301,9 @@ export default function Dashboard() {
             />
           </div>
           
-          <DashboardMeals />
+          <div data-tour="tour-meals">
+            <DashboardMeals />
+          </div>
 
           <div className={styles.trackerSection}>
             <WeightTracker />
@@ -275,11 +358,41 @@ export default function Dashboard() {
                 </div>
                 <div className={styles.goalProgress}>
                   <div className={styles.goalBar}>
-                    <div className={styles.goalFill} style={{ width: stats?.longestStreak ? '100%' : '0%' }} />
+                    <div className={styles.goalFill} style={{ width: Math.max(stats?.longestStreak || 0, stats?.longestCheckInStreak || 0) ? '100%' : '0%' }} />
                   </div>
-                  <span className={styles.goalPercent}>{stats?.longestStreak ?? 0}d</span>
+                  <span className={styles.goalPercent}>{Math.max(stats?.longestStreak || 0, stats?.longestCheckInStreak || 0)}d</span>
                 </div>
-                <span className={styles.goalTarget}>Current streak: {stats?.currentStreak ?? 0} days</span>
+                <span className={styles.goalTarget}>Current streak: {Math.max(stats?.currentStreak || 0, stats?.totalCheckInStreak || 0)} days</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Gamification: Badges Showcase */}
+          <div className={styles.goalsSection} style={{ marginTop: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 className={styles.sectionTitle} style={{ marginBottom: 0 }}>Achievements & Badges</h3>
+              <Link href="/badges" style={{ color: '#22c55e', fontSize: '0.9rem', fontWeight: 600 }}>See All / Shop &rarr;</Link>
+            </div>
+            <div className={styles.badgesGrid}>
+              <div className={`${styles.badgeCard} ${stats?.totalSessions >= 1 ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                <div className={styles.badgeIconWrap}><Star size={24} /></div>
+                <h4>First Step</h4>
+                <p>Complete 1 workout</p>
+              </div>
+              <div className={`${styles.badgeCard} ${stats?.currentStreak >= 3 ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                <div className={styles.badgeIconWrap}><Flame size={24} /></div>
+                <h4>On Fire</h4>
+                <p>Reach a 3-day streak</p>
+              </div>
+              <div className={`${styles.badgeCard} ${stats && stats.totalVolume >= 10000 ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                <div className={styles.badgeIconWrap}><Shield size={24} /></div>
+                <h4>Heavy Lifter</h4>
+                <p>Lift 10,000kg total</p>
+              </div>
+              <div className={`${styles.badgeCard} ${stats?.totalSessions >= 10 ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                <div className={styles.badgeIconWrap}><Medal size={24} /></div>
+                <h4>Consistent</h4>
+                <p>Complete 10 workouts</p>
               </div>
             </div>
           </div>
@@ -391,6 +504,15 @@ export default function Dashboard() {
         </div>
       </div>
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />
+      <MysteryBoxModal 
+        isOpen={showMysteryBox} 
+        onClose={() => setShowMysteryBox(false)} 
+        onOpenBox={(reward) => {
+          if (reward.type === 'xp') {
+            setUser(prev => ({ ...prev, xp: prev.xp + reward.value }));
+          }
+        }}
+      />
     </div>
   );
 }

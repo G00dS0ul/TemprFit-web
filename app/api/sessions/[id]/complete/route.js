@@ -34,6 +34,10 @@ export async function POST(request, { params }) {
     exercises: session.exercises,
   })
   session.status = 'completed'
+
+  // XP reward logic
+  user.xp = (user.xp || 0) + 50
+
   await session.save()
 
   const streak = updateStreak(user, now)
@@ -41,6 +45,16 @@ export async function POST(request, { params }) {
   user.longestStreak = streak.longestStreak
   user.lastWorkoutDate = streak.lastWorkoutDate
   await user.save()
+
+  // Update Pod Challenges
+  const { default: Pod } = await import('@/models/Pod')
+  const userPods = await Pod.find({ members: user._id })
+  for (const pod of userPods) {
+    if (pod.challenge && pod.challenge.expiresAt > now) {
+      pod.challenge.currentVolume += session.totalVolume;
+      await pod.save();
+    }
+  }
 
   return NextResponse.json({
     session,

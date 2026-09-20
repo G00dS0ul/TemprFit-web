@@ -44,7 +44,7 @@ export default function AdminSidebar() {
   return (
     <aside className={styles.sidebar}>
       <Link href="/admin" className={styles.logo}>
-        <Image src="/images/brand/logo-mark.webp" alt="TemprFit" width={32} height={32} priority />
+        <Image src="/images/brand/my-logo.png" alt="TemprFit" width={32} height={32} priority />
         <span className={styles.logoText}>TemprFit</span>
         <span className={styles.logoAdmin}>Admin</span>
       </Link>

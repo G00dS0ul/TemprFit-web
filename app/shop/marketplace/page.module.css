@@ -1,0 +1,220 @@
+.page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
+}
+
+.headerContent h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.headerContent p {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+}
+
+.icon {
+  color: var(--color-primary);
+}
+
+.sellBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-primary);
+  color: #000;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sellBtn:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  max-width: 500px;
+}
+
+.searchIcon {
+  color: var(--color-text-muted);
+  margin-right: 12px;
+}
+
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 1rem;
+  outline: none;
+}
+
+.categoryPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.pill {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill:hover {
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+}
+
+.pillActive {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--color-bg);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.priceTag {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--color-primary);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cardInfo {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.title {
+  color: var(--color-text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.condition {
+  background: var(--color-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.seller {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--color-text-muted);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+}

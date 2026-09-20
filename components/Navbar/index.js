@@ -197,7 +197,7 @@ export default function Navbar() {
               <BackButton className={styles.navbarBackBtn} />
             )}
             <Link href="/" className={styles.logo}>
-              <Image src="/images/brand/logo-mark.webp" alt="TemprFit" width={32} height={32} className={styles.logoMark} priority />
+              <Image src="/images/brand/my-logo.png" alt="TemprFit" width={32} height={32} className={styles.logoMark} priority />
               <span className={styles.logoText}>TemprFit</span>
             </Link>
           </div>

@@ -62,6 +62,36 @@ export async function PUT(request) {
     }
     update.mealsPerDay = n
   }
+  
+  if (body.location !== undefined) update.location = String(body.location).trim().slice(0, 100)
+  if (body.age !== undefined) {
+    const n = body.age === '' || body.age === null ? null : Number(body.age)
+    if (n !== null && (!Number.isFinite(n) || n < 0 || n > 150)) {
+      return NextResponse.json({ error: 'Invalid age.' }, { status: 400 })
+    }
+    update.age = n
+  }
+  
+  if (body.budget !== undefined) {
+    if (!['low', 'medium', 'high', ''].includes(body.budget)) {
+      return NextResponse.json({ error: 'Invalid budget.' }, { status: 400 })
+    }
+    update.budget = body.budget
+  }
+  
+  if (body.cookingSkill !== undefined) {
+    if (!['beginner', 'intermediate', 'advanced', ''].includes(body.cookingSkill)) {
+      return NextResponse.json({ error: 'Invalid cooking skill.' }, { status: 400 })
+    }
+    update.cookingSkill = body.cookingSkill
+  }
+  
+  if (body.cookingTime !== undefined) {
+    if (!['quick', 'moderate', 'extensive', ''].includes(body.cookingTime)) {
+      return NextResponse.json({ error: 'Invalid cooking time.' }, { status: 400 })
+    }
+    update.cookingTime = body.cookingTime
+  }
 
   const profile = await NutritionProfile.findOneAndUpdate(
     { user: user._id },

@@ -3,10 +3,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { noFlashScript } from '@/components/ThemeProvider/no-flash-script'
-import Navbar from '@/components/Navbar'
 import ChromeShell from '@/components/ChromeShell'
-import MobileBottomNav from '@/components/MobileBottomNav'
-import FloatingSearch from '@/components/FloatingSearch'
 import { ToastProvider } from '@/components/ToastProvider'
 
 const inter = Inter({
@@ -16,12 +13,28 @@ const inter = Inter({
   display: 'swap',
 })
 
+export const viewport = {
+  themeColor: '#22c55e',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 export const metadata = {
   title: 'TemprFit — Your Body. Your Goals. Your AI Coach.',
   description:
     'TemprFit is an AI-powered fitness ecosystem: personalized training, an always-on AI coach, progress tracking, nutrition, and a trainer marketplace.',
   keywords: 'gym, fitness, workout, AI coach, trainer, nutrition, tracker, TemprFit',
   manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'TemprFit',
+  },
+  icons: {
+    icon: '/images/brand/my-logo.png',
+    apple: '/images/brand/my-logo.png',
+  },
 }
 
 export default function RootLayout({ children }) {
@@ -34,12 +47,7 @@ export default function RootLayout({ children }) {
       <body>
         <ThemeProvider>
           <ToastProvider>
-            <Navbar />
-            <main>
-              <ChromeShell>{children}</ChromeShell>
-            </main>
-            <MobileBottomNav />
-            <FloatingSearch />
+            <ChromeShell>{children}</ChromeShell>
           </ToastProvider>
         </ThemeProvider>
       </body>

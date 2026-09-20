@@ -92,7 +92,7 @@ export default function CoachPage() {
     return (
       <div className={styles.page}>
         <div className={styles.card}>
-          <Image src="/images/brand/logo-mark.webp" alt="" width={28} height={28} />
+          <Image src="/images/brand/my-logo.png" alt="" width={28} height={28} />
           <h1>AI Coach</h1>
           <p>Sign in to chat with your AI coach — it uses your real workout data to give grounded advice.</p>
           <Link href="/login" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Sign In</Link>
@@ -105,7 +105,7 @@ export default function CoachPage() {
     <div className={styles.chatPage}>
       <div className="container">
         <div className={styles.chatHeader}>
-          <div className={styles.aiAvatar}><Image src="/images/brand/logo-mark.webp" alt="" width={20} height={20} /></div>
+          <div className={styles.aiAvatar}><Image src="/images/brand/my-logo.png" alt="" width={20} height={20} /></div>
           <div>
             <h1>AI Coach</h1>
             <p>Grounded in your real sessions, streaks, and goals — not generic advice.</p>
@@ -131,7 +131,7 @@ export default function CoachPage() {
             {messages?.map((m, i) => (
               <div key={i} className={`${styles.message} ${styles[m.role]}`}>
                 <div className={styles.avatar}>
-                  {m.role === 'assistant' ? <Image src="/images/brand/logo-mark.webp" alt="" width={16} height={16} /> : <User size={16} />}
+                  {m.role === 'assistant' ? <Image src="/images/brand/my-logo.png" alt="" width={16} height={16} /> : <User size={16} />}
                 </div>
                 <div className={styles.bubble}>
                   {m.role === 'assistant' ? (
@@ -166,7 +166,7 @@ export default function CoachPage() {
 
             {sending && (
               <div className={`${styles.message} ${styles.assistant}`}>
-                <div className={styles.avatar}><Image src="/images/brand/logo-mark.webp" alt="" width={16} height={16} /></div>
+                <div className={styles.avatar}><Image src="/images/brand/my-logo.png" alt="" width={16} height={16} /></div>
                 <div className={styles.typing}><span /><span /><span /></div>
               </div>
             )}

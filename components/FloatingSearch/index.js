@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Search, X, Dumbbell, Loader2 } from 'lucide-react';
@@ -15,6 +15,8 @@ export default function FloatingSearch() {
 
   const pathname = usePathname();
 
+  const searchTimeoutRef = useRef(null);
+
   useEffect(() => {
     fetch('/api/auth/me')
       .then(r => r.json())
@@ -24,21 +26,35 @@ export default function FloatingSearch() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    
+    if (!query.trim()) {
+      setResults([]);
+      setSearching(false);
+      return;
+    }
+
+    setSearching(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/exercises?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        setResults(data.items || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setSearching(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(searchTimeoutRef.current);
+  }, [query]);
+
   if (role === 'trainer' || pathname.startsWith('/admin')) return null;
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
-    if (!query.trim()) return;
-    setSearching(true);
-    try {
-      const res = await fetch(`/api/exercises?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      setResults(data.items || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSearching(false);
-    }
   };
 
   return (
@@ -93,6 +109,12 @@ export default function FloatingSearch() {
                 </div>
               ))}
             </div>
+            
+            {results.length > 3 && (
+              <div className={styles.scrollHint}>
+                Scroll to see more results ↓
+              </div>
+            )}
           </div>
         </div>
       )}

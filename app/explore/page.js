@@ -109,7 +109,7 @@ export default function ExplorePage() {
           <div className={styles.empty}>No exercises match those filters.</div>
         ) : (
           <>
-            <div className={styles.grid}>
+            <div className={styles.grid} data-tour="tour-explore-exercises">
               {items.map((exercise) => (
                 <ExerciseCard
                   key={exercise.slug}

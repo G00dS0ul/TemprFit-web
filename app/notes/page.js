@@ -10,6 +10,8 @@ export default function Notes() {
   const [newNote, setNewNote] = useState({ title: '', content: '' });
   const [showForm, setShowForm] = useState(false);
 
+  const [isListening, setIsListening] = useState(false);
+
   useEffect(() => {
     const loadNotes = async () => {
       try {
@@ -36,6 +38,54 @@ export default function Notes() {
     window.addEventListener('online', loadNotes);
     return () => window.removeEventListener('online', loadNotes);
   }, []);
+
+  const toggleListen = () => {
+    if (isListening) {
+      setIsListening(false);
+      if (window.recognition) {
+        window.recognition.stop();
+      }
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Your browser does not support voice input.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript + ' ';
+        }
+      }
+      if (finalTranscript) {
+        setNewNote((prev) => ({ ...prev, content: prev.content + (prev.content && !prev.content.endsWith(' ') ? ' ' : '') + finalTranscript }));
+      }
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    window.recognition = recognition;
+    recognition.start();
+  };
 
   const syncOfflineNotes = async () => {
     const queue = await get('offline_notes_queue') || [];
@@ -133,7 +183,14 @@ export default function Notes() {
               onChange={e => setNewNote({...newNote, content: e.target.value})}
             />
             <div className={styles.formActions}>
-              <button className={styles.micBtn}><Mic size={16} /> Voice</button>
+              <button 
+                className={styles.micBtn} 
+                onClick={toggleListen}
+                style={{ background: isListening ? 'rgba(239,68,68,0.1)' : '', color: isListening ? '#ef4444' : '', borderColor: isListening ? 'rgba(239,68,68,0.2)' : '' }}
+              >
+                <Mic size={16} className={isListening ? styles.pulse : ''} /> 
+                {isListening ? 'Listening...' : 'Voice'}
+              </button>
               <div className={styles.formRight}>
                 <button className={styles.cancelBtn} onClick={() => setShowForm(false)}>Cancel</button>
                 <button className={styles.saveBtn} onClick={addNote}>Save Note</button>

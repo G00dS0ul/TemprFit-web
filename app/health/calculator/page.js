@@ -84,6 +84,7 @@ export default function BMICalculator() {
             className={styles.card}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            data-tour="tour-health-bmi"
           >
             <h2 className={styles.cardTitle}>
               <Scale size={24} /> Calculate your BMI
@@ -141,7 +142,7 @@ export default function BMICalculator() {
       </div>
 
       {history.length > 0 && (
-        <div className={styles.historySection}>
+        <div className={styles.historySection} data-tour="tour-health-graphs">
           <h2 className={styles.historyTitle}>Recent Logs</h2>
           <div className={styles.tableWrap}>
             <table className={styles.table}>

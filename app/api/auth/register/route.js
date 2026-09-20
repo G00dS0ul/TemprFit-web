@@ -5,6 +5,8 @@ import WeightEntry from '@/models/WeightEntry'
 import { hashPassword, signToken, AUTH_COOKIE_NAME, AUTH_COOKIE_MAX_AGE } from '@/lib/auth'
 import { randomAvatarUrl } from '@/lib/avatars'
 import Notification from '@/models/Notification'
+import { checkAuthRateLimit } from '@/lib/ratelimit'
+import { sendVerificationEmail } from '@/lib/email'
 
 const USERNAME_PATTERN = /^[a-z0-9_.]{3,24}$/
 const VALID_SEX_VALUES = ['male', 'female', 'other', 'prefer_not_to_say']
@@ -17,6 +19,13 @@ function startOfDay(date) {
 
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    const rateLimit = await checkAuthRateLimit(ip);
+    
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 });
+    }
+
     const {
       username, email, password, goal, experience,
       age, sex, heardAboutUs,
@@ -95,6 +104,7 @@ export async function POST(request) {
         avatarUrl: randomAvatarUrl(normalizedUsername),
         firstLoginCompleted: false,
         role: 'user',
+        isVerified: true, // Auto-verify
         trainerInfo: undefined,
       })
 
@@ -105,8 +115,6 @@ export async function POST(request) {
         message: 'Your journey begins now. Check out the explore tab or generate your first workout.',
         type: 'system',
       })
-
-
 
       const resolvedWeight = Number(startingWeight)
       if (Number.isFinite(resolvedWeight) && resolvedWeight > 0 && resolvedWeight < 2000) {
@@ -125,17 +133,24 @@ export async function POST(request) {
       throw createErr;
     }
 
-    const token = signToken({ userId: user._id.toString(), role: user.role })
+    // Immediately log the user in
+    const token = signToken({ userId: user._id.toString(), role: user.role });
+    const response = NextResponse.json(
+      { requiresVerification: false, message: 'Registration successful.' },
+      { status: 201 }
+    );
 
-    const response = NextResponse.json({ user: user.toSafeObject() }, { status: 201 })
-    response.cookies.set(AUTH_COOKIE_NAME, token, {
+    response.cookies.set({
+      name: AUTH_COOKIE_NAME,
+      value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: AUTH_COOKIE_MAX_AGE,
       path: '/',
-    })
-    return response
+    });
+
+    return response;
   } catch (err) {
     console.error('Register error:', err)
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })

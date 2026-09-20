@@ -42,7 +42,11 @@ export default function ProgramDetails() {
     );
   }
 
-  const trainer = program.trainer;
+  const trainer = program.trainer || {
+    username: 'Unknown Trainer',
+    avatarUrl: '',
+    trainerInfo: {}
+  };
 
   return (
     <div className={styles.page}>

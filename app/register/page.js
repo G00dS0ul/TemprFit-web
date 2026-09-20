@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Dumbbell, Eye, EyeOff, ArrowRight, Check, User, ShieldAlert } from 'lucide-react';
@@ -9,66 +9,79 @@ import AuthBackground from '@/components/AuthBackground';
 import AuthBackButton from '@/components/AuthBackButton';
 import styles from './page.module.css';
 
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+
 export default function Register() {
+  return (
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '461953379526-e5ped6rrio6gn48jqufa1sa3g20792t4.apps.googleusercontent.com'}>
+      <Suspense fallback={null}>
+        <RegisterForm />
+      </Suspense>
+    </GoogleOAuthProvider>
+  );
+}
+
+function RegisterForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    role: 'user', 
     username: '', email: '', password: '',
-    age: '', sex: '', heardAboutUs: '',
-    goal: '', experience: '',
-    weightUnit: 'lbs', startingWeight: '', heightUnit: 'cm', heightCm: '', heightFt: '', heightIn: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const TOTAL_STEPS = 5;
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
 
-  const goals = ['Lose Weight', 'Build Muscle', 'Increase Strength', 'Improve Endurance', 'General Fitness'];
-  const experiences = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
-  const sexOptions = [
-    { value: 'female', label: 'Female' },
-    { value: 'male', label: 'Male' },
-    { value: 'other', label: 'Other' },
-    { value: 'prefer_not_to_say', label: 'Prefer not to say' },
-  ];
-  const heardAboutOptions = [
-    'Social Media', 'Friend / Family', 'Search Engine', 'App Store', 'Influencer / Creator', 'Other',
-  ];
+  const [resendTimer, setResendTimer] = useState(0);
+  const [resendLoading, setResendLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Countdown effect
+  useEffect(() => {
+    let interval = null;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (interval) {
+      clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [resendTimer]);
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
     setError('');
-    if (step < TOTAL_STEPS) setStep(step + 1);
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Google login failed.');
+        setLoading(false);
+        return;
+      }
+      router.push(data.user?.hasCompletedOnboarding ? '/dashboard' : '/onboarding');
+    } catch (err) {
+      setError('Could not reach the server.');
+      setLoading(false);
+    }
   };
 
-  const handleCompleteRegistration = async () => {
+  const handleCompleteRegistration = async (e) => {
+    e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const heightCm = formData.heightUnit === 'cm'
-        ? (parseFloat(formData.heightCm) || null)
-        : (() => {
-            const ft = parseFloat(formData.heightFt) || 0;
-            const inch = parseFloat(formData.heightIn) || 0;
-            const total = ft * 30.48 + inch * 2.54;
-            return total > 0 ? Math.round(total * 10) / 10 : null;
-          })();
-
-      let payload = {
+      const payload = {
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        role: 'user',
-        age: formData.age ? parseInt(formData.age, 10) : null,
-        sex: formData.sex,
-        heardAboutUs: formData.heardAboutUs,
-        goal: formData.goal,
-        experience: formData.experience,
-        weightUnit: formData.weightUnit,
-        startingWeight: formData.startingWeight ? parseFloat(formData.startingWeight) : null,
-        heightCm,
       };
 
       const res = await fetch('/api/auth/register', {
@@ -77,16 +90,69 @@ export default function Register() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
+      
+      if (res.status === 201 && data.requiresVerification) {
+        setNeedsVerification(true);
+        setResendTimer(30); // Start 30s cooldown
+        setLoading(false);
+        return;
+      }
+      
       if (!res.ok) {
         setError(data.error || 'Registration failed. Please try again.');
         setLoading(false);
         return;
       }
-      
-      router.push('/dashboard');
+      router.push('/onboarding');
     } catch (err) {
       setError('Could not reach the server. Is it running?');
       setLoading(false);
+    }
+  };
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, code: verificationCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Verification failed.');
+        setLoading(false);
+        return;
+      }
+      router.push('/onboarding');
+    } catch (err) {
+      setError('Could not reach the server.');
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendTimer > 0) return;
+    setResendLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/auth/resend-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to resend code.');
+      } else {
+        setResendTimer(30);
+      }
+    } catch (err) {
+      setError('Could not reach the server.');
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -113,224 +179,54 @@ export default function Register() {
       </div>
       <div className={styles.right}>
         <div className={styles.formCard}>
-          <div className={styles.progress}>
-            {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(s => (
-              <div key={s} className={`${styles.step} ${s <= step ? styles.activeStep : ''}`} />
-            ))}
-          </div>
-
-          {step === 1 && (
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <h1>Create Account</h1>
-              <p>Step 1 of {TOTAL_STEPS} - Basic Info</p>
-              <div className={styles.inputGroup}>
-                <label>Username</label>
-                <input type="text" placeholder="e.g. john_doe" required minLength={3} maxLength={24}
-                  pattern="[a-zA-Z0-9_.]+" title="Letters, numbers, underscores, and periods only"
-                  value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
-              </div>
-              <div className={styles.inputGroup}>
-                <label>Email</label>
-                <input type="email" placeholder="you@example.com" required
-                  value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-              </div>
-              <div className={styles.inputGroup}>
-                <label>Password</label>
-                <div className={styles.passwordWrapper}>
-                  <input type={showPassword ? 'text' : 'password'} placeholder="Min 8 characters" required
-                    value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
-                  <button type="button" className={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="submit" className={styles.submitBtn}>Continue <ArrowRight size={16} /></button>
-              </div>
-            </form>
-          )}
-
-          {step === 2 && (
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <h1>About You</h1>
-              <p>Step 2 of {TOTAL_STEPS} - Helps us personalize TemprFit for you</p>
-              <div className={styles.inputGroup}>
-                <label>Age</label>
-                <input type="number" placeholder="e.g. 27" required min={13} max={120}
-                  value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} />
-              </div>
-              <div className={styles.inputGroup}>
-                <label>Sex</label>
-                <div className={styles.optionsGrid}>
-                  {sexOptions.map(opt => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      className={`${styles.optionBtn} ${formData.sex === opt.value ? styles.selected : ''}`}
-                      onClick={() => setFormData({...formData, sex: opt.value})}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className={styles.inputGroup}>
-                <label>How did you hear about us?</label>
-                <div className={styles.optionsGrid}>
-                  {heardAboutOptions.map(opt => (
-                    <button
-                      key={opt}
-                      type="button"
-                      className={`${styles.optionBtn} ${formData.heardAboutUs === opt ? styles.selected : ''}`}
-                      onClick={() => setFormData({...formData, heardAboutUs: opt})}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="button" className={styles.backBtn} onClick={() => setStep(step - 1)}>Back</button>
-                <button type="submit" className={styles.submitBtn} disabled={!formData.age || !formData.sex || !formData.heardAboutUs}>
-                  Continue <ArrowRight size={16} />
-                </button>
-              </div>
-            </form>
-          )}
-
-          {step === 3 && (
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <h1>Your Goal</h1>
-              <p>Step 3 of {TOTAL_STEPS} - Fitness Goals</p>
-              <div className={styles.optionsGrid}>
-                {goals.map(goal => (
-                  <button
-                    key={goal}
-                    type="button"
-                    className={`${styles.optionBtn} ${formData.goal === goal ? styles.selected : ''}`}
-                    onClick={() => setFormData({...formData, goal})}
-                  >
-                    {goal}
-                  </button>
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button type="button" className={styles.backBtn} onClick={() => setStep(step - 1)}>Back</button>
-                <button type="submit" className={styles.submitBtn} disabled={!formData.goal}>
-                  Continue <ArrowRight size={16} />
-                </button>
-              </div>
-            </form>
-          )}
-
-          {step === 4 && (
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <h1>Almost Done!</h1>
-              <p>Step 4 of {TOTAL_STEPS} - Experience Level</p>
-              <div className={styles.optionsGrid}>
-                {experiences.map(exp => (
-                  <button
-                    key={exp}
-                    type="button"
-                    className={`${styles.optionBtn} ${formData.experience === exp ? styles.selected : ''}`}
-                    onClick={() => setFormData({...formData, experience: exp})}
-                  >
-                    {exp}
-                  </button>
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button type="button" className={styles.backBtn} onClick={() => setStep(step - 1)}>Back</button>
-                <button type="submit" className={styles.submitBtn} disabled={!formData.experience}>
-                  Continue <ArrowRight size={16} />
-                </button>
-              </div>
-            </form>
-          )}
-
-          {step === 5 && (
-            <div className={styles.form}>
-              <h1>Body Stats</h1>
-              <p>Step 5 of {TOTAL_STEPS} - Optional, helps personalize your dashboard and progress charts. Skip if you&apos;d rather add this later in Settings.</p>
-
-              <div className={styles.inputGroup}>
-                <label>Starting Weight</label>
-                <div className={styles.unitRow}>
-                  <input
-                    type="number"
-                    placeholder="e.g. 165"
-                    value={formData.startingWeight}
-                    onChange={e => setFormData({...formData, startingWeight: e.target.value})}
-                  />
-                  <div className={styles.unitToggle}>
-                    {['lbs', 'kg'].map(u => (
-                      <button
-                        key={u}
-                        type="button"
-                        className={formData.weightUnit === u ? styles.unitActive : ''}
-                        onClick={() => setFormData({...formData, weightUnit: u})}
-                      >
-                        {u}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label>Height</label>
-                <div className={styles.unitToggle} style={{ marginBottom: 8 }}>
-                  {['cm', 'ft'].map(u => (
-                    <button
-                      key={u}
-                      type="button"
-                      className={formData.heightUnit === u ? styles.unitActive : ''}
-                      onClick={() => setFormData({...formData, heightUnit: u})}
-                    >
-                      {u === 'cm' ? 'cm' : 'ft/in'}
-                    </button>
-                  ))}
-                </div>
-                {formData.heightUnit === 'cm' ? (
-                  <input
-                    type="number"
-                    placeholder="e.g. 178"
-                    value={formData.heightCm}
-                    onChange={e => setFormData({...formData, heightCm: e.target.value})}
-                  />
-                ) : (
-                  <div className={styles.unitRow}>
-                    <input
-                      type="number"
-                      placeholder="ft"
-                      value={formData.heightFt}
-                      onChange={e => setFormData({...formData, heightFt: e.target.value})}
-                    />
-                    <input
-                      type="number"
-                      placeholder="in"
-                      value={formData.heightIn}
-                      onChange={e => setFormData({...formData, heightIn: e.target.value})}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {error && <p className={styles.errorText}>{error}</p>}
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="button" className={styles.backBtn} onClick={() => setStep(step - 1)} disabled={loading}>Back</button>
-                <button
-                  type="button"
-                  className={styles.submitBtn}
-                  onClick={handleCompleteRegistration}
-                  disabled={loading}
-                >
-                  {loading ? 'Creating account…' : 'Complete'} <ArrowRight size={16} />
+          <form onSubmit={handleCompleteRegistration} className={styles.form}>
+            <h1>Create Account</h1>
+            <p>Enter your details to get started</p>
+            <div className={styles.inputGroup}>
+              <label>Username</label>
+              <input type="text" placeholder="e.g. john_doe" required minLength={3} maxLength={24}
+                pattern="[a-zA-Z0-9_.]+" title="Letters, numbers, underscores, and periods only"
+                value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
+            </div>
+            <div className={styles.inputGroup}>
+              <label>Email</label>
+              <input type="email" placeholder="you@example.com" required
+                value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+            </div>
+            <div className={styles.inputGroup}>
+              <label>Password</label>
+              <div className={styles.passwordWrapper}>
+                <input type={showPassword ? 'text' : 'password'} placeholder="Min 8 characters" required
+                  value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+                <button type="button" className={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
-          )}
+            
+            {error && <p className={styles.errorText}>{error}</p>}
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="submit" className={styles.submitBtn} disabled={loading}>
+                {loading ? 'Creating...' : 'Continue'} <ArrowRight size={16} />
+              </button>
+            </div>
+
+            <div className={styles.divider}>
+              <span>or continue with</span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google login failed.')}
+                theme="filled_black"
+                shape="rectangular"
+                size="large"
+                text="signup_with"
+              />
+            </div>
+          </form>
 
           <p className={styles.footerText}>
             Already have an account? <Link href="/login">Sign in</Link>

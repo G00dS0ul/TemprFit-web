@@ -3,6 +3,7 @@
   border-top: 1px solid var(--color-border);
   padding: 60px 0 24px;
   margin-top: 80px;
+  margin-left: 76px;
 }
 
 .footerGrid {
@@ -146,6 +147,9 @@
 }
 
 @media (max-width: 1024px) {
+  .footer {
+    margin-left: 0;
+  }
   .footerGrid {
     grid-template-columns: 1fr 1fr;
     gap: 32px;

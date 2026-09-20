@@ -345,7 +345,7 @@ export default function MomentsPage() {
         
         <div className={styles.header}>
           <h1>Community Moments</h1>
-          <button className={styles.uploadBtn} onClick={() => setShowUpload(true)}>
+          <button className={styles.uploadBtn} onClick={() => setShowUpload(true)} data-tour="tour-moments-post">
             <Plus size={20} /> Share a Moment
           </button>
         </div>
@@ -370,7 +370,7 @@ export default function MomentsPage() {
         ) : displayedMoments.length === 0 ? (
           <p className={styles.muted}>No moments to display here.</p>
         ) : (
-          <div className={styles.feed}>
+          <div className={styles.feed} data-tour="tour-moments-feed">
             {displayedMoments.map(m => {
               const isSavedByMe = m.savedBy?.includes(currentUser?._id);
               const isMyMoment = m.user?._id === currentUser?._id;

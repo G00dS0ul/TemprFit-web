@@ -1,0 +1,202 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modalContent {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.closeBtn:hover {
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+}
+
+.cardContainer {
+  padding: 32px 24px;
+  background: #000;
+  display: flex;
+  justify-content: center;
+}
+
+.shareCard {
+  width: 100%;
+  aspect-ratio: 9/16;
+  max-width: 300px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0f172a, #020617);
+  border: 2px solid #334155;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+.cardBgEffect {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(0,0,0,0) 60%);
+  z-index: 0;
+}
+
+.cardHeader {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.cardTitle {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #22c55e, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cardSubtitle {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.cardStats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.statRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.statValue {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.cardFooter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.modalActions {
+  padding: 20px 24px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.copyBtn, .momentsBtn {
+  flex: 1;
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  padding: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  min-width: 140px;
+}
+
+.copyBtn {
+  background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+}
+
+.copyBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.momentsBtn {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+}
+
+.momentsBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+}
+
+.copyBtn:disabled, .momentsBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}

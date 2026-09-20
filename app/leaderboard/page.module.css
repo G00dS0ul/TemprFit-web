@@ -1,0 +1,160 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 72px;
+}
+
+.content {
+  margin-left: 260px;
+  flex: 1;
+  padding: 32px 0;
+  transition: margin-left 0.3s ease;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tab {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: var(--color-surface-elevated);
+}
+
+.tab.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.boardCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.boardHeader {
+  display: grid;
+  grid-template-columns: 60px 1fr 120px;
+  padding: 16px 20px;
+  background: var(--color-surface-elevated);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.boardRow {
+  display: grid;
+  grid-template-columns: 60px 1fr 120px;
+  padding: 16px 20px;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s;
+}
+
+.boardRow:last-child {
+  border-bottom: none;
+}
+
+.boardRow:hover {
+  background: var(--color-surface-elevated);
+}
+
+.boardRow.isMe {
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.rank {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+
+.rank1 { color: #fbbf24; }
+.rank2 { color: #94a3b8; }
+.rank3 { color: #b45309; }
+
+.userCol {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.userName {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.isMeBadge {
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  text-transform: uppercase;
+}
+
+.score {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: right;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    margin-left: 0;
+  }
+}

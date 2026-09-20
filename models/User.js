@@ -23,6 +23,12 @@ const UserSchema = new mongoose.Schema(
       enum: ['user', 'trainer', 'admin'],
       default: 'user',
     },
+    isBanned: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: false },
+    verificationCode: { type: String, default: null },
+    verificationCodeExpiresAt: { type: Date, default: null },
+    lastLoginAt: { type: Date, default: Date.now },
+    lastReminderSentAt: { type: Date, default: null },
     age: { type: Number, default: null },
     sex: {
       type: String,
@@ -89,6 +95,54 @@ const UserSchema = new mongoose.Schema(
       date: { type: String, default: '' },
       count: { type: Number, default: 0 },
     },
+    fitnessProfile: {
+      nickname: { type: String, default: '' },
+      country: { type: String, default: '' },
+      primaryGoal: { type: String, enum: ['fat_loss', 'hypertrophy', 'strength_endurance', 'general_health', 'recomp'], default: 'general_health' },
+      bodyMetrics: {
+        heightCm: { type: Number, default: null },
+        currentWeightKg: { type: Number, default: null },
+        targetWeightKg: { type: Number, default: null },
+        targetRatePerWeekKg: { type: Number, default: null },
+        age: { type: Number, default: null },
+        biologicalSex: { type: String, enum: ['male', 'female', 'other', ''], default: '' }
+      },
+      experienceLevel: { type: String, enum: ['beginner', 'intermediate', 'advanced'], default: 'beginner' },
+      workoutContext: {
+        location: { type: String, enum: ['home_bodyweight', 'home_dumbbells', 'commercial_gym'], default: 'commercial_gym' },
+        daysAvailablePerWeek: { type: Number, default: 3 },
+        preferredSessionMins: { type: Number, default: 45 }
+      },
+      dietaryContext: {
+        dietaryRestrictions: [{ type: String }],
+        foodBudgetTier: { type: String, enum: ['budget', 'moderate', 'premium'], default: 'moderate' },
+        regionalCuisinePreferences: [{ type: String }],
+        typicalDailySchedule: { type: String, default: '' }
+      },
+      specialInterests: [{ type: String }]
+    },
+    appPreferences: {
+      showOnLeaderboard: { type: Boolean, default: false }
+    },
+    hasCompletedOnboarding: { type: Boolean, default: false },
+    onboardingTourSeen: { type: Map, of: Boolean, default: {} },
+    badges: [{
+      badgeId: { type: String },
+      earnedAt: { type: Date, default: Date.now }
+    }],
+    xp: { type: Number, default: 0 },
+    lastCheckInDate: { type: String, default: null }, // Stored as "YYYY-MM-DD"
+    checkInStreak: { type: Number, default: 0 },
+    totalCheckInStreak: { type: Number, default: 0 },
+    longestCheckInStreak: { type: Number, default: 0 },
+    unlockedColors: [{ type: String }],
+    activeColor: { type: String, default: '' },
+    activeBorder: { type: String, default: '' },
+    borderExpiresAt: { type: Date, default: null },
+    inventory: {
+      streak_freeze: { type: Number, default: 0 }
+    }
+
   },
   { timestamps: true }
 )
