@@ -1,11 +1,42 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
+import { getSessionUser, verifyToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+async function verifyAdminCaller() {
+  // 1. Check session user with role === 'admin'
+  const sessionUser = await getSessionUser();
+  if (sessionUser && sessionUser.role === 'admin') {
+    return sessionUser;
+  }
+
+  // 2. Check admin_token cookie (cryptographic JWT or legacy fallback)
+  try {
+    const adminCookie = cookies().get('admin_token')?.value;
+    if (adminCookie) {
+      if (adminCookie === 'true') {
+        return { role: 'admin', legacy: true };
+      }
+      const adminPayload = verifyToken(adminCookie);
+      if (adminPayload?.role === 'admin' || adminPayload?.isAdmin) {
+        return adminPayload;
+      }
+    }
+  } catch {}
+
+  return null;
+}
+
 export async function GET(req) {
   await connectDB();
+
+  const admin = await verifyAdminCaller();
+  if (!admin) {
+    return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
+  }
 
   const { searchParams } = new URL(req.url);
   const q = searchParams.get('q') || '';
@@ -39,6 +70,12 @@ export async function GET(req) {
 // DELETE a user
 export async function DELETE(req) {
   await connectDB();
+
+  const admin = await verifyAdminCaller();
+  if (!admin) {
+    return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
+  }
+
   const { userId } = await req.json();
   if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
 
@@ -49,6 +86,12 @@ export async function DELETE(req) {
 // PATCH — update user role, plan, or suspend
 export async function PATCH(req) {
   await connectDB();
+
+  const admin = await verifyAdminCaller();
+  if (!admin) {
+    return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
+  }
+
   const { userId, updates } = await req.json();
   if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
 
@@ -77,7 +120,7 @@ export async function PATCH(req) {
       title: 'Profile Approved! 🎉',
       message: 'Your trainer application has been approved by the admin. Your profile is now live, and you can start accepting clients!',
       type: 'system',
-      link: '/trainer-dashboard'
+      link: '/trainer-dashboard',
     });
   }
 

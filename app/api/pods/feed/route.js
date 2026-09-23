@@ -1,35 +1,25 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
 import { connectDB } from '@/lib/db';
 import Pod from '@/models/Pod';
 import WorkoutSession from '@/models/WorkoutSession';
-import User from '@/models/User';
+import { getSessionUser } from '@/lib/auth';
 
-export async function GET(req) {
+export async function GET() {
   try {
-    const token = cookies().get('token')?.value;
-    if (!token) {
+    await connectDB();
+    const user = await getSessionUser();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded || !decoded.userId) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
 
-    await connectDB();
-    
     // Find pods the user is a member of
-    const userPods = await Pod.find({ members: decoded.userId });
+    const userPods = await Pod.find({ members: user._id });
     
     // Collect all unique member IDs from these pods
     const memberIds = new Set();
     userPods.forEach(pod => {
       pod.members.forEach(id => memberIds.add(id.toString()));
     });
-
-    // Remove the user themselves so they don't just see their own feed, or keep it.
-    // Let's keep it so they can see their own activity in the pod.
 
     if (memberIds.size === 0) {
       return NextResponse.json({ feed: [] });
@@ -40,12 +30,12 @@ export async function GET(req) {
     // Fetch the 20 most recent completed workouts from these users
     const recentWorkouts = await WorkoutSession.find({
       user: { $in: memberIdArray },
-      status: 'completed'
+      status: 'completed',
     })
-    .sort({ endTime: -1 })
-    .limit(20)
-    .populate('user', 'username avatarUrl activeColor activeBorder')
-    .lean();
+      .sort({ endTime: -1 })
+      .limit(20)
+      .populate('user', 'username avatarUrl activeColor activeBorder')
+      .lean();
 
     // Format for feed
     const feed = recentWorkouts.map(session => {
@@ -62,7 +52,7 @@ export async function GET(req) {
         activeColor: u?.activeColor,
         activeBorder: u?.activeBorder,
         action: actionText,
-        time: new Date(session.endTime).toLocaleString()
+        time: new Date(session.endTime).toLocaleString(),
       };
     });
 
