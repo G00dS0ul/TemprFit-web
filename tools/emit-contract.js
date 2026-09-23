@@ -60,8 +60,23 @@ async function emitContracts() {
       const requestSchema = module.requestSchema || null;
       const responseSchema = module.responseSchema || null;
 
-      if (!requestSchema && !responseSchema) {
-        console.warn(`[SKIP] ${relativeSrc}: No requestSchema or responseSchema exported.`);
+      const namedContracts = {};
+      for (const [key, val] of Object.entries(module)) {
+        if (val && typeof val === 'object' && (val.responseSchema || val.requestSchema)) {
+          const endpointKey = key.replace(/Contract$/, '');
+          namedContracts[endpointKey] = {
+            method: val.contractMetadata?.method || 'POST',
+            endpoint: val.contractMetadata?.endpoint || '',
+            description: val.contractMetadata?.description || '',
+            version: val.contractMetadata?.version || metadata.version || '1.0.0',
+            request: val.requestSchema ? zodToJsonSchema(val.requestSchema, `${endpointKey}_request`) : null,
+            response: val.responseSchema ? zodToJsonSchema(val.responseSchema, `${endpointKey}_response`) : null,
+          };
+        }
+      }
+
+      if (!requestSchema && !responseSchema && Object.keys(namedContracts).length === 0) {
+        console.warn(`[SKIP] ${relativeSrc}: No requestSchema, responseSchema, or named contracts exported.`);
         continue;
       }
 
@@ -74,11 +89,25 @@ async function emitContracts() {
         title: metadata.endpoint || outName.replace(/\.json$/, ''),
         description: metadata.description || 'API v1 Contract Schema',
         version: metadata.version || '1.0.0',
-        method: metadata.method || 'GET',
-        endpoint: metadata.endpoint || '',
-        request: requestSchema ? zodToJsonSchema(requestSchema, 'request') : null,
-        response: responseSchema ? zodToJsonSchema(responseSchema, 'response') : null,
       };
+
+      if (metadata.method) {
+        emittedContract.method = metadata.method;
+      }
+      if (metadata.endpoint) {
+        emittedContract.endpoint = metadata.endpoint;
+      }
+
+      if (requestSchema) {
+        emittedContract.request = zodToJsonSchema(requestSchema, 'request');
+      }
+      if (responseSchema) {
+        emittedContract.response = zodToJsonSchema(responseSchema, 'response');
+      }
+
+      if (Object.keys(namedContracts).length > 0) {
+        emittedContract.endpoints = namedContracts;
+      }
 
       fs.writeFileSync(outPath, JSON.stringify(emittedContract, null, 2) + '\n', 'utf8');
       console.log(`[EMIT] ${relativeSrc} -> contracts/v1/${outName} (v${emittedContract.version})`);
