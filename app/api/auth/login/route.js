@@ -41,7 +41,7 @@ export async function POST(request) {
       } else {
         return NextResponse.json({ 
           error: 'BANNED', 
-          message: 'Your account has been banned.',
+          message: 'Your account has been banned, please contact support.',
           banReason: user.banReason || 'Violation of terms of service',
           banExpiresAt: user.banExpiresAt
         }, { status: 403 })

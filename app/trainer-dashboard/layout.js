@@ -3,6 +3,8 @@ import { getSessionUser } from '@/lib/auth';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
+
 export default async function TrainerDashboardLayout({ children }) {
   await connectDB();
   const sessionUser = await getSessionUser();
