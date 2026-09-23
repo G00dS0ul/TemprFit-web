@@ -5,15 +5,19 @@ import jwt from 'jsonwebtoken';
 import {
   hashPassword,
   comparePassword,
+  hashToken,
   signToken,
   verifyToken,
+  isTokenRevoked,
+  revokeToken,
   getSessionUser,
   AUTH_COOKIE_NAME,
   AUTH_COOKIE_MAX_AGE,
 } from '@/lib/auth';
 import User from '@/models/User';
 import Notification from '@/models/Notification';
-import { setMockCookies, clearMockCookies } from './../mocks/next-headers.js';
+import RevokedToken from '@/models/RevokedToken';
+import { setMockCookies, clearMockCookies, setMockHeaders, clearMockHeaders } from './../mocks/next-headers.js';
 
 describe('lib/auth.js Core Cryptography & Constants', () => {
   describe('Constants', () => {
@@ -21,10 +25,10 @@ describe('lib/auth.js Core Cryptography & Constants', () => {
       assert.equal(AUTH_COOKIE_NAME, 'repily_token');
     });
 
-    it('AUTH_COOKIE_MAX_AGE should be exactly 10 years in seconds (legacy baseline)', () => {
-      const TEN_YEARS_SECONDS = 60 * 60 * 24 * 365 * 10;
-      assert.equal(AUTH_COOKIE_MAX_AGE, TEN_YEARS_SECONDS);
-      assert.equal(AUTH_COOKIE_MAX_AGE, 315360000);
+    it('AUTH_COOKIE_MAX_AGE should be exactly 30 days in seconds per D-4', () => {
+      const THIRTY_DAYS_SECONDS = 60 * 60 * 24 * 30;
+      assert.equal(AUTH_COOKIE_MAX_AGE, THIRTY_DAYS_SECONDS);
+      assert.equal(AUTH_COOKIE_MAX_AGE, 2592000);
     });
   });
 
@@ -73,18 +77,20 @@ describe('lib/auth.js Core Cryptography & Constants', () => {
       assert.equal(segments.length, 3);
     });
 
-    it('signToken should embed payload fields and legacy 10-year expiration', () => {
+    it('signToken should embed payload fields, unique jti, and 30-day expiration per D-4', () => {
       const payload = { userId: 'user_abc_456', role: 'trainer' };
       const token = signToken(payload);
 
       const decoded = jwt.decode(token);
       assert.equal(decoded.userId, 'user_abc_456');
       assert.equal(decoded.role, 'trainer');
+      assert.ok(decoded.jti, 'Token should contain unique jti UUID');
       assert.ok(decoded.iat, 'Token should contain iat timestamp');
       assert.ok(decoded.exp, 'Token should contain exp timestamp');
 
       const lifetimeSeconds = decoded.exp - decoded.iat;
       assert.equal(lifetimeSeconds, AUTH_COOKIE_MAX_AGE);
+      assert.equal(lifetimeSeconds, 2592000);
     });
   });
 
@@ -243,6 +249,89 @@ describe('lib/auth.js Core Cryptography & Constants', () => {
       } finally {
         findMock.mock.restore();
         notifMock.mock.restore();
+      }
+    });
+
+    it('getSessionUser should authenticate via Authorization: Bearer <token> header (Phase 0 contract)', async () => {
+      clearMockCookies();
+      const token = signToken({ userId: 'bearer_user_789', role: 'user' });
+      setMockHeaders({ authorization: `Bearer ${token}` });
+
+      const mockUser = {
+        _id: 'bearer_user_789',
+        email: 'bearer@temprfit.com',
+        role: 'user',
+        plan: 'free',
+        isBanned: false,
+      };
+
+      const findMock = mock.method(User, 'findById', async () => mockUser);
+
+      try {
+        const user = await getSessionUser();
+        assert.ok(user);
+        assert.equal(user._id, 'bearer_user_789');
+        assert.equal(user.email, 'bearer@temprfit.com');
+      } finally {
+        findMock.mock.restore();
+        clearMockHeaders();
+      }
+    });
+
+    it('getSessionUser should return null when token is marked revoked in RevokedToken', async () => {
+      const token = signToken({ userId: 'revoked_user_123', role: 'user' });
+      setMockHeaders({ authorization: `Bearer ${token}` });
+
+      const revokeCheckMock = mock.method(RevokedToken, 'findOne', async () => ({
+        tokenHash: hashToken(token),
+        jti: 'some-revoked-jti',
+      }));
+
+      try {
+        const user = await getSessionUser();
+        assert.equal(user, null);
+      } finally {
+        revokeCheckMock.mock.restore();
+        clearMockHeaders();
+      }
+    });
+  });
+
+  describe('Token Revocation & Hashing', () => {
+    it('hashToken should return deterministic 64-char sha256 hex digest', () => {
+      const token1 = 'sample.jwt.token.string';
+      const hash1 = hashToken(token1);
+      const hash2 = hashToken(token1);
+
+      assert.equal(typeof hash1, 'string');
+      assert.equal(hash1.length, 64);
+      assert.equal(hash1, hash2);
+      assert.notEqual(hash1, hashToken('different.jwt.token'));
+    });
+
+    it('isTokenRevoked should return true when token is found in revocation collection', async () => {
+      const token = 'revoked.token.sample';
+      const findMock = mock.method(RevokedToken, 'findOne', async () => ({
+        tokenHash: hashToken(token),
+      }));
+
+      try {
+        const revoked = await isTokenRevoked({ token });
+        assert.equal(revoked, true);
+      } finally {
+        findMock.mock.restore();
+      }
+    });
+
+    it('isTokenRevoked should return false when token is not in revocation collection', async () => {
+      const token = 'active.valid.token';
+      const findMock = mock.method(RevokedToken, 'findOne', async () => null);
+
+      try {
+        const revoked = await isTokenRevoked({ token });
+        assert.equal(revoked, false);
+      } finally {
+        findMock.mock.restore();
       }
     });
   });

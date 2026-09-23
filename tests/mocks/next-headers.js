@@ -25,6 +25,16 @@ export function cookies() {
   };
 }
 
+let mockHeaders = new Headers();
+
+export function setMockHeaders(headerObj) {
+  mockHeaders = new Headers(headerObj);
+}
+
+export function clearMockHeaders() {
+  mockHeaders = new Headers();
+}
+
 export function headers() {
-  return new Headers();
+  return mockHeaders;
 }

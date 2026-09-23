@@ -211,8 +211,9 @@ describe('POST /api/auth/login Route Handler', () => {
       assert.ok(data.user);
       assert.equal(data.user.email, 'athlete@example.com');
       assert.equal(data.user.username, 'athlete_one');
-      // Assert legacy contract: does NOT return token in response body
-      assert.equal(data.token, undefined);
+      // Assert Phase 0 contract: returns token in response body alongside cookie
+      assert.ok(data.token, 'Response body should contain JWT token');
+      assert.equal(typeof data.token, 'string');
 
       // Verify lastLoginAt was updated
       assert.ok(savedLastLogin instanceof Date);
