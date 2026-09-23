@@ -32,7 +32,20 @@ export async function POST(request) {
     }
 
     if (user.isBanned) {
-      return NextResponse.json({ error: 'Your account has been banned. Please contact support.' }, { status: 403 })
+      if (user.banExpiresAt && new Date() > user.banExpiresAt) {
+        // Ban expired, unban user automatically
+        user.isBanned = false;
+        user.banReason = null;
+        user.banExpiresAt = null;
+        await user.save();
+      } else {
+        return NextResponse.json({ 
+          error: 'BANNED', 
+          message: 'Your account has been banned.',
+          banReason: user.banReason || 'Violation of terms of service',
+          banExpiresAt: user.banExpiresAt
+        }, { status: 403 })
+      }
     }
 
     if (user.isVerified === false) {

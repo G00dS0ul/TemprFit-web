@@ -133,13 +133,7 @@ export default function LeaderboardPage() {
                     </div>
                     <Link href={`/u/${entry.name}`} style={{ display: 'flex', flex: 1, alignItems: 'center', textDecoration: 'none' }}>
                       <div className={styles.userCol}>
-                        <div 
-                          className={styles.avatar}
-                          style={{ 
-                            border: entry.activeBorder ? `3px solid ${entry.activeBorder === 'diamond' ? '#3b82f6' : entry.activeBorder === 'gold' ? '#fbbf24' : entry.activeBorder === 'fire' ? '#ef4444' : '#06b6d4'}` : 'none',
-                            boxShadow: entry.activeBorder === 'diamond' ? '0 0 15px #3b82f6' : entry.activeBorder === 'fire' ? '0 0 10px #ef4444' : entry.activeBorder === 'lightning' ? '0 0 10px #06b6d4' : 'none'
-                          }}
-                        >
+                        <div className={`${styles.avatar} ${entry.activeBorder ? `aura-avatar-${entry.activeBorder}` : ''}`}>
                           {entry.avatar}
                         </div>
                         <div className={styles.userName}>

@@ -9,7 +9,7 @@ import {
   Settings, LogOut, Compass, BrainCircuit, LineChart, Users,
   Dumbbell, History, Activity, Sparkles, LayoutDashboard,
   Apple, Salad, BookOpen, Loader2, MessageCircle, Calendar, CreditCard,
-  ChevronRight, ArrowRight, Zap
+  ChevronRight, ArrowRight, Zap, Heart, Briefcase
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { displayName } from '@/lib/utils';
@@ -278,7 +278,7 @@ export default function Navbar() {
                         <div className={styles.omniEmpty}>No results found.</div>
                       )}
                       <Link href={`/explore?q=${encodeURIComponent(searchQuery)}`} className={styles.omniSeeAll} onClick={() => setSearchOpen(false)}>
-                        See all results for "{searchQuery}" <Compass size={14} />
+                        See all results for &quot;{searchQuery}&quot; <Compass size={14} />
                       </Link>
                     </div>
                   )}
@@ -362,6 +362,7 @@ export default function Navbar() {
                       <Link href="/workouts" onClick={() => setUserMenuOpen(false)}><Dumbbell size={14} /> My Workouts</Link>
                       <Link href="/history" onClick={() => setUserMenuOpen(false)}><History size={14} /> History</Link>
                       <Link href="/progress" onClick={() => setUserMenuOpen(false)}><LineChart size={14} /> Progress</Link>
+                      <Link href="/escrow" onClick={() => setUserMenuOpen(false)}><Briefcase size={14} /> My Bookings</Link>
                       <Link href="/settings" onClick={() => setUserMenuOpen(false)}><Settings size={14} /> Settings</Link>
                       <hr />
                       <button className={styles.logoutBtn} onClick={handleLogout}><LogOut size={14} /> Sign Out</button>

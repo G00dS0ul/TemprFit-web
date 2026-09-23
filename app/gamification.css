@@ -1,0 +1,148 @@
+/* Gamification Visual Effects (HelloTalk / TikTok Style) */
+
+/* 1. Fire Aura */
+@keyframes fireRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.aura-avatar-fire {
+  position: relative;
+  border-radius: 50%;
+  padding: 4px; /* Space for the aura */
+  background: transparent;
+  z-index: 1;
+}
+
+.aura-avatar-fire::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0%, #ef4444 20%, #f97316 40%, transparent 60%);
+  animation: fireRotate 2s linear infinite;
+  z-index: -1;
+  filter: blur(4px);
+}
+.aura-avatar-fire::after {
+  content: '';
+  position: absolute;
+  inset: 0px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  z-index: -1;
+}
+
+/* 2. Lightning Ring */
+@keyframes lightningFlash {
+  0%, 100% { box-shadow: 0 0 10px #06b6d4, inset 0 0 10px #06b6d4; }
+  50% { box-shadow: 0 0 20px #3b82f6, 0 0 30px #06b6d4, inset 0 0 20px #06b6d4; }
+}
+
+.aura-avatar-lightning {
+  position: relative;
+  border-radius: 50%;
+  padding: 3px;
+  border: 2px solid #06b6d4;
+  animation: lightningFlash 1.5s infinite alternate;
+}
+
+/* 3. Gold Frame */
+@keyframes goldShimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.aura-avatar-gold {
+  position: relative;
+  border-radius: 50%;
+  padding: 4px;
+  background: linear-gradient(120deg, #fbbf24 0%, #f59e0b 20%, #fef3c7 40%, #fbbf24 60%, #f59e0b 80%, #fbbf24 100%);
+  background-size: 200% auto;
+  animation: goldShimmer 3s linear infinite;
+}
+
+/* 4. Diamond Tier */
+@keyframes diamondPulse {
+  0% { box-shadow: 0 0 15px #3b82f6, 0 0 30px rgba(59, 130, 246, 0.5); border-color: #60a5fa; }
+  50% { box-shadow: 0 0 25px #60a5fa, 0 0 50px rgba(96, 165, 250, 0.8); border-color: #93c5fd; }
+  100% { box-shadow: 0 0 15px #3b82f6, 0 0 30px rgba(59, 130, 246, 0.5); border-color: #60a5fa; }
+}
+
+.aura-avatar-diamond {
+  position: relative;
+  border-radius: 50%;
+  border: 3px solid #3b82f6;
+  animation: diamondPulse 2s infinite ease-in-out;
+}
+
+/* Background Effects for Dashboards and Layouts removed per user request */
+
+/* Badge specific effects around avatar (3D-like) */
+@keyframes orbitStars {
+  0% { transform: rotate(0deg) translateX(45px) rotate(0deg) scale(0.8); opacity: 0.5; }
+  50% { opacity: 1; transform: rotate(180deg) translateX(45px) rotate(-180deg) scale(1.2); }
+  100% { transform: rotate(360deg) translateX(45px) rotate(-360deg) scale(0.8); opacity: 0.5; }
+}
+
+@keyframes orbitMoons {
+  0% { transform: rotate(180deg) translateX(50px) rotate(-180deg) scale(0.8); opacity: 0.5; }
+  50% { opacity: 1; transform: rotate(360deg) translateX(50px) rotate(-360deg) scale(1.2); }
+  100% { transform: rotate(540deg) translateX(50px) rotate(-540deg) scale(0.8); opacity: 0.5; }
+}
+
+.aura-avatar-rocket::before {
+  content: '⭐';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -12px;
+  margin-left: -12px;
+  font-size: 20px;
+  animation: orbitStars 4s linear infinite;
+  z-index: 2;
+  pointer-events: none;
+}
+.aura-avatar-rocket::after {
+  content: '✨';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -12px;
+  margin-left: -12px;
+  font-size: 16px;
+  animation: orbitMoons 5s linear infinite;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.aura-avatar-diamond::before {
+  content: '💎';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -12px;
+  margin-left: -12px;
+  font-size: 18px;
+  animation: orbitStars 6s ease-in-out infinite;
+  z-index: 2;
+  pointer-events: none;
+}
+.aura-avatar-diamond::after {
+  content: '✨';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -12px;
+  margin-left: -12px;
+  font-size: 20px;
+  animation: orbitMoons 4s linear infinite reverse;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Base utility for dynamic custom colors */
+.custom-primary-text {
+  color: var(--user-custom-color, var(--color-primary)) !important;
+  text-shadow: 0 0 10px rgba(var(--user-custom-color-rgb), 0.3);
+}

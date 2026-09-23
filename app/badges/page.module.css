@@ -107,6 +107,19 @@
   transition: all 0.3s ease;
 }
 
+.badgeCheck {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #22c55e;
+  background: var(--color-surface);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
 .badgeName {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.1rem;

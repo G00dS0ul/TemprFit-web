@@ -42,14 +42,14 @@ export default function SessionsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('Funds released successfully!');
+        alert('Success! The funds have been released to your trainer.');
         fetchSessions(); // Refresh
       } else {
-        alert(data.error || 'Failed to release funds');
+        alert(data.error || 'We couldn\'t release the funds right now. Please try again later.');
       }
     } catch (err) {
       console.error(err);
-      alert('Network error');
+      alert('We\'re having trouble connecting to the network right now. Please check your connection and try again!');
     }
   };
 

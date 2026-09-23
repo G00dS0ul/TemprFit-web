@@ -1,3 +1,5 @@
+@import './gamification.css';
+
 :root {
   --radius-xl: 28px;
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;

@@ -109,28 +109,65 @@ export default function Trainers() {
             {programs.map(program => {
               const trainer = program.trainer;
               const isFeatured = trainer?.trainerInfo?.isFeatured;
+              const isVerified = trainer?.trainerInfo?.isVerified;
+              const rating = trainer?.trainerInfo?.rating || 0;
+              const reviewsCount = trainer?.trainerInfo?.reviews?.length || 0;
+              const tagline = trainer?.trainerInfo?.tagline || 'Certified Fitness Professional';
+              const specialties = trainer?.trainerInfo?.specialties || [];
+              const responseTime = trainer?.trainerInfo?.responseTime || 'Usually replies in 2 hrs';
+              const activeClients = trainer?.trainerInfo?.activeClients || 0;
               const price = program.price;
               const location = program.trainingMode;
 
               return (
                 <div key={program._id} className={styles.trainerCard}>
-                  {isFeatured && <div className={styles.featuredBadge}><Zap size={12} /> Featured Trainer</div>}
-                  <div className={styles.cardTop}>
-                    <img src={trainer?.avatarUrl || `https://ui-avatars.com/api/?name=${trainer?.username}&background=22c55e&color=fff`} alt={trainer?.username} className={styles.avatar} />
-                    <div className={styles.info}>
-                      <h3 style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{program.title}</h3>
-                      <p className={styles.specialty}>by {trainer?.username}</p>
-                      <p className={styles.location} style={{ textTransform: 'capitalize' }}>{location} • {program.category}</p>
+                  {isFeatured && <div className={styles.featuredBadge}><Zap size={12} /> Featured</div>}
+                  
+                  <div className={styles.cardHeader}>
+                    <img 
+                      src={trainer?.avatarUrl || `https://ui-avatars.com/api/?name=${trainer?.username}&background=22c55e&color=fff`} 
+                      alt={trainer?.username} 
+                      className={styles.avatar} 
+                    />
+                    <div className={styles.headerInfo}>
+                      <div className={styles.nameRow}>
+                        <h3>{trainer?.username}</h3>
+                        {isVerified && <span className={styles.verifiedIcon} title="Verified Identity & Certs">✓</span>}
+                      </div>
+                      <p className={styles.tagline}>{tagline}</p>
+                      
+                      <div className={styles.statsRow}>
+                        <span className={styles.rating}>★ {rating.toFixed(1)} <span className={styles.reviewCount}>({reviewsCount} reviews)</span></span>
+                        <span className={styles.clientCount}>• {activeClients} active clients</span>
+                      </div>
                     </div>
                   </div>
-                  <div className={styles.cardBottom}>
-                    <div className={styles.price}>
-                      <span className={styles.amount}>${price}</span>
-                      <span className={styles.per}>total</span>
+
+                  <div className={styles.cardBody}>
+                    <h4 className={styles.programTitle}>{program.title}</h4>
+                    <p className={styles.responseTime}>💬 {responseTime}</p>
+                    
+                    <div className={styles.tagsContainer}>
+                      {specialties.slice(0, 3).map((spec, idx) => (
+                        <span key={idx} className={styles.specialtyPill}>{spec}</span>
+                      ))}
+                      {specialties.length > 3 && <span className={styles.specialtyPill}>+{specialties.length - 3}</span>}
                     </div>
-                    <Link href={`/trainers/programs/${program._id}`} className={styles.viewProfileBtn}>
-                      View Program
-                    </Link>
+                  </div>
+
+                  <div className={styles.cardFooter}>
+                    <div className={styles.priceBox}>
+                      <span className={styles.priceLabel}>Starting from</span>
+                      <div className={styles.priceAmount}>
+                        <span className={styles.amount}>${price}</span>
+                        <span className={styles.per}>total</span>
+                      </div>
+                    </div>
+                    <div className={styles.actionButtons}>
+                      <Link href={`/trainers/programs/${program._id}`} className={styles.viewProfileBtn}>
+                        View Profile
+                      </Link>
+                    </div>
                   </div>
                 </div>
               );

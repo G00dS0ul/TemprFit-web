@@ -35,6 +35,11 @@ function LoginForm() {
   const [needsVerification, setNeedsVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
+  // Ban state
+  const [bannedData, setBannedData] = useState(null);
+  const [appealMessage, setAppealMessage] = useState('');
+  const [appealSent, setAppealSent] = useState(false);
+
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
     setError('');
@@ -88,6 +93,12 @@ function LoginForm() {
         return;
       }
       
+      if (res.status === 403 && data.error === 'BANNED') {
+        setBannedData({ reason: data.banReason, expiresAt: data.banExpiresAt });
+        setLoading(false);
+        return;
+      }
+      
       if (!res.ok) {
         setError(data.error || 'Login failed. Please try again.');
         setLoading(false);
@@ -124,6 +135,26 @@ function LoginForm() {
     }
   };
 
+  const handleAppeal = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/complaints/appeal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, message: appealMessage })
+      });
+      if (res.ok) {
+        setAppealSent(true);
+      } else {
+        alert('Failed to submit appeal');
+      }
+    } catch (err) {
+      alert('Error submitting appeal');
+    }
+    setLoading(false);
+  };
+
   return (
     <div className={styles.page}>
       <AuthBackButton />
@@ -145,11 +176,47 @@ function LoginForm() {
             <div className={styles.logoSmall}>
               <Dumbbell size={24} />
             </div>
-            <h1>{needsVerification ? 'Verify Email' : 'Sign In'}</h1>
-            <p>{needsVerification ? 'Enter the 6-digit code sent to your email.' : 'Enter your credentials to access your account'}</p>
+            <h1>{bannedData ? 'Account Suspended' : needsVerification ? 'Verify Email' : 'Sign In'}</h1>
+            <p>{bannedData ? 'Your account has been restricted' : needsVerification ? 'Enter the 6-digit code sent to your email.' : 'Enter your credentials to access your account'}</p>
           </div>
 
-          {!needsVerification ? (
+          {bannedData ? (
+            <div className={styles.form}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', padding: '16px', borderRadius: '8px', marginBottom: '16px', textAlign: 'center' }}>
+                <p style={{ color: '#ef4444', fontWeight: 'bold', marginBottom: '8px' }}>Reason: {bannedData.reason}</p>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+                  {bannedData.expiresAt ? `Ban expires on: ${new Date(bannedData.expiresAt).toLocaleString()}` : 'This ban is permanent.'}
+                </p>
+              </div>
+
+              {!appealSent ? (
+                <form onSubmit={handleAppeal}>
+                  <div className={styles.inputGroup}>
+                    <label>Submit an Appeal</label>
+                    <textarea 
+                      rows={4} 
+                      value={appealMessage}
+                      onChange={e => setAppealMessage(e.target.value)}
+                      placeholder="Explain why you think this is a mistake..."
+                      required
+                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text)' }}
+                    />
+                  </div>
+                  <button type="submit" className={styles.submitBtn} disabled={loading} style={{ background: '#3b82f6' }}>
+                    {loading ? 'Submitting...' : 'Submit Appeal'}
+                  </button>
+                </form>
+              ) : (
+                <div style={{ textAlign: 'center', color: '#22c55e', padding: '16px', background: 'rgba(34,197,94,0.1)', borderRadius: '8px' }}>
+                  Your appeal has been submitted to the admin team. We will review it shortly.
+                </div>
+              )}
+
+              <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.85rem' }}>
+                <a href="#" onClick={() => { setBannedData(null); setAppealSent(false); }} style={{ color: 'var(--color-primary)' }}>Back to Login</a>
+              </p>
+            </div>
+          ) : !needsVerification ? (
             <form className={styles.form} onSubmit={handleSubmit}>
               <div className={styles.inputGroup}>
                 <label>Email</label>
@@ -223,7 +290,7 @@ function LoginForm() {
             </form>
           )}
 
-          {!needsVerification && (
+          {!needsVerification && !bannedData && (
             <>
               <div className={styles.divider}>
                 <span>or continue with</span>

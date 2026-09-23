@@ -177,13 +177,13 @@ export default function SettingsPage() {
       const res = await fetch('/api/user/verify-email', { method: 'POST' });
       const data = await res.json();
       if (res.ok) {
-        alert('Email verified successfully!');
+        alert('Awesome! Your email has been verified.');
         setUser(prev => ({ ...prev, emailVerified: true }));
       } else {
-        alert(data.error || 'Failed to verify email');
+        alert(data.error || 'We couldn\'t verify your email right now.');
       }
     } catch (err) {
-      alert('Network error. Try again.');
+      alert('We\'re having trouble connecting to the network right now. Please check your connection and try again!');
     } finally {
       setVerifyingEmail(false);
     }

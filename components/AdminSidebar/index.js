@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Activity, ShieldCheck, Users, Tag, Dumbbell, 
-  MessageSquare, Settings, LogOut 
+  MessageSquare, Settings, LogOut, Megaphone
 } from 'lucide-react';
 import Image from 'next/image';
 import styles from './AdminSidebar.module.css';
@@ -35,9 +35,11 @@ export default function AdminSidebar() {
     { href: '/admin', label: 'Overview', icon: Activity, exact: true },
     { href: '/admin/trainers', label: 'Trainers', icon: ShieldCheck, exact: false, count: counters.trainers },
     { href: '/admin/users', label: 'Users', icon: Users, exact: false, count: counters.users },
+    { href: '/admin/notifications', label: 'Broadcasts', icon: Megaphone, exact: false },
+    { href: '/admin/complaints', label: 'Complaints', icon: MessageSquare, exact: false },
     { href: '/admin/coupons', label: 'Coupons', icon: Tag, exact: false },
     { href: '/admin/exercises', label: 'Exercises', icon: Dumbbell, exact: false },
-    { href: '/admin/moderation', label: 'Moderation', icon: MessageSquare, exact: false },
+    { href: '/admin/moderation', label: 'Moderation', icon: ShieldCheck, exact: false },
     { href: '/admin/bookings', label: 'Bookings', icon: Activity, exact: false, count: counters.bookings },
   ];
 

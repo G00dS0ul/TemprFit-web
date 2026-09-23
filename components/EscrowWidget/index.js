@@ -40,7 +40,7 @@ export default function EscrowWidget({ trainer }) {
         alert(data.error || 'Payment failed to initialize.');
       }
     } catch (err) {
-      alert('Network error.');
+      alert('We\'re having trouble connecting to the network right now. Please check your connection and try again!');
     }
   };
 

@@ -22,7 +22,12 @@ export async function POST(request, { params }) {
   }
 
   const body = await request.json().catch(() => ({}))
-  if (Array.isArray(body.exercises)) session.exercises = body.exercises
+  if (Array.isArray(body.exercises)) {
+    session.exercises = body.exercises.map((ex) => ({
+      ...ex,
+      exercise: ex.exercise?._id || ex.exercise
+    }))
+  }
 
   const now = new Date()
   session.completedAt = now
@@ -36,7 +41,7 @@ export async function POST(request, { params }) {
   session.status = 'completed'
 
   // XP reward logic
-  user.xp = (user.xp || 0) + 50
+  user.xp = (user.xp || 0) + 100
 
   await session.save()
 

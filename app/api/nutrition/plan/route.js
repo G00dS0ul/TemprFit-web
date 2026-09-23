@@ -70,5 +70,19 @@ export async function POST() {
     active: true,
   })
 
+  // Reward the user for using AI
+  user.aiUsage.count = (user.aiUsage.count || 0) + 1;
+  user.xp = (user.xp || 0) + 20;
+
+  if (user.aiUsage.count >= 3) {
+    const hasBadge = user.badges?.some(b => b.badgeId === 'ai_pioneer');
+    if (!hasBadge) {
+      user.badges = user.badges || [];
+      user.badges.push({ badgeId: 'ai_pioneer' });
+      user.xp += 50; // extra bonus for getting the badge
+    }
+  }
+  await user.save();
+
   return NextResponse.json({ plan }, { status: 201 })
 }

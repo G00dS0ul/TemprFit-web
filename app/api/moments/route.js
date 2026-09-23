@@ -12,9 +12,9 @@ export async function GET(req) {
   try {
     const moments = await Moment.find({})
       .sort({ createdAt: -1 })
-      .populate('user', 'username avatarUrl')
-      .populate('comments.user', 'username avatarUrl')
-      .populate('comments.replies.user', 'username avatarUrl')
+      .populate('user', 'username avatarUrl activeColor activeBorder')
+      .populate('comments.user', 'username avatarUrl activeColor activeBorder')
+      .populate('comments.replies.user', 'username avatarUrl activeColor activeBorder')
       .lean();
     return NextResponse.json({ moments });
   } catch (error) {
@@ -38,7 +38,7 @@ export async function POST(req) {
     });
 
     // Populate user before returning
-    await newMoment.populate('user', 'username avatarUrl');
+    await newMoment.populate('user', 'username avatarUrl activeColor activeBorder');
     
     return NextResponse.json({ success: true, moment: newMoment }, { status: 201 });
   } catch (error) {

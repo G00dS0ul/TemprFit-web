@@ -17,7 +17,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { bio, specialties, age, experienceYears, mediaGallery, introVideoUrl, resumeUrl, price, location, trainingMode } = await request.json();
+    const { tagline, bio, specialties, age, experienceYears, mediaGallery, introVideoUrl, resumeUrl, price, location, trainingMode, responseTime, payoutEmail } = await request.json();
 
     if (!bio || !specialties) {
       return NextResponse.json({ error: 'Bio and specialties are required.' }, { status: 400 });
@@ -60,6 +60,9 @@ export async function POST(request) {
       expertise: typeof specialties === 'string' 
         ? specialties.split(',').map(s => s.trim()).filter(Boolean) 
         : (Array.isArray(specialties) ? specialties : []),
+      tagline: tagline || '',
+      responseTime: responseTime || 'Usually replies within 24 hours',
+      payoutEmail: payoutEmail || ''
     };
 
     if (age) {

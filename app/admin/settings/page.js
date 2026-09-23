@@ -13,6 +13,11 @@ export default function AdminSettings() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -59,6 +64,40 @@ export default function AdminSettings() {
       setError(e.message || 'Failed to save settings');
     }
     setSaving(false);
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      return;
+    }
+    setPasswordSaving(true);
+
+    try {
+      const res = await fetch('/api/admin/settings/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Master password updated successfully! Please remember the new password.');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setPasswordError(data.error);
+      }
+    } catch (e) {
+      console.error(e);
+      setPasswordError('Failed to update password.');
+    }
+    setPasswordSaving(false);
   };
 
   if (loading) {
@@ -117,6 +156,45 @@ export default function AdminSettings() {
               {saving ? <Loader2 size={16} className="spin" /> : <Check size={16} />} Save Changes
             </button>
           </div>
+        </div>
+
+        <div style={{ background: 'var(--color-surface)', padding: '24px', borderRadius: '12px', border: '1px solid var(--color-border)', marginTop: '24px' }}>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Change Master Password</h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
+            This password is required for you and any other admins to log into this portal.
+          </p>
+          
+          <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>New Password</label>
+              <input 
+                type="password" 
+                value={newPassword} 
+                onChange={e => setNewPassword(e.target.value)} 
+                placeholder="Enter new password" 
+                required 
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text)' }} 
+              />
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Confirm New Password</label>
+              <input 
+                type="password" 
+                value={confirmPassword} 
+                onChange={e => setConfirmPassword(e.target.value)} 
+                placeholder="Confirm new password" 
+                required 
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text)' }} 
+              />
+            </div>
+            
+            {passwordError && <p style={{ color: '#ef4444', fontSize: '0.85rem' }}>{passwordError}</p>}
+
+            <button type="submit" disabled={passwordSaving} style={{ background: 'var(--color-primary)', color: '#000', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', marginTop: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+              {passwordSaving ? <Loader2 size={16} className="spin" /> : <Check size={16} />} Update Password
+            </button>
+          </form>
         </div>
       </div>
     </div>

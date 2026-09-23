@@ -72,7 +72,7 @@ export default function PodsPage() {
         });
       }
     } catch (e) {
-      alert('Failed to join/leave pod.');
+      alert('We couldn\'t update your pod membership. Please try again!');
     }
   };
 
@@ -96,10 +96,10 @@ export default function PodsPage() {
         setNewPodName('');
         setNewPodDesc('');
       } else {
-        alert(data.error || 'Failed to create pod');
+        alert(data.error || 'We couldn\'t create the pod right now. Please try again!');
       }
     } catch (e) {
-      alert('An error occurred while creating pod');
+      alert('We couldn\'t create the pod right now. Please try again!');
     }
     setCreating(false);
   };

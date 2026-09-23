@@ -7,6 +7,7 @@ import styles from './page.module.css';
 export default function BecomeTrainer() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    tagline: '',
     bio: '',
     specialties: '',
     age: '',
@@ -16,7 +17,9 @@ export default function BecomeTrainer() {
     resumeUrl: '',
     price: 50,
     location: '',
-    trainingMode: 'remote'
+    trainingMode: 'remote',
+    responseTime: 'Usually replies within 24 hours',
+    payoutEmail: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -87,12 +90,21 @@ export default function BecomeTrainer() {
             <div className={`${styles.stepIndicator} ${step >= 3 ? styles.activeStep : ''}`}>3</div>
             <div className={styles.stepLine} />
             <div className={`${styles.stepIndicator} ${step >= 4 ? styles.activeStep : ''}`}>4</div>
+            <div className={styles.stepLine} />
+            <div className={`${styles.stepIndicator} ${step >= 5 ? styles.activeStep : ''}`}>5</div>
           </div>
 
           {step === 1 && (
             <div className={styles.formStep}>
               <h3>Basic Profile</h3>
               <div className={styles.formGrid}>
+                <input 
+                  type="text" 
+                  placeholder="Tagline (e.g. Elite Powerlifting Coach)" 
+                  value={formData.tagline}
+                  onChange={e => setFormData({...formData, tagline: e.target.value})}
+                  style={{ gridColumn: '1 / -1' }}
+                />
                 <textarea 
                   placeholder="Short Bio - tell clients about your experience..." 
                   rows={4}
@@ -122,7 +134,7 @@ export default function BecomeTrainer() {
               <button 
                 className={styles.nextBtn} 
                 onClick={() => setStep(2)}
-                disabled={!formData.bio || !formData.specialties || !formData.age || !formData.experienceYears}
+                disabled={!formData.tagline || !formData.bio || !formData.specialties || !formData.age || !formData.experienceYears}
               >
                 Continue
               </button>
@@ -202,6 +214,16 @@ export default function BecomeTrainer() {
                   value={formData.location}
                   onChange={e => setFormData({...formData, location: e.target.value})}
                 />
+                <select 
+                  value={formData.responseTime}
+                  onChange={e => setFormData({...formData, responseTime: e.target.value})}
+                  style={{ gridColumn: '1 / -1', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--color-text)' }}
+                >
+                  <option value="Usually replies within 1 hour">Usually replies within 1 hour</option>
+                  <option value="Usually replies within a few hours">Usually replies within a few hours</option>
+                  <option value="Usually replies within 24 hours">Usually replies within 24 hours</option>
+                  <option value="Usually replies in 1-2 days">Usually replies in 1-2 days</option>
+                </select>
               </div>
               
               <div style={{ marginTop: '16px', marginBottom: '8px', fontWeight: 'bold' }}>Training Mode:</div>
@@ -236,6 +258,52 @@ export default function BecomeTrainer() {
 
           {step === 4 && (
             <div className={styles.formStep}>
+              <h3>Escrow & Payout Setup</h3>
+              <p style={{ color: 'var(--color-text-muted)', marginBottom: '16px' }}>
+                All training bookings use our secure Escrow engine. Connect a payout account to receive your milestone releases.
+              </p>
+              
+              <div style={{ background: 'var(--bg)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '24px' }}>
+                <h4 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}><DollarSign size={20} color="#22c55e" /> Connect Flutterwave (Simulated)</h4>
+                
+                {formData.payoutEmail ? (
+                  <div style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '12px', borderRadius: '8px', color: '#22c55e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Check size={18} /> Payouts connected for {formData.payoutEmail}
+                  </div>
+                ) : (
+                  <div>
+                    <input 
+                      type="email" 
+                      placeholder="Enter your email to simulate Flutterwave connect" 
+                      value={formData.payoutEmail}
+                      onChange={e => setFormData({...formData, payoutEmail: e.target.value})}
+                      style={{ width: '100%', marginBottom: '12px' }}
+                    />
+                    <button 
+                      onClick={() => {
+                        if (formData.payoutEmail.includes('@')) {
+                          alert(`Simulated Flutterwave connection successful for ${formData.payoutEmail}`);
+                        } else {
+                          alert('Please enter a valid email for the mock connect.');
+                        }
+                      }}
+                      style={{ background: '#6366f1', color: '#fff', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer' }}
+                    >
+                      Connect Flutterwave (Mock)
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.formActions}>
+                <button className={styles.backBtn} onClick={() => setStep(3)} disabled={loading}>Back</button>
+                <button className={styles.nextBtn} onClick={() => setStep(5)} disabled={loading || !formData.payoutEmail.includes('@')}>Continue</button>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className={styles.formStep}>
               <h3>Review & Submit</h3>
               <p style={{ marginBottom: '16px' }}>Please review our Escrow Policy. A 15% platform fee will be deducted from your payouts.</p>
               <div className={styles.terms}>
@@ -264,7 +332,7 @@ export default function BecomeTrainer() {
                     
                     const data = await res.json();
                     if (res.ok) {
-                      setStep(5);
+                      setStep(6);
                     } else {
                       setError(data.error || 'Failed to submit application. Please try again.');
                     }
@@ -280,7 +348,7 @@ export default function BecomeTrainer() {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <div className={styles.success}>
               <div className={styles.successIcon}><Check size={32} /></div>
               <h3>Application Submitted!</h3>

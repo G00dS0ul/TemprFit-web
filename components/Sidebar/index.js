@@ -104,15 +104,15 @@ export default function Sidebar() {
 
       {user && (
         <Link href="/settings" className={styles.profile}>
-          <div className={styles.avatar}>
+          <div className={`${styles.avatar} ${user.activeBorder ? `aura-avatar-${user.activeBorder}` : ''}`}>
             {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={displayName(user)} />
+              <img src={user.avatarUrl} alt={displayName(user)} style={{ borderRadius: '50%', width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
               <span>{displayName(user)?.[0]?.toUpperCase() || '?'}</span>
             )}
           </div>
           <div className={styles.profileInfo}>
-            <span className={styles.profileName}>{displayName(user)}</span>
+            <span className={styles.profileName} style={{ color: user.activeColor || 'inherit' }}>{displayName(user)}</span>
             <Link href="/upgrade" onClick={(e) => e.stopPropagation()}>
               <span className={styles.profilePlan} style={{ cursor: 'pointer' }}>
                 {isTrainer ? 'Trainer' : (user.plan || 'free') + ' plan'}
@@ -188,6 +188,10 @@ export default function Sidebar() {
             <span>Admin Portal</span>
           </Link>
         )}
+        <Link href="/support" className={`${styles.menuItem} ${pathname === '/support' ? styles.active : ''}`} title={isCollapsed ? 'Support & Complaints' : ''}>
+          <MessageSquare size={20} />
+          <span>Support & Complaints</span>
+        </Link>
         <Link href="/settings" className={`${styles.menuItem} ${pathname === '/settings' ? styles.active : ''}`} title={isCollapsed ? 'Settings' : ''}>
           <Settings size={20} />
           <span>Settings</span>

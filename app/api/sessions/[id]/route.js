@@ -46,7 +46,12 @@ export async function PATCH(request, { params }) {
   }
 
   const body = await request.json()
-  if (Array.isArray(body.exercises)) session.exercises = body.exercises
+  if (Array.isArray(body.exercises)) {
+    session.exercises = body.exercises.map((ex) => ({
+      ...ex,
+      exercise: ex.exercise?._id || ex.exercise
+    }))
+  }
   if (typeof body.notes === 'string') session.notes = body.notes
   await session.save()
 

@@ -13,6 +13,11 @@ export default function ProgramDetails() {
   const [program, setProgram] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [submittingBooking, setSubmittingBooking] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   const [bookingForm, setBookingForm] = useState({
     startDate: '',
     time: '',
@@ -32,6 +37,70 @@ export default function ProgramDetails() {
       .catch(() => router.push('/trainers'))
       .finally(() => setLoading(false));
   }, [id, router]);
+
+  const submitBooking = async (e) => {
+    e.preventDefault();
+    const resolvedTrainerId = program.trainer?._id || (typeof program.trainer === 'string' ? program.trainer : null);
+    if (!resolvedTrainerId) {
+      alert('Oops! It looks like this trainer\'s profile is no longer available. Please browse our marketplace for other amazing coaches!');
+      return;
+    }
+    
+    setSubmittingBooking(true);
+    try {
+      const res = await fetch('/api/escrow/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trainerId: resolvedTrainerId,
+          amount: program.price || 0,
+          sessions: program.totalSessions || 1,
+          description: `${program.title} booking`,
+          traineeNotes: `Start: ${bookingForm.startDate}, Time: ${bookingForm.time}, Location: ${bookingForm.location}`
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.escrowId) {
+        router.push(`/escrow/${data.escrowId}`);
+      } else {
+        alert(data.error || 'We had a little trouble setting up your booking. Please try again!');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('We\'re having trouble connecting to the secure checkout. Please check your connection and try again!');
+    } finally {
+      setSubmittingBooking(false);
+    }
+  };
+
+  const submitReview = async (e) => {
+    e.preventDefault();
+    setSubmittingReview(true);
+    try {
+      const res = await fetch('/api/trainers/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trainerId: trainer._id || program.trainer?._id,
+          rating: reviewForm.rating,
+          comment: reviewForm.comment
+        })
+      });
+      if (res.ok) {
+        alert('Thank you! Your review has been posted successfully.');
+        setShowReviewModal(false);
+        // refresh data
+        window.location.reload();
+      } else {
+        alert('We couldn\'t post your review right now. Please try again!');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('We couldn\'t post your review right now. Please try again!');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   if (loading || !program) {
     return (
@@ -124,21 +193,69 @@ export default function ProgramDetails() {
             )}
 
             {program.mediaGallery && program.mediaGallery.length > 0 && (
-              <div className={styles.mediaGallery}>
-                {program.mediaGallery.map((url, index) => {
-                  const isVideo = !!url.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i);
-                  return (
-                    <div key={index} className={styles.mediaItem}>
-                      {isVideo ? (
-                        <video src={url} controls className={styles.mediaObj} />
-                      ) : (
-                        <img src={url} alt={`Media ${index}`} className={styles.mediaObj} />
-                      )}
-                    </div>
-                  );
-                })}
+              <div className={styles.section}>
+                <h2>Media Gallery</h2>
+                <div className={styles.mediaGallery}>
+                  {program.mediaGallery.map((url, index) => {
+                    const isVideo = !!url.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i);
+                    return (
+                      <div key={index} className={styles.mediaItem}>
+                        {isVideo ? (
+                          <video src={url} controls className={styles.mediaObj} />
+                        ) : (
+                          <img src={url} alt={`Media ${index}`} className={styles.mediaObj} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
+
+            <div className={styles.section}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h2 style={{ margin: 0 }}><Star size={20} fill="#f59e0b" color="#f59e0b" style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} /> Client Reviews</h2>
+                <button 
+                  className={styles.writeReviewBtn} 
+                  onClick={() => setShowReviewModal(true)}
+                  style={{ background: 'var(--color-primary)', color: '#000', border: 'none', padding: '8px 16px', borderRadius: '100px', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Write a Review
+                </button>
+              </div>
+              
+              <div className={styles.reviewsSummary}>
+                <div className={styles.ratingBig}>
+                  <span className={styles.ratingNumber}>{trainer.trainerInfo?.rating ? trainer.trainerInfo.rating.toFixed(1) : '0.0'}</span>
+                  <span className={styles.outOf}>/ 5</span>
+                </div>
+                <div className={styles.totalReviews}>Based on {trainer.trainerInfo?.reviews?.length || 0} reviews</div>
+              </div>
+
+              <div className={styles.reviewsList}>
+                {!trainer.trainerInfo?.reviews || trainer.trainerInfo.reviews.length === 0 ? (
+                  <p className={styles.noReviews}>No reviews yet. Be the first to book this program!</p>
+                ) : (
+                  trainer.trainerInfo.reviews.map((rev, i) => (
+                    <div key={i} className={styles.reviewCard}>
+                      <div className={styles.reviewHeader}>
+                        <div className={styles.reviewerInfo}>
+                          <div className={styles.reviewerAvatar}>{rev.user?.username?.[0] || 'A'}</div>
+                          <strong>{rev.user?.username || 'Anonymous'}</strong>
+                        </div>
+                        <div className={styles.reviewStars}>
+                          {[...Array(5)].map((_, idx) => (
+                            <Star key={idx} size={14} fill={idx < rev.rating ? "#f59e0b" : "transparent"} color={idx < rev.rating ? "#f59e0b" : "var(--color-border)"} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className={styles.reviewComment}>{rev.comment}</p>
+                      <span className={styles.reviewDate}>{new Date(rev.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
 
           <div className={styles.sideCol}>
@@ -212,7 +329,7 @@ export default function ProgramDetails() {
             <h2 style={{ marginBottom: '8px' }}>Book Program</h2>
             <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>Fill in your preferred schedule and location to proceed to Secure Escrow.</p>
             
-            <form onSubmit={(e) => { e.preventDefault(); alert('Redirecting to Escrow Checkout...'); setShowBookingModal(false); }}>
+            <form onSubmit={submitBooking}>
               <div className={styles.inputGroup}>
                 <label>Preferred Start Date</label>
                 <input type="date" required value={bookingForm.startDate} onChange={e => setBookingForm({...bookingForm, startDate: e.target.value})} />
@@ -234,8 +351,51 @@ export default function ProgramDetails() {
                 />
               </div>
 
-              <button type="submit" className={styles.submitBookBtn}>
-                Proceed to Escrow Checkout (${program.price})
+              <button type="submit" className={styles.submitBookBtn} disabled={submittingBooking}>
+                {submittingBooking ? 'Processing...' : `Proceed to Escrow Checkout ($${program.price})`}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showReviewModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <button className={styles.closeBtn} onClick={() => setShowReviewModal(false)}><X size={20} /></button>
+            <h2 style={{ marginBottom: '8px' }}>Write a Review</h2>
+            <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>Share your experience with {trainer.username}.</p>
+            
+            <form onSubmit={submitReview}>
+              <div className={styles.inputGroup} style={{ marginBottom: '16px' }}>
+                <label>Rating (1-5)</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[1,2,3,4,5].map(num => (
+                    <button 
+                      key={num} 
+                      type="button"
+                      onClick={() => setReviewForm({...reviewForm, rating: num})}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                      <Star size={32} fill={reviewForm.rating >= num ? "#f59e0b" : "transparent"} color={reviewForm.rating >= num ? "#f59e0b" : "var(--color-border)"} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className={styles.inputGroup}>
+                <label>Your Review</label>
+                <textarea 
+                  placeholder="How was the program? Did you get the results you wanted?"
+                  required 
+                  value={reviewForm.comment}
+                  onChange={e => setReviewForm({...reviewForm, comment: e.target.value})}
+                  rows={4}
+                />
+              </div>
+
+              <button type="submit" className={styles.submitBookBtn} disabled={submittingReview}>
+                {submittingReview ? 'Submitting...' : 'Submit Review'}
               </button>
             </form>
           </div>

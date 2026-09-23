@@ -62,14 +62,8 @@ export default function UserProfilePage() {
       <div className={styles.content}>
         <div className="container">
           
-          <div className={styles.profileCard}>
-            <div 
-              className={styles.avatar}
-              style={{
-                border: profile.activeBorder ? `4px solid ${profile.activeBorder === 'gold' ? '#fbbf24' : profile.activeBorder === 'fire' ? '#ef4444' : '#06b6d4'}` : 'none',
-                boxShadow: profile.activeBorder === 'fire' ? '0 0 20px #ef4444' : profile.activeBorder === 'lightning' ? '0 0 20px #06b6d4' : 'none'
-              }}
-            >
+          <div className={`${styles.profileCard} ${profile.activeBorder ? `bg-effect-${profile.activeBorder}` : ''}`}>
+            <div className={`${styles.avatar} ${profile.activeBorder ? `aura-avatar-${profile.activeBorder}` : ''}`}>
               {profile.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={profile.avatarUrl} alt={profile.username} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />

@@ -5,25 +5,28 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { BADGES } from '@/lib/badges';
 import { SHOP_ITEMS } from '@/lib/shop';
-import { Trophy, Star, Shield, Lock, Check } from 'lucide-react';
+import { Trophy, Star, Shield, Lock, Check, CheckCircle } from 'lucide-react';
 import BuyXPButton from '@/components/BuyXPButton';
 import styles from './page.module.css';
 
 export default function BadgesPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [stats, setStats] = useState(null);
   const [buying, setBuying] = useState(false);
 
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then(r => r.json())
-      .then(data => {
-        if (!data.user) {
-          router.replace('/login');
-          return;
-        }
-        setUser(data.user);
-      });
+    Promise.all([
+      fetch('/api/auth/me').then(r => r.json()),
+      fetch('/api/stats').then(r => r.json())
+    ]).then(([userData, statsData]) => {
+      if (!userData.user) {
+        router.replace('/login');
+        return;
+      }
+      setUser(userData.user);
+      setStats(statsData);
+    });
   }, [router]);
 
   const handleBuy = async (itemId, cost, isBadge = false) => {
@@ -68,7 +71,7 @@ export default function BadgesPage() {
     }
   };
 
-  if (!user) {
+  if (!user || !stats) {
     return (
       <div className={styles.page}>
         <Sidebar />
@@ -82,6 +85,17 @@ export default function BadgesPage() {
   const ownedBadgeIds = new Set(user.badges?.map(b => b.badgeId) || []);
   const progressionBadges = BADGES.filter(b => !b.isPremium);
   const unlockedColors = user.unlockedColors || [];
+
+  const isBadgeUnlocked = (badge) => {
+    if (ownedBadgeIds.has(badge.id)) return true;
+    if (!badge.criteria) return false;
+    
+    if (badge.criteria.type === 'sessions') return (stats?.totalSessions || 0) >= badge.criteria.value;
+    if (badge.criteria.type === 'streak') return (user?.currentStreak || 0) >= badge.criteria.value;
+    if (badge.criteria.type === 'volume') return (stats?.totalVolume || 0) >= badge.criteria.value;
+    
+    return false;
+  };
 
   return (
     <div className={styles.page}>
@@ -99,13 +113,14 @@ export default function BadgesPage() {
           </div>
 
           <div className={styles.section}>
-            <h2 className={styles.sectionTitle}><Trophy size={24} style={{ color: '#fbbf24' }} /> Badges ({ownedBadgeIds.size}/{progressionBadges.length})</h2>
+            <h2 className={styles.sectionTitle}><Trophy size={24} style={{ color: '#fbbf24' }} /> Badges ({progressionBadges.filter(isBadgeUnlocked).length}/{progressionBadges.length})</h2>
             <div className={styles.badgesGrid}>
               {progressionBadges.map(badge => {
                 const Icon = badge.icon;
-                const isOwned = ownedBadgeIds.has(badge.id);
+                const isOwned = isBadgeUnlocked(badge);
                 return (
                   <div key={badge.id} className={`${styles.badgeCard} ${isOwned ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                    {isOwned && <div className={styles.badgeCheck}><CheckCircle size={20} /></div>}
                     <div className={styles.badgeIconWrap} style={{ color: isOwned ? badge.color : 'inherit' }}>
                       <Icon size={32} />
                     </div>

@@ -14,6 +14,7 @@ import AIModal from '@/components/AIModal';
 import HealthGraphs from '@/components/HealthGraphs';
 import DashboardMeals from '@/components/DashboardMeals';
 import MysteryBoxModal from '@/components/MysteryBoxModal';
+import WearablesSync from '@/components/WearablesSync';
 import { displayName } from '@/lib/utils';
 import styles from './page.module.css';
 
@@ -66,15 +67,15 @@ export default function Dashboard() {
           setShowMysteryBox(true);
         }
       } else {
-        alert(data.error || 'Failed to check in.');
+        alert(data.error || 'Whoops! We couldn\'t log your daily check-in. Give it another try!');
       }
     } catch (e) {
-      alert('Error during check-in');
+      alert('Whoops! We couldn\'t log your daily check-in. Give it another try!');
     }
   };
 
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
         // Redirect approved trainers to their dedicated dashboard if they are in trainer mode
@@ -106,7 +107,7 @@ export default function Dashboard() {
         }
       });
 
-    fetch('/api/stats')
+    fetch('/api/stats', { cache: 'no-store' })
       .then((r) => {
         if (r.status === 401) throw new Error('signin');
         return r.json();
@@ -116,16 +117,16 @@ export default function Dashboard() {
         if (e.message === 'signin') setSignedIn(false);
       });
 
-    // Fetch active bookings
-    fetch('/api/bookings?escrowStatus=held')
+    // Fetch active escrows
+    fetch('/api/escrow?status=held', { cache: 'no-store' })
       .then(r => r.json())
       .then(data => {
-        if (data.bookings) setEscrows(data.bookings);
+        if (data.transactions) setEscrows(data.transactions);
       })
       .catch(() => {});
 
     // Fetch AI workouts
-    fetch('/api/workouts/generate')
+    fetch('/api/workouts/generate', { cache: 'no-store' })
       .then(r => r.json())
       .then(data => {
         if (data.plans) setSavedWorkouts(data.plans.slice(0, 3));
@@ -133,37 +134,7 @@ export default function Dashboard() {
       .catch(() => {});
   }, [router]);
 
-  const handleReleaseFunds = async (txId, amount) => {
-    if (!confirm('Are you sure you want to release funds to the trainer? This cannot be undone.')) return;
-    const res = await fetch('/api/bookings', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId: txId, action: 'release', amountToRelease: amount })
-    });
-    const data = await res.json();
-    if (data.success) {
-      setEscrows(prev => prev.map(t => t._id === txId ? data.booking : t).filter(t => t.escrowStatus !== 'released'));
-      alert('Funds released successfully! Thank you.');
-    } else {
-      alert(data.error || 'Failed to release funds.');
-    }
-  };
 
-  const handleDisputeEscrow = async (txId) => {
-    if (!confirm('Are you sure you want to dispute this transaction? This will freeze the funds and notify an Admin to intervene.')) return;
-    const res = await fetch('/api/bookings', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId: txId, action: 'dispute' })
-    });
-    const data = await res.json();
-    if (data.success) {
-      setEscrows(prev => prev.filter(t => t._id !== txId)); // Remove from active view
-      alert('Dispute raised. An Admin will review the transaction soon.');
-    } else {
-      alert(data.error || 'Failed to raise dispute.');
-    }
-  };
 
   if (!signedIn) {
     return (
@@ -202,23 +173,39 @@ export default function Dashboard() {
             <div>
               <h1 className={styles.title}>Dashboard</h1>
               <p className={styles.subtitle}>
-                {user
-                  ? showFirstWelcome
-                    ? `Welcome to your new dashboard, ${displayName(user).split(' ')[0]}! Here is your fitness overview.`
-                    : `Welcome back, ${displayName(user).split(' ')[0]}! Here is your fitness overview.`
-                  : 'Here is your fitness overview.'}
+                {user ? (
+                  <>
+                    {showFirstWelcome ? 'Welcome to your new dashboard, ' : 'Welcome back, '}
+                    <span style={{ color: user.activeColor || 'inherit', fontWeight: 'bold' }}>
+                      {displayName(user).split(' ')[0]}
+                    </span>
+                    ! Here is your fitness overview.
+                  </>
+                ) : (
+                  'Here is your fitness overview.'
+                )}
               </p>
+              {user && (
+                <div style={{ marginTop: '8px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <div style={{ background: 'rgba(34, 197, 94, 0.1)', color: 'var(--color-primary)', padding: '4px 10px', borderRadius: '100px', fontSize: '0.85rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Award size={14} /> {user.xp || 0} XP
+                  </div>
+                  <div style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', padding: '4px 10px', borderRadius: '100px', fontSize: '0.85rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Flame size={14} /> {Math.max(stats?.currentStreak || 0, user.totalCheckInStreak || 0)} Day Streak
+                  </div>
+                </div>
+              )}
             </div>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <button 
                 className={styles.aiBtn} 
-                style={{ background: checkedIn ? 'var(--color-surface-elevated)' : 'linear-gradient(135deg, #f59e0b, #d97706)', color: checkedIn ? 'var(--color-text-muted)' : '#fff' }}
+                style={{ background: checkedIn ? 'var(--color-surface-elevated)' : 'var(--color-primary)', color: checkedIn ? 'var(--color-text-muted)' : '#000' }}
                 onClick={handleCheckIn}
                 disabled={checkedIn}
               >
                 <CheckCircle size={18} /> {checkedIn ? 'Checked In' : 'Daily Check-in'}
               </button>
-              <button className={styles.aiBtn} onClick={() => setAiOpen(true)} data-tour="tour-ai">
+              <button className={styles.aiBtn} onClick={() => setAiOpen(true)} data-tour="tour-ai" style={{ background: 'var(--color-primary)', color: '#000' }}>
                 <Zap size={18} /> Ask AI Coach
               </button>
             </div>
@@ -273,8 +260,8 @@ export default function Dashboard() {
                 <Trophy size={22} />
               </div>
               <div>
-                <span className={styles.qsValue}>{stats ? Math.max(stats.currentStreak || 0, stats.totalCheckInStreak || 0) : '—'}</span>
-                <span className={styles.qsLabel}>Day Streak</span>
+                <span className={styles.qsValue}>{Math.max(stats?.currentStreak || 0, user?.totalCheckInStreak || 0)}</span>
+                <span className={styles.qsLabel}>Active Streak</span>
               </div>
             </div>
           </div>
@@ -282,7 +269,7 @@ export default function Dashboard() {
           {stats && stats.totalSessions === 0 && (
             <div className={styles.emptyBanner}>
               <p>No completed workouts yet — once you finish your first session, your real stats and charts show up here.</p>
-              <Link href="/workouts" className={styles.aiBtn} style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)' }}>Start a workout</Link>
+              <Link href="/workouts" className={styles.aiBtn} style={{ background: 'var(--color-primary)', color: '#000' }}>Start a workout</Link>
             </div>
           )}
 
@@ -306,8 +293,12 @@ export default function Dashboard() {
           </div>
 
           <div className={styles.trackerSection}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gridColumn: '1 / -1' }}>
+              <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Body Metrics & Tracking</h3>
+              <Link href="/progress-timeline" style={{ color: '#22c55e', fontSize: '0.9rem', fontWeight: 600 }}>View Photo Timeline &rarr;</Link>
+            </div>
             <WeightTracker />
-            <HealthGraphs />
+            <WearablesSync />
           </div>
 
           <div className={styles.goalsSection}>
@@ -362,7 +353,7 @@ export default function Dashboard() {
                   </div>
                   <span className={styles.goalPercent}>{Math.max(stats?.longestStreak || 0, stats?.longestCheckInStreak || 0)}d</span>
                 </div>
-                <span className={styles.goalTarget}>Current streak: {Math.max(stats?.currentStreak || 0, stats?.totalCheckInStreak || 0)} days</span>
+                <span className={styles.goalTarget}>Current streak: {Math.max(stats?.currentStreak || 0, user?.totalCheckInStreak || 0)} days</span>
               </div>
             </div>
           </div>
@@ -375,81 +366,64 @@ export default function Dashboard() {
             </div>
             <div className={styles.badgesGrid}>
               <div className={`${styles.badgeCard} ${stats?.totalSessions >= 1 ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                {stats?.totalSessions >= 1 && <div className={styles.badgeCheck}><CheckCircle size={16} /></div>}
                 <div className={styles.badgeIconWrap}><Star size={24} /></div>
                 <h4>First Step</h4>
                 <p>Complete 1 workout</p>
               </div>
               <div className={`${styles.badgeCard} ${stats?.currentStreak >= 3 ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                {stats?.currentStreak >= 3 && <div className={styles.badgeCheck}><CheckCircle size={16} /></div>}
                 <div className={styles.badgeIconWrap}><Flame size={24} /></div>
                 <h4>On Fire</h4>
                 <p>Reach a 3-day streak</p>
               </div>
               <div className={`${styles.badgeCard} ${stats && stats.totalVolume >= 10000 ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                {stats && stats.totalVolume >= 10000 && <div className={styles.badgeCheck}><CheckCircle size={16} /></div>}
                 <div className={styles.badgeIconWrap}><Shield size={24} /></div>
                 <h4>Heavy Lifter</h4>
                 <p>Lift 10,000kg total</p>
               </div>
               <div className={`${styles.badgeCard} ${stats?.totalSessions >= 10 ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                {stats?.totalSessions >= 10 && <div className={styles.badgeCheck}><CheckCircle size={16} /></div>}
                 <div className={styles.badgeIconWrap}><Medal size={24} /></div>
                 <h4>Consistent</h4>
                 <p>Complete 10 workouts</p>
+              </div>
+              <div className={`${styles.badgeCard} ${user?.badges?.some(b => b.badgeId === 'ai_pioneer') ? styles.badgeUnlocked : styles.badgeLocked}`}>
+                {user?.badges?.some(b => b.badgeId === 'ai_pioneer') && <div className={styles.badgeCheck}><CheckCircle size={16} /></div>}
+                <div className={styles.badgeIconWrap}><Zap size={24} /></div>
+                <h4>AI Pioneer</h4>
+                <p>Use the AI Coach 3x</p>
               </div>
             </div>
           </div>
 
           {escrows.length > 0 && (
             <div className={styles.goalsSection} style={{ marginTop: '40px' }}>
-              <h3 className={styles.sectionTitle}>Active Training Bookings</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Active Training Bookings</h3>
+                <Link href="/escrow" style={{ color: '#22c55e', fontSize: '0.9rem', fontWeight: 600 }}>Manage All Escrows &rarr;</Link>
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {escrows.map(escrow => {
                   const trainerName = escrow.trainer?.username || 'Trainer';
-                  const remaining = escrow.amountPaid - (escrow.releasedAmount || 0);
-                  const stepVal = escrow.amountPaid * 0.25;
 
                   return (
                     <div key={escrow._id} style={{ background: 'var(--color-bg-elevated)', padding: '24px', borderRadius: '12px', border: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <h4 style={{ marginBottom: '8px' }}>Training with {trainerName}</h4>
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>{escrow.program?.title || 'Program'}</p>
-                        <div style={{ color: '#22c55e', fontSize: '0.85rem' }}>
-                          Released: ${(escrow.releasedAmount || 0).toFixed(2)} / ${escrow.amountPaid.toFixed(2)}
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>{escrow.description || 'Program'}</p>
+                        <div style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: 600, marginTop: '8px' }}>
+                          ${escrow.amount.toFixed(2)} in Escrow
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        <button 
-                          onClick={async () => {
-                            const res = await fetch('/api/messages/init', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ targetUserId: escrow.trainer._id })
-                            });
-                            const data = await res.json();
-                            if (data.success) {
-                              router.push('/messages');
-                            }
-                          }}
-                          style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <Link
+                          href={`/escrow/${escrow._id}`}
+                          style={{ background: '#22c55e', color: '#000', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}
                         >
-                          Message
-                        </button>
-                        <button 
-                          onClick={() => handleDisputeEscrow(escrow._id)} 
-                          style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          Dispute
-                        </button>
-                        <button 
-                          onClick={() => handleReleaseFunds(escrow._id, stepVal)} 
-                          style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          Release 25% (${stepVal.toFixed(2)})
-                        </button>
-                        <button 
-                          onClick={() => handleReleaseFunds(escrow._id, remaining)} 
-                          style={{ background: '#22c55e', color: '#000', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          Release Remaining (${remaining.toFixed(2)})
-                        </button>
+                          Manage Escrow
+                        </Link>
                       </div>
                     </div>
                   );
@@ -486,21 +460,12 @@ export default function Dashboard() {
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', color: '#22c55e' }}>Are you a fitness professional?</h3>
                 <p style={{ color: 'var(--color-text-muted)' }}>Join the TemprFit Trainer Network to coach clients and earn money.</p>
               </div>
-              <Link href="/become-trainer" style={{ background: '#22c55e', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
+              <Link href="/become-trainer" style={{ background: 'var(--color-primary)', color: '#000', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
                 Become a Trainer
               </Link>
             </div>
           )}
 
-          <div style={{ marginTop: '20px', background: 'var(--color-bg-elevated)', padding: '24px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <div>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>Platform Administration</h3>
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Access the admin command center (Master password required).</p>
-            </div>
-            <Link href="/admin/login" style={{ background: '#22c55e', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
-              Admin Portal
-            </Link>
-          </div>
         </div>
       </div>
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

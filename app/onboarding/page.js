@@ -89,7 +89,7 @@ export default function OnboardingPage() {
       if (res.ok) {
         setStep(6); // Go to success screen
       } else {
-        alert('Failed to save profile. Please try again.');
+        alert('We couldn\'t save your profile right now. Please try again!');
         setLoading(false);
       }
     } catch (err) {
