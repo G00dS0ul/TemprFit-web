@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Complaint from '@/models/Complaint';
+import User from '@/models/User';
 import { verifyAdminRequest } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   await connectDB();

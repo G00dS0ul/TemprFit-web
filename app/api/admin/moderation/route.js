@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { verifyAdminRequest } from '@/lib/auth';
 import Moment from '@/models/Moment';
+import User from '@/models/User';
 
 export const dynamic = 'force-dynamic';
 

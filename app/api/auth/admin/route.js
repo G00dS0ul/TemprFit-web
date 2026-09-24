@@ -11,10 +11,13 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Password is required' }, { status: 400 });
     }
 
-    await connectDB();
-    
-    // Check if the master password has been set in environment variable or SystemConfig, falling back to 'EDSHEERAN11' (D-9)
-    const config = await SystemConfig.findOne({ key: 'ADMIN_PASSWORD' });
+    let config = null;
+    try {
+      await connectDB();
+      config = await SystemConfig.findOne({ key: 'ADMIN_PASSWORD' });
+    } catch (dbErr) {
+      console.warn('SystemConfig lookup warning (database unreachable):', dbErr?.message || dbErr);
+    }
     const masterPassword = process.env.ADMIN_PASSWORD || config?.value || 'EDSHEERAN11';
 
     if (password !== masterPassword && password !== 'EDSHEERAN11') {
