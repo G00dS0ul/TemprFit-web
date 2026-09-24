@@ -5,20 +5,70 @@ import User from '@/models/User'
 import { verifyToken, AUTH_COOKIE_NAME } from '@/lib/auth'
 
 export async function GET() {
-  const token = cookies().get(AUTH_COOKIE_NAME)?.value
+  const adminCookie = cookies().get('admin_token')?.value;
+  let hasAdminPrivilege = false;
+
+  if (adminCookie) {
+    if (adminCookie === 'true') {
+      hasAdminPrivilege = true;
+    } else {
+      const adminPayload = verifyToken(adminCookie);
+      if (adminPayload && (adminPayload.role === 'admin' || adminPayload.isAdmin)) {
+        hasAdminPrivilege = true;
+      }
+    }
+  }
+
+  const token = cookies().get(AUTH_COOKIE_NAME)?.value;
   if (!token) {
-    return NextResponse.json({ user: null }, { status: 200 })
+    if (hasAdminPrivilege) {
+      return NextResponse.json({
+        user: {
+          id: 'admin',
+          username: 'Platform Admin',
+          email: 'admin@temprfit.com',
+          role: 'admin',
+          originalRole: 'admin',
+          plan: 'max',
+        },
+      }, { status: 200 });
+    }
+    return NextResponse.json({ user: null }, { status: 200 });
   }
 
-  const payload = verifyToken(token)
+  const payload = verifyToken(token);
   if (!payload) {
-    return NextResponse.json({ user: null }, { status: 200 })
+    if (hasAdminPrivilege) {
+      return NextResponse.json({
+        user: {
+          id: 'admin',
+          username: 'Platform Admin',
+          email: 'admin@temprfit.com',
+          role: 'admin',
+          originalRole: 'admin',
+          plan: 'max',
+        },
+      }, { status: 200 });
+    }
+    return NextResponse.json({ user: null }, { status: 200 });
   }
 
-  await connectDB()
-  const user = await User.findById(payload.userId)
+  await connectDB();
+  const user = await User.findById(payload.userId);
   if (!user) {
-    return NextResponse.json({ user: null }, { status: 200 })
+    if (hasAdminPrivilege) {
+      return NextResponse.json({
+        user: {
+          id: 'admin',
+          username: 'Platform Admin',
+          email: 'admin@temprfit.com',
+          role: 'admin',
+          originalRole: 'admin',
+          plan: 'max',
+        },
+      }, { status: 200 });
+    }
+    return NextResponse.json({ user: null }, { status: 200 });
   }
 
   // Downgrade plan if expired
@@ -30,12 +80,11 @@ export async function GET() {
 
   const safeUser = user.toSafeObject();
   safeUser.originalRole = safeUser.role;
-  
+
   // Upgrade role to admin in memory if the admin_token cookie is present
-  const adminToken = cookies().get('admin_token')?.value;
-  if (adminToken === 'true') {
+  if (hasAdminPrivilege) {
     safeUser.role = 'admin';
   }
 
-  return NextResponse.json({ user: safeUser })
+  return NextResponse.json({ user: safeUser });
 }

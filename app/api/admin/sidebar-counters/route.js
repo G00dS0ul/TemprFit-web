@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
-import { getSessionUser } from '@/lib/auth';
+import { verifyAdminRequest } from '@/lib/auth';
 import User from '@/models/User';
 import EscrowTransaction from '@/models/EscrowTransaction';
 
@@ -8,11 +8,10 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   await connectDB();
-  const user = await getSessionUser();
-  const { cookies } = await import('next/headers');
+  const { authorized } = await verifyAdminRequest();
   
-  if (!user || (user.role !== 'admin' && cookies().get('admin_token')?.value !== 'true')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  if (!authorized) {
+    return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 403 });
   }
 
   try {

@@ -2,18 +2,15 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
-import { getSessionUser } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { verifyAdminRequest } from '@/lib/auth';
 
 export async function POST(req, { params }) {
   await connectDB();
   
   // Verify Admin
-  const sessionUser = await getSessionUser();
-  const isAdminToken = cookies().get('admin_token')?.value === 'true';
-
-  if (!isAdminToken && (!sessionUser || sessionUser.role !== 'admin')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  const { authorized } = await verifyAdminRequest();
+  if (!authorized) {
+    return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 403 });
   }
 
   try {

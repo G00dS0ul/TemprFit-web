@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
-import { getSessionUser } from '@/lib/auth';
+import { verifyAdminRequest } from '@/lib/auth';
 import Dispute from '@/models/Dispute';
 import Booking from '@/models/Booking';
 import User from '@/models/User';
@@ -10,10 +10,9 @@ export const dynamic = 'force-dynamic';
 export async function GET(request) {
   try {
     await connectDB();
-    const user = await getSessionUser();
-    const { cookies } = await import('next/headers');
-  if (!user || (user.role !== 'admin' && cookies().get('admin_token')?.value !== 'true')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { authorized } = await verifyAdminRequest();
+    if (!authorized) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -43,9 +42,9 @@ export async function GET(request) {
 export async function PATCH(request) {
   try {
     await connectDB();
-    const user = await getSessionUser();
-    if (!user || (user.role !== 'admin' && cookies().get('admin_token')?.value !== 'true')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { authorized } = await verifyAdminRequest();
+    if (!authorized) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
     }
 
     const { disputeId, resolution, action } = await request.json(); 

@@ -1,30 +1,14 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
-import { getSessionUser, verifyToken } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { verifyAdminRequest } from '@/lib/auth';
 import User from '@/models/User';
 
 export const dynamic = 'force-dynamic';
 
-async function verifyAdmin() {
-  const sessionUser = await getSessionUser();
-  if (sessionUser && sessionUser.role === 'admin') {
-    return true;
-  }
-  const adminCookie = cookies().get('admin_token')?.value;
-  if (adminCookie) {
-    if (adminCookie === 'true') return true;
-    const payload = verifyToken(adminCookie);
-    if (payload && (payload.role === 'admin' || payload.isAdmin)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export async function GET(req) {
   await connectDB();
-  if (!(await verifyAdmin())) {
+  const { authorized } = await verifyAdminRequest();
+  if (!authorized) {
     return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 403 });
   }
 
@@ -60,7 +44,8 @@ export async function GET(req) {
 // DELETE a user
 export async function DELETE(req) {
   await connectDB();
-  if (!(await verifyAdmin())) {
+  const { authorized } = await verifyAdminRequest();
+  if (!authorized) {
     return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 403 });
   }
   const { userId } = await req.json();
@@ -73,7 +58,8 @@ export async function DELETE(req) {
 // PATCH — update user role, plan, or suspend
 export async function PATCH(req) {
   await connectDB();
-  if (!(await verifyAdmin())) {
+  const { authorized } = await verifyAdminRequest();
+  if (!authorized) {
     return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 403 });
   }
   const { userId, updates } = await req.json();
