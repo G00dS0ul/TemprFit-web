@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import SystemConfig from '@/models/SystemConfig';
-import { generateToken } from '@/lib/auth';
+import { signToken } from '@/lib/auth';
 
 export async function POST(request) {
   try {
@@ -23,7 +23,7 @@ export async function POST(request) {
 
     // Set an admin cookie
     const response = NextResponse.json({ success: true }, { status: 200 });
-    const adminJwt = generateToken({ role: 'admin' });
+    const adminJwt = signToken({ role: 'admin', userId: 'admin' });
     response.cookies.set('admin_token', adminJwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

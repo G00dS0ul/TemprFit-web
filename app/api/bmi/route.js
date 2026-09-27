@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/db'
 import BMILog from '@/models/BMILog'
-import { verifyToken } from '@/lib/auth'
+import { getSessionUser } from '@/lib/auth'
 
 export async function POST(req) {
   try {
@@ -21,7 +21,7 @@ export async function POST(req) {
     const entryDate = date ? new Date(date) : new Date()
     entryDate.setHours(0, 0, 0, 0)
 
-    let entry = await BMILog.findOne({ user: decoded.id, date: entryDate })
+    let entry = await BMILog.findOne({ user: sessionUser._id, date: entryDate })
     if (entry) {
       entry.weight = weight
       entry.height = height
@@ -32,7 +32,7 @@ export async function POST(req) {
       await entry.save()
     } else {
       entry = await BMILog.create({
-        user: decoded.id,
+        user: sessionUser._id,
         date: entryDate,
         weight,
         height,
@@ -59,7 +59,7 @@ export async function GET(req) {
     const decoded = verifyToken(token)
     if (!decoded) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
 
-    const logs = await BMILog.find({ user: decoded.id }).sort({ date: 1 })
+    const logs = await BMILog.find({ user: sessionUser._id }).sort({ date: 1 })
     return NextResponse.json({ success: true, data: logs }, { status: 200 })
   } catch (error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
