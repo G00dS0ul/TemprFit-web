@@ -29,6 +29,26 @@ export default function PodsPage() {
   const [newPodName, setNewPodName] = useState('');
   const [newPodDesc, setNewPodDesc] = useState('');
   const [newPodIcon, setNewPodIcon] = useState('Dumbbell');
+  const [newPodImage, setNewPodImage] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) setNewPodImage(data.fileUrl);
+      else window.appAlert('Upload failed');
+    } catch (err) {
+      window.appAlert('Upload failed');
+    }
+    setUploadingImage(false);
+  };
+  const [newPodReward, setNewPodReward] = useState('');
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
@@ -84,7 +104,7 @@ export default function PodsPage() {
       const res = await fetch('/api/pods', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newPodName, description: newPodDesc, icon: newPodIcon })
+        body: JSON.stringify({ name: newPodName, description: newPodDesc, icon: newPodIcon, image: newPodImage, rewardXP: parseInt(newPodReward) || 0 })
       });
       const data = await res.json();
       if (data.success) {

@@ -21,6 +21,7 @@ import ActivityHeatmap from '@/components/ActivityHeatmap';
 import { FatLossDashboard, HypertrophyDashboard, StrengthEnduranceDashboard, RecompDashboard, GeneralHealthDashboard } from '@/components/GoalWidgets';
 import { useRetentionNudges } from '@/hooks/useRetentionNudges';
 import { displayName } from '@/lib/utils';
+import XPTransferWidget from '@/components/XPTransferWidget';
 import styles from './page.module.css';
 
 function formatDuration(totalSeconds) {
@@ -289,7 +290,10 @@ export default function Dashboard() {
               <Link href="/progress-timeline" style={{ color: '#22c55e', fontSize: '0.9rem', fontWeight: 600 }}>View Photo Timeline &rarr;</Link>
             </div>
             <WeightTracker />
-            <WaterTracker />
+            <div style={{ marginBottom: '24px' }}>
+            <XPTransferWidget user={user} onTransferSuccess={(newXp) => setUser({ ...user, xp: newXp })} />
+          </div>
+          <WaterTracker />
             <SleepTracker />
             <WearablesSync />
           </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Flame, ImageOff, Plus } from 'lucide-react';
+import { Flame, ImageOff, Plus, Loader2 } from 'lucide-react';
 import styles from './FoodCard.module.css';
 
 export default function FoodCard({ food, onLog, logging }) {
@@ -73,7 +73,7 @@ export default function FoodCard({ food, onLog, logging }) {
             onClick={() => onLog(food, servings, mealType)}
             disabled={logging}
           >
-            <Plus size={15} /> {logging ? 'Adding…' : 'Log'}
+            {logging ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Plus size={15} />} {logging ? 'Adding...' : 'Log'}
           </button>
         </div>
       </div>

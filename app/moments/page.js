@@ -14,7 +14,7 @@ export default function MomentsPage() {
   const [activeMoment, setActiveMoment] = useState(null);
   const [showUpload, setShowUpload] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('global'); // 'global' or 'saved'
+  const [activeTab, setActiveTab] = useState('global'); // 'global', 'saved', 'my_moments'
   
   // Upload State
   const [mediaUrl, setMediaUrl] = useState('');
@@ -57,7 +57,7 @@ export default function MomentsPage() {
 
   const handleCommentReply = (comment) => {
     setReplyingTo(comment);
-    setCommentText(`@${comment.user.username} `);
+    setCommentText('@' + (comment.user && comment.user.username ? comment.user.username : 'user') + ' ');
   };
 
   const handleReplyLike = async (momentId, commentId, replyId) => {
@@ -378,9 +378,9 @@ export default function MomentsPage() {
               return (
                 <div key={m._id} className={styles.momentCard} onClick={() => openMoment(m)}>
                   <div className={styles.momentHeader}>
-                    <img src={m.user?.avatarUrl || `https://ui-avatars.com/api/?name=${m.user?.username}&background=22c55e&color=fff`} className={`${styles.avatar} ${m.user?.activeBorder ? `aura-avatar-${m.user.activeBorder}` : ''}`} alt={m.user?.username} />
+                    <img src={m.user?.avatarUrl || `https://ui-avatars.com/api/?name=${m.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={`${styles.avatar} ${m.user?.activeBorder ? `aura-avatar-${m.user.activeBorder}` : ''}`} alt={m.user?.username} />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <div className={styles.username} style={{ color: m.user?.activeColor || 'inherit' }}>{m.user?.username}</div>
+                      <div className={styles.username} style={{ color: m.user?.activeColor || 'inherit' }}>{m.user?.username || 'Deleted User'}</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{formatDate(m.createdAt)}</div>
                     </div>
                     
@@ -458,7 +458,7 @@ export default function MomentsPage() {
                       </div>
                     ) : m.caption ? (
                       <div style={{ marginBottom: '8px' }}>
-                        <strong style={{ color: m.user?.activeColor || 'inherit' }}>{m.user?.username}</strong> {m.caption}
+                        <strong style={{ color: m.user?.activeColor || 'inherit' }}>{m.user?.username || 'Deleted User'}</strong> {m.caption}
                       </div>
                     ) : null}
 
@@ -473,7 +473,7 @@ export default function MomentsPage() {
 
                     {m.comments && m.comments.slice(0, 2).map((c, i) => (
                       <div key={i} style={{ fontSize: '0.9rem', marginBottom: '4px' }}>
-                        <strong style={{ color: c.user?.activeColor || 'inherit' }}>{c.user?.username}</strong> {c.text}
+                        <strong style={{ color: c.user?.activeColor || 'inherit' }}>{c.user?.username || 'Deleted User'}</strong> {c.text}
                       </div>
                     ))}
                   </div>
@@ -580,9 +580,9 @@ export default function MomentsPage() {
             
             <div className={styles.modalSidebar}>
               <div className={styles.momentHeader} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                <img src={activeMoment.user?.avatarUrl || `https://ui-avatars.com/api/?name=${activeMoment.user?.username}&background=22c55e&color=fff`} className={`${styles.avatar} ${activeMoment.user?.activeBorder ? `aura-avatar-${activeMoment.user.activeBorder}` : ''}`} alt={activeMoment.user?.username} />
+                <img src={activeMoment.user?.avatarUrl || `https://ui-avatars.com/api/?name=${activeMoment.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={`${styles.avatar} ${activeMoment.user?.activeBorder ? `aura-avatar-${activeMoment.user.activeBorder}` : ''}`} alt={activeMoment.user?.username} />
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <div className={styles.username} style={{ color: activeMoment.user?.activeColor || 'inherit' }}>{activeMoment.user?.username}</div>
+                  <div className={styles.username} style={{ color: activeMoment.user?.activeColor || 'inherit' }}>{activeMoment.user?.username || 'Deleted User'}</div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{formatDate(activeMoment.createdAt)}</div>
                 </div>
                 <X size={20} style={{ marginLeft: 'auto', cursor: 'pointer' }} onClick={() => setActiveMoment(null)} />
@@ -591,9 +591,9 @@ export default function MomentsPage() {
               <div className={styles.commentsArea}>
                 {activeMoment.caption && (
                   <div className={styles.comment}>
-                    <img src={activeMoment.user?.avatarUrl || `https://ui-avatars.com/api/?name=${activeMoment.user?.username}&background=22c55e&color=fff`} className={styles.commentAvatar} />
+                    <img src={activeMoment.user?.avatarUrl || `https://ui-avatars.com/api/?name=${activeMoment.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={styles.commentAvatar} />
                     <div className={styles.commentText}>
-                      <strong style={{ color: activeMoment.user?.activeColor || 'inherit' }}>{activeMoment.user?.username}</strong> {activeMoment.caption}
+                      <strong style={{ color: activeMoment.user?.activeColor || 'inherit' }}>{activeMoment.user?.username || 'Deleted User'}</strong> {activeMoment.caption}
                     </div>
                   </div>
                 )}
@@ -603,10 +603,10 @@ export default function MomentsPage() {
                   return (
                     <div key={i} className={styles.commentBlock} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div className={styles.comment} style={{ display: 'flex', gap: '12px' }}>
-                        <img src={c.user?.avatarUrl || `https://ui-avatars.com/api/?name=${c.user?.username}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                        <img src={c.user?.avatarUrl || `https://ui-avatars.com/api/?name=${c.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
                         <div style={{ flex: 1 }}>
                           <div className={styles.commentText} style={{ fontSize: '0.9rem' }}>
-                            <strong style={{ color: c.user?.activeColor || 'inherit' }}>{c.user?.username}</strong> {c.text}
+                            <strong style={{ color: c.user?.activeColor || 'inherit' }}>{c.user?.username || 'Deleted User'}</strong> {c.text}
                           </div>
                           <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
                             <span>{formatDate(c.createdAt)}</span>
@@ -624,10 +624,10 @@ export default function MomentsPage() {
                             const hasReplyLiked = reply.likes?.includes(currentUser?._id);
                             return (
                               <div key={ridx} className={styles.comment} style={{ display: 'flex', gap: '8px' }}>
-                                <img src={reply.user?.avatarUrl || `https://ui-avatars.com/api/?name=${reply.user?.username}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '24px', height: '24px', borderRadius: '50%' }} />
+                                <img src={reply.user?.avatarUrl || `https://ui-avatars.com/api/?name=${reply.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '24px', height: '24px', borderRadius: '50%' }} />
                                 <div style={{ flex: 1 }}>
                                   <div className={styles.commentText} style={{ fontSize: '0.85rem' }}>
-                                    <strong style={{ color: reply.user?.activeColor || 'inherit' }}>{reply.user?.username}</strong> {reply.text}
+                                    <strong style={{ color: reply.user?.activeColor || 'inherit' }}>{reply.user?.username || 'Deleted User'}</strong> {reply.text}
                                   </div>
                                   <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
                                     <span>{formatDate(reply.createdAt)}</span>

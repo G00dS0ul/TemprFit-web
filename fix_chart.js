@@ -1,4 +1,12 @@
+const fs = require('fs');
+const path = 'C:/Users/A_bisoye/Desktop/REPForge-phase7-formcheck/components/ChartWidget/index.js';
+let content = fs.readFileSync(path, 'utf8');
 
+// The broken string is: \hsl(\, 70%, 50%)\
+// Another broken string: \15\
+// I'll just rewrite the whole ChartWidget/index.js file correctly through Node.js where I don't have to worry about PowerShell variable interpolation.
+
+const newContent = `
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -48,7 +56,7 @@ export default function ChartWidget({ data, type = 'line', title, color = '#22c5
         ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle);
         ctx.closePath();
         
-        ctx.fillStyle = i === values.length - 1 ? color : `hsl(${(200 + i * 45) % 360}, 70%, 50%)`;
+        ctx.fillStyle = i === values.length - 1 ? color : \`hsl(\${(200 + i * 45) % 360}, 70%, 50%)\`;
         ctx.fill();
         
         startAngle += sliceAngle;
@@ -77,7 +85,7 @@ export default function ChartWidget({ data, type = 'line', title, color = '#22c5
         });
         ctx.lineTo(padding + stepX * (values.length - 1), padding + chartH);
         ctx.closePath();
-        ctx.fillStyle = `${color}15`;
+        ctx.fillStyle = \`\${color}15\`;
         ctx.fill();
 
         ctx.beginPath();
@@ -130,7 +138,7 @@ export default function ChartWidget({ data, type = 'line', title, color = '#22c5
         <div style={{display:'flex', flexWrap:'wrap', gap:'8px', justifyContent:'center', marginTop:'12px', fontSize:'0.8rem'}}>
            {data.map((d, i) => (
              <div key={i} style={{display:'flex', alignItems:'center', gap:'4px'}}>
-               <div style={{width:'10px', height:'10px', borderRadius:'50%', background: i === data.length - 1 ? color : `hsl(${(200 + i * 45) % 360}, 70%, 50%)`}}></div>
+               <div style={{width:'10px', height:'10px', borderRadius:'50%', background: i === data.length - 1 ? color : \`hsl(\${(200 + i * 45) % 360}, 70%, 50%)\`}}></div>
                <span>{d.label}</span>
              </div>
            ))}
@@ -139,3 +147,6 @@ export default function ChartWidget({ data, type = 'line', title, color = '#22c5
     </div>
   );
 }
+`;
+
+fs.writeFileSync(path, newContent, 'utf8');

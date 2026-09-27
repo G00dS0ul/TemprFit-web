@@ -26,6 +26,7 @@ const MomentSchema = new mongoose.Schema({
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   views: { type: Number, default: 0 },
+  visibility: { type: String, enum: ['public', 'hidden'], default: 'public' },
   comments: [CommentSchema]
 }, { timestamps: true })
 

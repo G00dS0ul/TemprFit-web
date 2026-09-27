@@ -5,6 +5,22 @@ import styles from './ActivityHeatmap.module.css';
 export default function ActivityHeatmap({ data = [] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
+  const [waterLogs, setWaterLogs] = useState({});
+  const [sleepLogs, setSleepLogs] = useState({});
+
+  React.useEffect(() => {
+    try {
+      const savedWater = JSON.parse(localStorage.getItem('temprfit_water_logs') || '[]');
+      const wMap = {};
+      savedWater.forEach(l => wMap[l.date] = l.amountMl);
+      setWaterLogs(wMap);
+
+      const savedSleep = JSON.parse(localStorage.getItem('temprfit_sleep_logs') || '[]');
+      const sMap = {};
+      savedSleep.forEach(l => sMap[l.date] = { hours: l.hours, quality: l.quality });
+      setSleepLogs(sMap);
+    } catch(e) {}
+  }, []);
 
   const calendar = useMemo(() => {
     const year = currentDate.getFullYear();
@@ -35,9 +51,10 @@ export default function ActivityHeatmap({ data = [] }) {
       const d = new Date(year, month, day);
       const dateStr = d.toISOString().split('T')[0];
       const count = dataMap[dateStr] ? dataMap[dateStr].count : 0;
+      const meals = dataMap[dateStr] ? dataMap[dateStr].meals : 0;
       const exercises = dataMap[dateStr] ? dataMap[dateStr].exercises : [];
       
-      currentWeek.push({ day, dateStr, count, exercises });
+      currentWeek.push({ day, dateStr, count, exercises, meals });
       
       if (currentWeek.length === 7) {
         weeks.push(currentWeek);
@@ -83,13 +100,14 @@ export default function ActivityHeatmap({ data = [] }) {
           <div key={wIdx} className={styles.week}>
             {week.map((dayObj, dIdx) => {
               if (!dayObj) return <div key={dIdx} className={styles.emptyDay} />;
-              const isGreen = dayObj.count > 0;
+              const isWorkout = dayObj.count > 0;
+              const isOther = !isWorkout && (dayObj.meals > 0 || waterLogs[dayObj.dateStr] || sleepLogs[dayObj.dateStr]);
               return (
                 <div 
                   key={dIdx} 
-                  className={`${styles.day} ${isGreen ? styles.activeDay : ''}`}
-                  onClick={() => { if (isGreen) setSelectedDay(dayObj) }}
-                  style={{ cursor: isGreen ? 'pointer' : 'default' }}
+                  className={`${styles.day} ${isWorkout ? styles.activeDay : isOther ? styles.otherDay : ''}`}
+                  onClick={() => { if (isWorkout || isOther) setSelectedDay(dayObj) }}
+                  style={{ cursor: (isWorkout || isOther) ? 'pointer' : 'default' }}
                   title={`${dayObj.dateStr}: ${dayObj.count} session(s)`}
                 >
                   {dayObj.day}
@@ -104,11 +122,14 @@ export default function ActivityHeatmap({ data = [] }) {
         <div className={styles.modalOverlay} onClick={() => setSelectedDay(null)}>
           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
             <h4 style={{ margin: '0 0 16px 0', fontSize: '1.2rem', color: 'var(--color-text)' }}>
-              {new Date(selectedDay.dateStr).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {new Date(selectedDay.dateStr + 'T12:00:00Z').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </h4>
             <p style={{ margin: '0 0 16px 0', color: 'var(--color-primary)', fontWeight: 'bold' }}>
               {selectedDay.count} Session(s) Completed
             </p>
+            {selectedDay.meals > 0 && <p style={{ color: 'var(--color-primary)', fontWeight: 'bold', margin: '0 0 16px 0' }}>{selectedDay.meals} Meal(s) Logged</p>}
+            {waterLogs[selectedDay.dateStr] && <p style={{ color: '#3b82f6', fontWeight: 'bold', margin: '0 0 16px 0' }}>Water Logged: {waterLogs[selectedDay.dateStr]} ml</p>}
+            {sleepLogs[selectedDay.dateStr] && <p style={{ color: '#8b5cf6', fontWeight: 'bold', margin: '0 0 16px 0' }}>Sleep Logged: {sleepLogs[selectedDay.dateStr].hours}h ({sleepLogs[selectedDay.dateStr].quality})</p>}
             {selectedDay.exercises && selectedDay.exercises.length > 0 ? (
               <ul style={{ paddingLeft: '20px', margin: '0 0 24px 0', color: 'var(--color-text-muted)' }}>
                 {selectedDay.exercises.map((ex, i) => (

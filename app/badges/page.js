@@ -14,6 +14,7 @@ export default function BadgesPage() {
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState(null);
   const [buying, setBuying] = useState(false);
+  const [activeTab, setActiveTab] = useState('badges');
 
   useEffect(() => {
     Promise.all([

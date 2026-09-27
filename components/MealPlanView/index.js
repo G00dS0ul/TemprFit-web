@@ -1,13 +1,40 @@
 'use client';
 
 import { useState } from 'react';
-import { Flame, ChevronDown, ShoppingCart } from 'lucide-react';
+import { Flame, ChevronDown, ShoppingCart, Loader2 } from 'lucide-react';
 import styles from './MealPlanView.module.css';
 
 const MEAL_ORDER = { breakfast: 0, lunch: 1, dinner: 2, snack: 3 };
 
 export default function MealPlanView({ plan }) {
+  const logMeal = async (meal, mealId) => {
+    setLoggingMeal(mealId);
+    setLoggingMeal(index);
+    const res = await fetch('/api/nutrition/log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mealType: meal.mealType.toLowerCase(),
+        servings: 1,
+        date: new Date().toISOString().split('T')[0],
+        rawFood: {
+          name: meal.name,
+          calories: meal.calories,
+          protein: meal.protein,
+          carbs: meal.carbs,
+          fat: meal.fat
+        }
+      })
+    });
+    if (res.ok) {
+      window.appAlert('Successfully logged to today\'s tracker!');
+    } else {
+      window.appAlert('Failed to log meal.');
+    }
+    setLoggingMeal(null);
+  };
   const [openDay, setOpenDay] = useState(1);
+  const [loggingMeal, setLoggingMeal] = useState(null);
 
   if (!plan) return null;
 

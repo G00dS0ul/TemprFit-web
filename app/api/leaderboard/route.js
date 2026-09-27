@@ -44,7 +44,7 @@ export async function GET(req) {
 
     const topUsers = await User.find(query)
       .sort({ xp: -1 })
-      .limit(100)
+      
       .select('username avatarUrl xp activeColor activeBorder');
       
     const leaderboard = topUsers.map(u => ({
