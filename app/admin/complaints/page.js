@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageSquare, Check, CornerDownRight, ShieldAlert } from 'lucide-react';
+import { MessageSquare, Check, CornerDownRight, ShieldAlert, ThumbsUp, ThumbsDown } from 'lucide-react';
 import styles from '../page.module.css';
 
 export default function AdminComplaints() {

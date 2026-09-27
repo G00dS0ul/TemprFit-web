@@ -7,6 +7,35 @@ import styles from './MealPlanView.module.css';
 const MEAL_ORDER = { breakfast: 0, lunch: 1, dinner: 2, snack: 3 };
 
 export default function MealPlanView({ plan }) {
+  const logWholeDay = async (day) => {
+    setLoggingDay(true);
+    try {
+      for (const meal of day.meals) {
+        await fetch('/api/nutrition/log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mealType: meal.mealType.toLowerCase(),
+            servings: 1,
+            date: new Date().toISOString().split('T')[0],
+            rawFood: {
+              name: meal.name,
+              calories: meal.calories,
+              protein: meal.protein,
+              carbs: meal.carbs,
+              fat: meal.fat
+            }
+          })
+        });
+      }
+      window.appAlert(`Successfully logged all meals for Day ${day.dayNumber}!`);
+      if (day.dayNumber < 7) setOpenDay(day.dayNumber + 1);
+    } catch (e) {
+      window.appAlert('Failed to log day.');
+    }
+    setLoggingDay(false);
+  };
+
   const logMeal = async (meal, mealId) => {
     setLoggingMeal(mealId);
     setLoggingMeal(index);
@@ -34,6 +63,17 @@ export default function MealPlanView({ plan }) {
     setLoggingMeal(null);
   };
   const [openDay, setOpenDay] = useState(1);
+  const [loggingDay, setLoggingDay] = useState(false);
+
+  import('react').then((React) => {
+    React.useEffect(() => {
+      const saved = localStorage.getItem('temprfit_ai_plan_day');
+      if (saved) setOpenDay(parseInt(saved) || 1);
+    }, []);
+    React.useEffect(() => {
+      localStorage.setItem('temprfit_ai_plan_day', openDay);
+    }, [openDay]);
+  });
   const [loggingMeal, setLoggingMeal] = useState(null);
 
   if (!plan) return null;

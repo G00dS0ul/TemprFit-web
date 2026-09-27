@@ -49,7 +49,7 @@ export default function ActivityHeatmap({ data = [] }) {
     
     for (let day = 1; day <= daysInMonth; day++) {
       const d = new Date(year, month, day);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       const count = dataMap[dateStr] ? dataMap[dateStr].count : 0;
       const meals = dataMap[dateStr] ? dataMap[dateStr].meals : 0;
       const exercises = dataMap[dateStr] ? dataMap[dateStr].exercises : [];

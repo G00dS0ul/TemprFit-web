@@ -7,7 +7,8 @@ const complaintSchema = new mongoose.Schema({
   message: { type: String, required: true },
   status: { type: String, enum: ['open', 'resolved'], default: 'open' },
   adminReply: { type: String },
-  type: { type: String, enum: ['support', 'appeal'], default: 'support' }
+  type: { type: String, enum: ['support', 'appeal'], default: 'support' },
+  userFeedback: { type: String, enum: ['thumbs_up', 'thumbs_down', null], default: null }
 }, {
   timestamps: true
 });
