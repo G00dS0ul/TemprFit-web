@@ -7,6 +7,7 @@ import Sidebar from '@/components/Sidebar';
 import { Heart, MessageCircle, Eye, Plus, X, Send, MoreVertical, Bookmark, Edit2, Trash2, Smile, Dumbbell, FileText } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import styles from './page.module.css';
+import ImageViewer from '@/components/ImageViewer';
 
 export default function MomentsPage() {
   const [moments, setMoments] = useState([]);
@@ -106,6 +107,7 @@ export default function MomentsPage() {
 
   // Dropdown Menu State
   const [menuOpenId, setMenuOpenId] = useState(null);
+  const [viewingImage, setViewingImage] = useState(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -603,17 +605,17 @@ export default function MomentsPage() {
                   return (
                     <div key={i} className={styles.commentBlock} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div className={styles.comment} style={{ display: 'flex', gap: '12px' }}>
-                        <img src={c.user?.avatarUrl || `https://ui-avatars.com/api/?name=${c.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                        <img src={c.user?.avatarUrl || `https://ui-avatars.com/api/?name=${c.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer' }} onClick={() => setViewingImage(c.user?.avatarUrl || `https://ui-avatars.com/api/?name=${c.user?.username || 'Deleted'}&background=22c55e&color=fff`)} />
                         <div style={{ flex: 1 }}>
                           <div className={styles.commentText} style={{ fontSize: '0.9rem' }}>
                             <strong style={{ color: c.user?.activeColor || 'inherit' }}>{c.user?.username || 'Deleted User'}</strong> {c.text}
                           </div>
                           <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
                             <span>{formatDate(c.createdAt)}</span>
-                            <button onClick={() => handleCommentLike(activeMoment._id, c._id)} style={{ background: 'none', border: 'none', color: hasLiked ? 'var(--color-primary)' : 'inherit', cursor: 'pointer', padding: 0 }}>
+                            <button onClick={() => handleCommentLike(activeMoment._id, c._id)} style={{ background: 'none', border: 'none', color: hasLiked ? 'var(--color-primary)' : 'inherit', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', backgroundColor: hasLiked ? 'rgba(34,197,94,0.1)' : 'transparent', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = hasLiked ? 'rgba(34,197,94,0.1)' : 'transparent'}>
                               {c.likes?.length || 0} {c.likes?.length === 1 ? 'like' : 'likes'}
                             </button>
-                            <button onClick={() => handleCommentReply(c)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0 }}>Reply</button>
+                            <button onClick={() => handleCommentReply(c)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>Reply</button>
                           </div>
                         </div>
                       </div>
@@ -624,14 +626,14 @@ export default function MomentsPage() {
                             const hasReplyLiked = reply.likes?.includes(currentUser?._id);
                             return (
                               <div key={ridx} className={styles.comment} style={{ display: 'flex', gap: '8px' }}>
-                                <img src={reply.user?.avatarUrl || `https://ui-avatars.com/api/?name=${reply.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '24px', height: '24px', borderRadius: '50%' }} />
+                                <img src={reply.user?.avatarUrl || `https://ui-avatars.com/api/?name=${reply.user?.username || 'Deleted'}&background=22c55e&color=fff`} className={styles.commentAvatar} style={{ width: '24px', height: '24px', borderRadius: '50%', cursor: 'pointer' }} onClick={() => setViewingImage(reply.user?.avatarUrl || `https://ui-avatars.com/api/?name=${reply.user?.username || 'Deleted'}&background=22c55e&color=fff`)} />
                                 <div style={{ flex: 1 }}>
                                   <div className={styles.commentText} style={{ fontSize: '0.85rem' }}>
                                     <strong style={{ color: reply.user?.activeColor || 'inherit' }}>{reply.user?.username || 'Deleted User'}</strong> {reply.text}
                                   </div>
                                   <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
                                     <span>{formatDate(reply.createdAt)}</span>
-                                    <button onClick={() => handleReplyLike(activeMoment._id, c._id, reply._id)} style={{ background: 'none', border: 'none', color: hasReplyLiked ? 'var(--color-primary)' : 'inherit', cursor: 'pointer', padding: 0 }}>
+                                    <button onClick={() => handleReplyLike(activeMoment._id, c._id, reply._id)} style={{ background: 'none', border: 'none', color: hasReplyLiked ? 'var(--color-primary)' : 'inherit', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', backgroundColor: hasReplyLiked ? 'rgba(34,197,94,0.1)' : 'transparent', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = hasReplyLiked ? 'rgba(34,197,94,0.1)' : 'transparent'}>
                                       {reply.likes?.length || 0} {reply.likes?.length === 1 ? 'like' : 'likes'}
                                     </button>
                                   </div>
@@ -690,3 +692,4 @@ export default function MomentsPage() {
     </div>
   );
 }
+
