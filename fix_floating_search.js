@@ -1,4 +1,8 @@
+const fs = require('fs');
+const path = 'C:/Users/A_bisoye/Desktop/REPForge-phase7-formcheck/components/FloatingSearch/index.js';
+let content = fs.readFileSync(path, 'utf8');
 
+const updatedCode = `
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -15,7 +19,6 @@ export default function FloatingSearch() {
   const [role, setRole] = useState('user');
 
   const [position, setPosition] = useState({ x: 20, y: 20 });
-  const [hasDragged, setHasDragged] = useState(false);
   const isDragging = useRef(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
 
@@ -44,7 +47,7 @@ export default function FloatingSearch() {
     setSearching(true);
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/exercises?q=${encodeURIComponent(query)}`);
+        const res = await fetch(\`/api/exercises?q=\${encodeURIComponent(query)}\`);
         const data = await res.json();
         setResults(data.items || []);
       } catch (err) {
@@ -64,7 +67,6 @@ export default function FloatingSearch() {
   };
 
   const handlePointerDown = (e) => {
-    setHasDragged(false);
     isDragging.current = true;
     dragStartPos.current = { x: e.clientX, y: e.clientY };
     e.target.setPointerCapture(e.pointerId);
@@ -79,7 +81,6 @@ export default function FloatingSearch() {
       y: prev.y - dy
     }));
     dragStartPos.current = { x: e.clientX, y: e.clientY };
-    setHasDragged(true);
   };
 
   const handlePointerUp = (e) => {
@@ -92,7 +93,7 @@ export default function FloatingSearch() {
       <button 
         className={styles.fab} 
         style={{ right: position.x + 'px', bottom: position.y + 'px' }}
-        onClick={(e) => { if (hasDragged) { e.preventDefault(); e.stopPropagation(); } else { setOpen(true); } }} 
+        onClick={() => setOpen(true)} 
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -159,3 +160,7 @@ export default function FloatingSearch() {
     </>
   );
 }
+`;
+
+fs.writeFileSync(path, updatedCode, 'utf8');
+console.log("Updated FloatingSearch successfully");

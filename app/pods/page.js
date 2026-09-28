@@ -104,7 +104,7 @@ export default function PodsPage() {
       const res = await fetch('/api/pods', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newPodName, description: newPodDesc, icon: newPodIcon, image: newPodImage, rewardXP: parseInt(newPodReward) || 0 })
+        body: JSON.stringify({ name: newPodName, description: newPodDesc, icon: newPodIcon, image: newPodImage, rewardXP: parseInt(newPodReward) || 0, rewardType: newPodRewardType })
       });
       const data = await res.json();
       if (data.success) {

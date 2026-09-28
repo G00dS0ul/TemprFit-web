@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { getSessionUser } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { connectDB } from '@/lib/db';
 import Pod from '@/models/Pod';
@@ -23,14 +23,14 @@ export async function POST(req, { params }) {
       return NextResponse.json({ error: 'Pod not found' }, { status: 404 });
     }
 
-    const isMember = pod.members.some(id => id.toString() === decoded.userId);
+    const isMember = pod.members.some(id => id.toString() === sessionUser._id.toString());
 
     if (isMember) {
       // Leave pod
-      pod.members = pod.members.filter(id => id.toString() !== decoded.userId);
+      pod.members = pod.members.filter(id => id.toString() !== sessionUser._id.toString());
     } else {
       // Join pod
-      pod.members.push(decoded.userId);
+      pod.members.push(sessionUser._id);
     }
 
     await pod.save();

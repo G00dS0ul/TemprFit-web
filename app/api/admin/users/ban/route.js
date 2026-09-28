@@ -9,7 +9,8 @@ export async function POST(req) {
     await connectDB();
     const admin = await getSessionUser();
     
-    if (!admin || (admin.role !== 'admin' && !(await verifyAdminToken()))) {
+    const isAdmin = (admin && admin.role === 'admin') || (await verifyAdminToken());
+  if (!isAdmin) {
       return NextResponse.json({ error: 'Unauthorized. Admins only.' }, { status: 403 });
     }
 

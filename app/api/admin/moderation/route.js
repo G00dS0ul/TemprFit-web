@@ -9,7 +9,8 @@ export async function GET(req) {
   await connectDB();
   const sessionUser = await getSessionUser();
   const { cookies } = await import('next/headers');
-  if (!sessionUser || (sessionUser.role !== 'admin' && !(await verifyAdminToken()))) {
+  const isAdmin = (sessionUser && sessionUser.role === 'admin') || (await verifyAdminToken());
+  if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
@@ -27,7 +28,8 @@ export async function GET(req) {
 export async function DELETE(req) {
   await connectDB();
   const sessionUser = await getSessionUser();
-  if (!sessionUser || (sessionUser.role !== 'admin' && !(await verifyAdminToken()))) {
+  const isAdmin = (sessionUser && sessionUser.role === 'admin') || (await verifyAdminToken());
+  if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 

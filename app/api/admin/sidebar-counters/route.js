@@ -11,7 +11,8 @@ export async function GET() {
   const user = await getSessionUser();
   const { cookies } = await import('next/headers');
   
-  if (!user || (user.role !== 'admin' && !(await verifyAdminToken()))) {
+  const isAdmin = (user && user.role === 'admin') || (await verifyAdminToken());
+  if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 

@@ -8,7 +8,8 @@ export async function POST(request) {
   await connectDB();
   const admin = await getSessionUser();
   const { cookies } = await import('next/headers');
-  if (!admin || (admin.role !== 'admin' && !(await verifyAdminToken()))) {
+  const isAdmin = (admin && admin.role === 'admin') || (await verifyAdminToken());
+  if (!isAdmin) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 

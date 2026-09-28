@@ -883,7 +883,7 @@
     background: transparent;
     border: none;
   }
-  .omniDropdown {
+  .omniDropdown, .premiumNotifDropdown, .dropdown {
     position: fixed;
     top: 75px;
     left: 50%;
