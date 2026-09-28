@@ -38,6 +38,7 @@
     "resend": "^6.28.1"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.16.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.5"
   }
