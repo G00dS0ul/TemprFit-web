@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   eslint: {
@@ -13,11 +13,25 @@ const nextConfig = {
   },
 }
 
-const withPWA = require('@ducanh2912/next-pwa').default({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-});
+let exportedConfig = nextConfig;
 
-module.exports = withPWA(nextConfig);
+try {
+  const withPWA = require('@ducanh2912/next-pwa').default({
+    dest: 'public',
+    disable: process.env.NODE_ENV !== 'production',
+    register: true,
+    skipWaiting: true,
+    cacheOnFrontEndNav: true,
+    aggressiveFrontEndNavCaching: true,
+    reloadOnOnline: true,
+    swcMinify: true,
+    fallbacks: {
+      document: '/offline',
+    },
+  });
+  exportedConfig = withPWA(nextConfig);
+} catch (e) {
+  console.warn('PWA plugin could not be loaded, building without PWA support:', e.message);
+}
+
+module.exports = exportedConfig;
