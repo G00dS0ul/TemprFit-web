@@ -94,7 +94,7 @@ export default function AIModal({ isOpen, onClose }) {
 
         <div className={styles.messages} ref={scrollRef}>
           {messages.map((msg, i) => (
-            <div key={i} className={${styles.message} }>
+            <div key={i} className={`${styles.message} ${styles[msg.role]}`}>
               <div className={styles.avatar}>
                 {msg.role === 'ai' ? (
                   <Image src="/images/brand/my-logo.png" alt="" width={16} height={16} />
@@ -119,7 +119,7 @@ export default function AIModal({ isOpen, onClose }) {
             </div>
           ))}
           {isTyping && (
-            <div className={${styles.message} }>
+            <div className={`${styles.message} ${styles.ai}`}>
               <div className={styles.avatar}>
                 <Image src="/images/brand/my-logo.png" alt="" width={16} height={16} />
               </div>
