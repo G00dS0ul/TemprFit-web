@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Activity, ShieldCheck, Users, Tag, Dumbbell, 
-  MessageSquare, Settings, LogOut, Megaphone
+  MessageSquare, Settings, LogOut, Megaphone, Sun, Moon
 } from 'lucide-react';
 import Image from 'next/image';
 import styles from './AdminSidebar.module.css';
@@ -13,6 +13,20 @@ import styles from './AdminSidebar.module.css';
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [counters, setCounters] = useState({ trainers: 0, users: 0, bookings: 0 });
+  const [theme, setTheme] = useState('dark');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') || 'dark';
+    setTheme(saved);
+    document.documentElement.setAttribute('data-theme', saved);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('theme', next);
+    document.documentElement.setAttribute('data-theme', next);
+  };
 
   useEffect(() => {
     fetch('/api/admin/sidebar-counters')
@@ -67,6 +81,10 @@ export default function AdminSidebar() {
       </div>
 
       <div className={styles.bottom}>
+        <button onClick={toggleTheme} className={styles.menuItem} style={{ background: 'transparent', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', color: 'var(--color-text)' }}>
+          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+        </button>
         <Link href="/admin/settings" className={`${styles.menuItem} ${pathname.startsWith('/admin/settings') ? styles.active : ''}`}>
           <Settings size={20} />
           <span>Settings</span>

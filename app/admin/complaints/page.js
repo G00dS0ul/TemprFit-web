@@ -97,6 +97,16 @@ export default function AdminComplaints() {
                   </div>
                 )}
 
+                
+                {c.userFeedback && (
+                  <div style={{ background: 'rgba(245,158,11,0.05)', borderLeft: '4px solid #f59e0b', padding: '16px', borderRadius: '0 8px 8px 0' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#f59e0b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
+                      User Feedback: 
+                      {c.userFeedback === 'thumbs_up' ? <ThumbsUp size={14} color="#22c55e" /> : <ThumbsDown size={14} color="#ef4444" />}
+                    </span>
+                  </div>
+                )}
+
                 {c.status === 'open' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
                     <textarea 

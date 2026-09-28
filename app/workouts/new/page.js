@@ -41,7 +41,26 @@ function BuildWorkoutForm() {
   const [error, setError] = useState('');
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const [activeMuscle, setActiveMuscle] = useState('');
-  const [browseResults, setBrowseResults] = useState([]);
+    const [browseResults, setBrowseResults] = useState([]);
+
+  // Draft feature
+  useEffect(() => {
+    const draft = localStorage.getItem('workout_draft');
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft);
+        if (parsed.name) setName(parsed.name);
+        if (parsed.goal) setGoal(parsed.goal);
+        if (parsed.exercises && parsed.exercises.length > 0) setExercises(parsed.exercises);
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (name || exercises.length > 0) {
+      localStorage.setItem('workout_draft', JSON.stringify({ name, goal, exercises }));
+    }
+  }, [name, goal, exercises]);
 
   // Prefill from an exercise detail page's "Add to Workout" button.
   useEffect(() => {

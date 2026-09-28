@@ -18,7 +18,7 @@ export async function POST(req, { params }) {
 
   try {
     const { id } = params;
-    const { username, avatarUrl, password } = await req.json();
+    const { username, avatarUrl, password, plan } = await req.json();
 
     const targetUser = await User.findById(id);
     if (!targetUser) {

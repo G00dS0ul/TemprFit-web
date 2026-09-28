@@ -14,9 +14,13 @@ export default function UserManagementPage() {
   const [banDuration, setBanDuration] = useState('7'); // days, or 'permanent'
 
   const [editUser, setEditUser] = useState(null);
-  const [editForm, setEditForm] = useState({ username: '', avatarUrl: '', password: '' });
+  const [editForm, setEditForm] = useState({ username: '', avatarUrl: '', password: '', plan: 'free' });
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState('');
+  const [msgUser, setMsgUser] = useState(null);
+  const [msgTitle, setMsgTitle] = useState('Admin Message');
+  const [msgText, setMsgText] = useState('');
+  const [msgSending, setMsgSending] = useState(false);
 
   useEffect(() => {
     // Optionally fetch some default users or wait for search
@@ -134,7 +138,7 @@ export default function UserManagementPage() {
 
   const openEditModal = (user) => {
     setEditUser(user);
-    setEditForm({ username: user.username, avatarUrl: user.avatarUrl || '', password: '' });
+    setEditForm({ username: user.username, avatarUrl: user.avatarUrl || '', password: '', plan: user.plan || 'free' });
     setEditError('');
   };
 
@@ -150,6 +154,29 @@ export default function UserManagementPage() {
     reader.readAsDataURL(file);
   };
 
+    const submitMessage = async (e) => {
+    e.preventDefault();
+    setMsgSending(true);
+    try {
+      const res = await fetch('/api/admin/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: msgUser._id, title: msgTitle, message: msgText })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.appAlert('Message sent successfully!');
+        setMsgUser(null);
+        setMsgText('');
+      } else {
+        window.appAlert(data.error || 'Failed to send message');
+      }
+    } catch (e) {
+      window.appAlert('Network error');
+    }
+    setMsgSending(false);
+  };
+
   const submitEdit = async (e) => {
     e.preventDefault();
     setEditSaving(true);
@@ -162,7 +189,7 @@ export default function UserManagementPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setUsers(users.map(u => u._id === editUser._id ? { ...u, username: data.user.username, avatarUrl: data.user.avatarUrl } : u));
+        setUsers(users.map(u => u._id === editUser._id ? { ...u, username: data.user.username, avatarUrl: data.user.avatarUrl, plan: data.user.plan } : u));
         setEditUser(null);
       } else {
         setEditError(data.error || 'Failed to update user');
@@ -208,7 +235,10 @@ export default function UserManagementPage() {
                 </div>
                 
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => openEditModal(user)} style={{ padding: '8px 12px', borderRadius: '6px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: 'none', cursor: 'pointer', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button onClick={() => setMsgUser(user)} title="Message User" style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer', padding: '4px' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                    </button>
+                    <button onClick={() => openEditModal(user)} style={{ padding: '8px 12px', borderRadius: '6px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: 'none', cursor: 'pointer', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Edit size={14} /> Edit
                   </button>
                   <button onClick={() => grantXP(user._id)} style={{ padding: '8px 12px', borderRadius: '6px', background: 'rgba(251, 191, 36, 0.1)', color: '#fbbf24', border: 'none', cursor: 'pointer', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -334,6 +364,50 @@ export default function UserManagementPage() {
           </div>
         </div>
       )}
+    
+      {msgUser && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'var(--color-surface-elevated)', padding: '24px', borderRadius: '12px', width: '400px', border: '1px solid var(--color-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> 
+                Message {msgUser.username}
+              </h3>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setMsgUser(null)} />
+            </div>
+            
+            <form onSubmit={submitMessage} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Title</label>
+                <input 
+                  type="text" 
+                  value={msgTitle} 
+                  onChange={e => setMsgTitle(e.target.value)} 
+                  required 
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text)' }} 
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Message</label>
+                <textarea 
+                  value={msgText} 
+                  onChange={e => setMsgText(e.target.value)} 
+                  required 
+                  rows="4" 
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text)', resize: 'vertical' }} 
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                <button type="button" onClick={() => setMsgUser(null)} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" disabled={msgSending} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#10b981', border: 'none', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>{msgSending ? 'Sending...' : 'Send Message'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
