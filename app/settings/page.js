@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Camera, Check, Loader2, Link as LinkIcon, FileText, Video } from 'lucide-react';
+import { Camera, Check, Loader2, Link as LinkIcon, FileText, Video, X } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import { PRESET_AVATAR_URLS } from '@/lib/avatars';
 import styles from './settings.module.css';

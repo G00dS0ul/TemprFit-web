@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Flame, ChevronDown, ShoppingCart, Loader2 } from 'lucide-react';
 import styles from './MealPlanView.module.css';
 
@@ -65,15 +65,14 @@ export default function MealPlanView({ plan }) {
   const [openDay, setOpenDay] = useState(1);
   const [loggingDay, setLoggingDay] = useState(false);
 
-  import('react').then((React) => {
-    React.useEffect(() => {
-      const saved = localStorage.getItem('temprfit_ai_plan_day');
-      if (saved) setOpenDay(parseInt(saved) || 1);
-    }, []);
-    React.useEffect(() => {
-      localStorage.setItem('temprfit_ai_plan_day', openDay);
-    }, [openDay]);
-  });
+  useEffect(() => {
+    const saved = localStorage.getItem('temprfit_ai_plan_day');
+    if (saved) setOpenDay(parseInt(saved) || 1);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('temprfit_ai_plan_day', openDay);
+  }, [openDay]);
   const [loggingMeal, setLoggingMeal] = useState(null);
 
   if (!plan) return null;
