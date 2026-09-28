@@ -13,11 +13,6 @@ const nextConfig = {
     unoptimized: true,
     domains: ['images.unsplash.com', 'api.dicebear.com', 'img.spoonacular.com'],
   },
-  webpack: (config) => {
-    config.resolve.alias['react'] = path.resolve('./node_modules/react');
-    config.resolve.alias['react-dom'] = path.resolve('./node_modules/react-dom');
-    return config;
-  },
 }
 
 let exportedConfig = nextConfig;
