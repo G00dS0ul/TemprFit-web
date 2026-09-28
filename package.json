@@ -10,9 +10,6 @@
     "seed": "node scripts/seed-exercises.mjs",
     "test": "node --no-warnings --import ./tests/register.js --test \"tests/**/*.test.js\""
   },
-
-
-
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@mediapipe/tasks-vision": "^0.10.14",
@@ -41,6 +38,7 @@
     "resend": "^6.28.1"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.16.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.5"
   }
