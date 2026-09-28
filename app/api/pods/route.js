@@ -30,14 +30,7 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { name, description, icon,
-      customImage: image || null,
-      challenge: {
-        targetVolume: 50000,
-        currentVolume: 0,
-        rewardXP: parseInt(rewardXP) || 2500,
-        rewardType: rewardType || 'shared_pool'
-      }, image, rewardXP, rewardType } = body;
+    const { name, description, icon, customImage, challenge, image, rewardXP, rewardType } = body;
     if (!name || !description || !icon) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
