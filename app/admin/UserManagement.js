@@ -25,7 +25,7 @@ export default function UserManagement() {
   };
 
   const toggleBan = async (userId, currentStatus) => {
-    if (!confirm(`Are you sure you want to ${currentStatus ? 'unban' : 'ban'} this user?`)) return;
+    if (!await window.appConfirm(`Are you sure you want to ${currentStatus ? 'unban' : 'ban'} this user?`)) return;
     try {
       const res = await fetch('/api/admin/users/ban', {
         method: 'POST',
@@ -41,7 +41,7 @@ export default function UserManagement() {
   };
 
   const grantXP = async (userId) => {
-    const amount = parseInt(prompt('How much XP to grant? (e.g. 1000)'), 10);
+    const amount = parseInt(await window.appPrompt('How much XP to grant? (e.g. 1000)'), 10);
     if (!amount || isNaN(amount)) return;
     try {
       const res = await fetch('/api/admin/users/grant-xp', {
@@ -52,7 +52,7 @@ export default function UserManagement() {
       const data = await res.json();
       if (res.ok) {
         setUsers(users.map(u => u._id === userId ? { ...u, xp: data.newXP } : u));
-        alert(`Success! User now has ${data.newXP} XP.`);
+        window.appAlert(`Success! User now has ${data.newXP} XP.`);
       }
     } catch (e) {
       console.error(e);
@@ -60,7 +60,7 @@ export default function UserManagement() {
   };
 
   const grantBadge = async (userId) => {
-    const badgeId = prompt('Enter Badge ID (e.g., vip_gold, rocket_fuel):');
+    const badgeId = await window.appPrompt('Enter Badge ID (e.g., vip_gold, rocket_fuel):');
     if (!badgeId) return;
     try {
       const res = await fetch('/api/admin/users/grant-badge', {
@@ -70,9 +70,9 @@ export default function UserManagement() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert(`Success! Granted badge ${data.badge.name}`);
+        window.appAlert(`Success! Granted badge ${data.badge.name}`);
       } else {
-        alert(`Error: ${data.error}`);
+        window.appAlert(`Error: ${data.error}`);
       }
     } catch (e) {
       console.error(e);
@@ -90,7 +90,7 @@ export default function UserManagement() {
           placeholder="Search by username or email..." 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'white' }}
+          style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)' }}
         />
         <button type="submit" disabled={loading} className={styles.approveBtn} style={{ background: '#3b82f6' }}>
           <Search size={18} style={{ verticalAlign: 'middle' }} /> Search
@@ -102,7 +102,7 @@ export default function UserManagement() {
           {users.map(user => (
             <div key={user._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--color-surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
               <div>
-                <strong style={{ color: user.isBanned ? '#ef4444' : 'white', fontSize: '1.1rem' }}>{user.username}</strong>
+                <strong style={{ color: user.isBanned ? '#ef4444' : 'var(--color-text)', fontSize: '1.1rem' }}>{user.username}</strong>
                 <span style={{ color: 'var(--color-text-muted)', marginLeft: '8px', fontSize: '0.9rem' }}>{user.email}</span>
                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
                   Role: {user.role} | XP: {user.xp || 0} | Joined: {new Date(user.createdAt).toLocaleDateString()}

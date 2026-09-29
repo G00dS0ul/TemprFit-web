@@ -42,7 +42,7 @@ export async function GET(request) {
 export async function PATCH(request) {
   try {
     await connectDB();
-    const { authorized } = await verifyAdminRequest();
+    const { authorized, user } = await verifyAdminRequest();
     if (!authorized) {
       return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
     }
@@ -76,7 +76,9 @@ export async function PATCH(request) {
 
     dispute.status = 'resolved';
     dispute.resolution = resolution;
-    dispute.resolvedBy = user._id;
+    if (user?._id) {
+      dispute.resolvedBy = user._id;
+    }
     dispute.resolvedAt = new Date();
     await dispute.save();
 

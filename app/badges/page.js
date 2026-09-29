@@ -14,6 +14,7 @@ export default function BadgesPage() {
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState(null);
   const [buying, setBuying] = useState(false);
+  const [activeTab, setActiveTab] = useState('badges');
 
   useEffect(() => {
     Promise.all([
@@ -30,7 +31,7 @@ export default function BadgesPage() {
   }, [router]);
 
   const handleBuy = async (itemId, cost, isBadge = false) => {
-    if (!confirm(`Buy this for ${cost} XP?`)) return;
+    if (!await window.appConfirm(`Buy this for ${cost} XP?`)) return;
     setBuying(true);
     try {
       const endpoint = isBadge ? '/api/badges/buy' : '/api/shop/buy';
@@ -43,12 +44,12 @@ export default function BadgesPage() {
       const data = await res.json();
       if (data.success) {
         setUser({ ...user, ...data }); // API returns xp, activeColor, unlockedColors etc.
-        alert('Purchase successful!');
+        window.appAlert('Purchase successful!');
       } else {
-        alert(data.error || 'Failed to buy item.');
+        window.appAlert(data.error || 'Failed to buy item.');
       }
     } catch (e) {
-      alert('Error during purchase.');
+      window.appAlert('Error during purchase.');
     }
     setBuying(false);
   };
@@ -64,10 +65,10 @@ export default function BadgesPage() {
       if (data.success) {
         setUser({ ...user, activeColor: data.activeColor });
       } else {
-        alert(data.error || 'Failed to equip color.');
+        window.appAlert(data.error || 'Failed to equip color.');
       }
     } catch (e) {
-      alert('Error equipping color');
+      window.appAlert('Error equipping color');
     }
   };
 
@@ -86,6 +87,8 @@ export default function BadgesPage() {
   const progressionBadges = BADGES.filter(b => !b.isPremium);
   const unlockedColors = user.unlockedColors || [];
 
+  const unlockedBorders = user.unlockedBorders || [];
+
   const isBadgeUnlocked = (badge) => {
     if (ownedBadgeIds.has(badge.id)) return true;
     if (!badge.criteria) return false;
@@ -95,6 +98,24 @@ export default function BadgesPage() {
     if (badge.criteria.type === 'volume') return (stats?.totalVolume || 0) >= badge.criteria.value;
     
     return false;
+  };
+
+  const equipBorder = async (borderName) => {
+    try {
+      const res = await fetch('/api/shop/equip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ border: borderName })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUser({ ...user, activeBorder: data.activeBorder });
+      } else {
+        window.appAlert(data.error || 'Failed to equip border.');
+      }
+    } catch (e) {
+      window.appAlert('Error equipping border');
+    }
   };
 
   return (
@@ -133,6 +154,13 @@ export default function BadgesPage() {
                   </div>
                 );
               })}
+              
+              {/* Coming Soon Placeholder */}
+              <div className={`${styles.badgeCard} ${styles.badgeLocked}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '200px', opacity: 0.6, borderStyle: 'dashed' }}>
+                <Star size={32} style={{ color: 'var(--color-text-muted)', marginBottom: '16px' }} />
+                <h3 className={styles.badgeName} style={{ color: 'var(--color-text-muted)' }}>More coming soon...</h3>
+                <p className={styles.badgeDesc} style={{ textAlign: 'center' }}>We are actively adding new challenges and badges!</p>
+              </div>
             </div>
           </div>
 
@@ -163,6 +191,7 @@ export default function BadgesPage() {
                   isOwned = unlockedColors.includes(item.value);
                   isActive = user.activeColor === item.value;
                 } else if (item.type === 'border') {
+                  isOwned = unlockedBorders.includes(item.value);
                   isActive = user.activeBorder === item.value;
                 } else if (item.type === 'subscription') {
                   isActive = user.plan === item.value;
@@ -193,6 +222,10 @@ export default function BadgesPage() {
                     {isOwned && !isActive && item.type === 'color' ? (
                       <button className={styles.buyBtn} onClick={() => equipColor(item.value)}>
                         Equip Color
+                      </button>
+                    ) : isOwned && !isActive && item.type === 'border' ? (
+                      <button className={styles.buyBtn} onClick={() => equipBorder(item.value)}>
+                        Equip Border
                       </button>
                     ) : isActive ? (
                       <button className={styles.buyBtn} disabled style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderColor: 'transparent', marginTop: '16px' }}>
@@ -241,7 +274,7 @@ export default function BadgesPage() {
                       const data = await res.json();
                       if (data.success) {
                         setUser({ ...user, xp: data.xp });
-                        alert(`Successfully purchased ${amount} XP!`);
+                        window.appAlert(`Successfully purchased ${amount} XP!`);
                       }
                     }}
                   />
@@ -267,7 +300,7 @@ export default function BadgesPage() {
                       const data = await res.json();
                       if (data.success) {
                         setUser({ ...user, xp: data.xp });
-                        alert(`Successfully purchased ${amount} XP!`);
+                        window.appAlert(`Successfully purchased ${amount} XP!`);
                       }
                     }}
                   />
@@ -293,7 +326,7 @@ export default function BadgesPage() {
                       const data = await res.json();
                       if (data.success) {
                         setUser({ ...user, xp: data.xp });
-                        alert(`Successfully purchased ${amount} XP!`);
+                        window.appAlert(`Successfully purchased ${amount} XP!`);
                       }
                     }}
                   />

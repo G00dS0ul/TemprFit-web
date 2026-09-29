@@ -24,8 +24,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid admin password' }, { status: 401 });
     }
 
-    // Sign cryptographic admin token with role: 'admin' (fixes 2.2)
-    const adminToken = signToken({ role: 'admin', isAdmin: true });
+    // Sign cryptographic admin token with combined role, isAdmin, and userId
+    const adminToken = signToken({ role: 'admin', isAdmin: true, userId: 'admin' });
 
     const response = NextResponse.json({ success: true }, { status: 200 });
     response.cookies.set('admin_token', adminToken, {

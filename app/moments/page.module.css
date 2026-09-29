@@ -1,5 +1,5 @@
 .page {
-  padding: 0 20px 40px;
+  padding: 100px 20px 40px;
   min-height: 100vh;
   background-color: var(--color-background);
   color: var(--color-text);
@@ -153,9 +153,14 @@
 
 .avatar {
   width: 40px;
+  cursor: pointer;
+  transition: transform 0.2s;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+}
+.avatar:hover {
+  transform: scale(1.05);
 }
 
 .username {
@@ -189,6 +194,8 @@
 
 .actionBtn {
   display: flex;
+  cursor: pointer;
+  transition: all 0.2s ease;
   align-items: center;
   gap: 6px;
   background: none;

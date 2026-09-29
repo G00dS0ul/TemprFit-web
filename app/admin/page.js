@@ -93,7 +93,7 @@ export default function AdminOverview() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '24px' }}>
+          <div className={styles.chartsGrid}>
             {/* User Growth Chart */}
             <div style={{ background: 'var(--color-surface)', padding: '24px', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
               <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}><BarChart2 size={18} color="#3b82f6" /> New User Growth (6 Months)</h3>

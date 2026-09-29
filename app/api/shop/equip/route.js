@@ -11,7 +11,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { color } = await req.json();
+    const { color, border } = await req.json();
     
     const user = await User.findById(sessionUser._id);
     if (!user) {
@@ -19,14 +19,24 @@ export async function POST(req) {
     }
 
     // Verify they actually unlocked this color
-    if (color && !user.unlockedColors.includes(color)) {
-      return NextResponse.json({ error: 'You have not unlocked this color' }, { status: 400 });
+    if (color !== undefined && color !== null) {
+      if (color && !user.unlockedColors.includes(color)) {
+        return NextResponse.json({ error: 'You have not unlocked this color' }, { status: 400 });
+      }
+      user.activeColor = color || '';
     }
 
-    user.activeColor = color || '';
+    // Verify they actually unlocked this border
+    if (border !== undefined && border !== null) {
+      if (border && !user.unlockedBorders?.includes(border)) {
+        return NextResponse.json({ error: 'You have not unlocked this border' }, { status: 400 });
+      }
+      user.activeBorder = border || '';
+    }
+
     await user.save();
 
-    return NextResponse.json({ success: true, activeColor: user.activeColor });
+    return NextResponse.json({ success: true, activeColor: user.activeColor, activeBorder: user.activeBorder });
   } catch (error) {
     console.error('Equip error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

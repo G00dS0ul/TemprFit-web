@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import WorkoutSession from '@/models/WorkoutSession';
@@ -43,7 +44,7 @@ export async function GET(req) {
 
     const topUsers = await User.find(query)
       .sort({ xp: -1 })
-      .limit(100)
+      
       .select('username avatarUrl xp activeColor activeBorder');
       
     const leaderboard = topUsers.map(u => ({

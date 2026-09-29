@@ -15,7 +15,7 @@ export async function POST(req, { params }) {
 
   try {
     const { id } = params;
-    const { username, avatarUrl, password } = await req.json();
+    const { username, avatarUrl, password, plan } = await req.json();
 
     const targetUser = await User.findById(id);
     if (!targetUser) {
@@ -37,6 +37,10 @@ export async function POST(req, { params }) {
       targetUser.avatarUrl = avatarUrl;
     }
 
+    if (plan && ['free', 'pro', 'max'].includes(plan)) {
+      targetUser.plan = plan;
+    }
+
     if (password && password.trim() !== '') {
       const salt = await bcrypt.genSalt(10);
       targetUser.password = await bcrypt.hash(password, salt);
@@ -47,7 +51,8 @@ export async function POST(req, { params }) {
     return NextResponse.json({ success: true, message: 'User updated successfully', user: {
       _id: targetUser._id,
       username: targetUser.username,
-      avatarUrl: targetUser.avatarUrl
+      avatarUrl: targetUser.avatarUrl,
+      plan: targetUser.plan
     } });
   } catch (error) {
     console.error('Admin user edit error:', error);

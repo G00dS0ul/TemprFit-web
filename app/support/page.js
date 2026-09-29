@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
-import { Send, CheckCircle, MessageSquare } from 'lucide-react';
+import { Send, CheckCircle, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
 import styles from '../dashboard/page.module.css';
 
 export default function SupportPage() {
@@ -30,6 +30,17 @@ export default function SupportPage() {
     }
   };
 
+  const handleFeedback = async (id, feedback) => {
+    try {
+      const res = await fetch(`/api/complaints/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userFeedback: feedback })
+      });
+      if (res.ok) fetchComplaints();
+    } catch (e) { console.error(e); }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!subject || !message) return;
@@ -46,13 +57,13 @@ export default function SupportPage() {
         setSubject('');
         setMessage('');
         fetchComplaints();
-        alert('Complaint submitted successfully!');
+        window.appAlert('Complaint submitted successfully!');
       } else {
-        alert(data.error);
+        window.appAlert(data.error);
       }
     } catch (e) {
       console.error(e);
-      alert('Failed to submit complaint.');
+      window.appAlert('Failed to submit complaint.');
     }
     setLoading(false);
   };
@@ -124,6 +135,15 @@ export default function SupportPage() {
                         <div style={{ background: 'rgba(59,130,246,0.05)', borderLeft: '3px solid #3b82f6', padding: '12px', borderRadius: '0 8px 8px 0', marginTop: '12px' }}>
                           <span style={{ fontSize: '0.75rem', color: '#3b82f6', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Admin Reply</span>
                           <p style={{ fontSize: '0.9rem', margin: 0 }}>{c.adminReply}</p>
+                          <div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Did this resolve your issue?</span>
+                            <button onClick={() => handleFeedback(c._id, 'thumbs_up')} style={{ background: c.userFeedback === 'thumbs_up' ? '#22c55e' : 'transparent', border: '1px solid var(--color-border)', color: c.userFeedback === 'thumbs_up' ? '#000' : 'var(--color-text-muted)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <ThumbsUp size={14} /> Yes
+                            </button>
+                            <button onClick={() => handleFeedback(c._id, 'thumbs_down')} style={{ background: c.userFeedback === 'thumbs_down' ? '#ef4444' : 'transparent', border: '1px solid var(--color-border)', color: c.userFeedback === 'thumbs_down' ? '#fff' : 'var(--color-text-muted)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <ThumbsDown size={14} /> No
+                            </button>
+                          </div>
                         </div>
                       )}
                       

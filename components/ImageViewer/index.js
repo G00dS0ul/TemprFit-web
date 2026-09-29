@@ -1,0 +1,18 @@
+﻿'use client';
+
+import { X } from 'lucide-react';
+import styles from './ImageViewer.module.css';
+
+export default function ImageViewer({ src, alt = "Image", onClose }) {
+  if (!src) return null;
+  return (
+    <div className={styles.overlay} onClick={onClose}>
+      <button className={styles.closeBtn} onClick={onClose}>
+        <X size={24} />
+      </button>
+      <div className={styles.imageContainer} onClick={e => e.stopPropagation()}>
+        <img src={src} alt={alt} className={styles.image} />
+      </div>
+    </div>
+  );
+}

@@ -3,13 +3,15 @@ import { connectDB } from '@/lib/db';
 import { verifyAdminRequest } from '@/lib/auth';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
   try {
     await connectDB();
     const { authorized } = await verifyAdminRequest();
     
     if (!authorized) {
-      return NextResponse.json({ error: 'Unauthorized. Admins only.' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);

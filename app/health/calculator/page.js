@@ -8,6 +8,8 @@ import styles from './calculator.module.css'
 export default function BMICalculator() {
   const [weight, setWeight] = useState('')
   const [height, setHeight] = useState('')
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [notes, setNotes] = useState('')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [history, setHistory] = useState([])
@@ -53,23 +55,31 @@ export default function BMICalculator() {
       advice = 'Consider consulting a healthcare provider or a TemprFit coach to plan a safe weight loss journey.'
     }
 
-    const newResult = { weight: w, height: parseFloat(height), bmi: bmiValue, category, advice }
+    const newResult = { weight: w, height: parseFloat(height), bmi: bmiValue, category, advice, notes, date }
     setResult(newResult)
+  }
 
-    // Save to DB
+  const saveResult = async () => {
+    if (!result) return
     setLoading(true)
     try {
       await fetch('/api/bmi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newResult)
+        body: JSON.stringify(result)
       })
       fetchHistory()
+      setResult(null)
+      setNotes('')
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
     }
+  }
+
+  const discardResult = () => {
+    setResult(null)
   }
 
   return (
@@ -90,6 +100,16 @@ export default function BMICalculator() {
               <Scale size={24} /> Calculate your BMI
             </h2>
             <form onSubmit={calculateBMI}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Date</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className={styles.input}
+                  required
+                />
+              </div>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Weight (kg)</label>
                 <input
@@ -112,12 +132,21 @@ export default function BMICalculator() {
                   required
                 />
               </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Notes (Optional)</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className={styles.input}
+                  placeholder="e.g. Feeling energetic today..."
+                  rows={2}
+                />
+              </div>
               <button
                 type="submit"
-                disabled={loading}
                 className={styles.submitBtn}
               >
-                {loading ? 'Saving...' : 'Calculate & Save'}
+                Calculate
               </button>
             </form>
           </motion.div>
@@ -137,6 +166,15 @@ export default function BMICalculator() {
               <Info size={24} className={styles.infoIcon} />
               <p className={styles.adviceText}>{result.advice}</p>
             </div>
+
+            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+              <button onClick={saveResult} disabled={loading} className={styles.submitBtn} style={{ flex: 1 }}>
+                 {loading ? 'Saving...' : <><Save size={20} /> Save to Tracker</>}
+              </button>
+              <button onClick={discardResult} className={styles.submitBtn} style={{ flex: 1, background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', boxShadow: 'none' }}>
+                 Discard
+              </button>
+            </div>
           </motion.div>
         )}
       </div>
@@ -152,6 +190,7 @@ export default function BMICalculator() {
                   <th>Weight</th>
                   <th>BMI</th>
                   <th>Category</th>
+                  <th>Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -161,6 +200,7 @@ export default function BMICalculator() {
                     <td>{log.weight} kg</td>
                     <td>{log.bmi}</td>
                     <td>{log.category}</td>
+                    <td>{log.notes || '-'}</td>
                   </tr>
                 ))}
               </tbody>

@@ -21,6 +21,24 @@ export default function SellEquipmentPage() {
   // For simplicity, just use a basic string input for image URLs or Cloudinary widget
   const [images, setImages] = useState([]);
   const [imageUrl, setImageUrl] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) setImages([...images, data.fileUrl]);
+      else alert('Upload failed');
+    } catch (err) {
+      alert('Upload failed');
+    }
+    setUploadingImage(false);
+  };
 
   const addImage = () => {
     if (imageUrl && !images.includes(imageUrl)) {
@@ -71,7 +89,7 @@ export default function SellEquipmentPage() {
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <h1><ShoppingBag size={28} className={styles.icon} /> Sell Equipment</h1>
-          <p>Turn your old gear into cash on The Forge.</p>
+          <p>Turn your old gear into cash on TemprFit.</p>
         </div>
       </div>
 
@@ -174,7 +192,7 @@ export default function SellEquipmentPage() {
           </div>
 
           <div className={styles.infoBox}>
-            <strong>Platform Fee:</strong> The Forge takes a 10% commission on all sales to cover payment processing and escrow security.
+            <strong>Platform Fee:</strong> TemprFit takes a 10% commission on all sales to cover payment processing and escrow security.
           </div>
 
           {error && <p className={styles.errorText}>{error}</p>}

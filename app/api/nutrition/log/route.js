@@ -47,9 +47,9 @@ export async function POST(request) {
   if (!user) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
-  const { foodId, mealType, servings, date } = body
+  const { foodId, mealType, servings, date, rawFood } = body
 
-  if (!foodId) return NextResponse.json({ error: 'foodId is required.' }, { status: 400 })
+  if (!foodId && !rawFood) return NextResponse.json({ error: 'foodId or rawFood is required.' }, { status: 400 })
   if (!['breakfast', 'lunch', 'dinner', 'snack'].includes(mealType)) {
     return NextResponse.json({ error: 'Invalid mealType.' }, { status: 400 })
   }

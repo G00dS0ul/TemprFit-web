@@ -67,9 +67,10 @@ function LogTab({ profile }) {
   const [logs, setLogs] = useState([]);
   const [totals, setTotals] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
   const [loggingId, setLoggingId] = useState(null);
+  const [dateKey, setDateKey] = useState(() => new Date().toISOString().slice(0, 10));
 
-  const loadToday = () => {
-    fetch(`/api/nutrition/log?date=${todayKey()}`)
+  const loadDate = () => {
+    fetch(`/api/nutrition/log?date=${dateKey}`)
       .then((r) => r.json())
       .then((d) => {
         setLogs(d.logs || []);
@@ -78,7 +79,7 @@ function LogTab({ profile }) {
       .catch(() => {});
   };
 
-  useEffect(() => { loadToday(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { loadDate(); }, [dateKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const search = async (e) => {
     e?.preventDefault();
@@ -108,9 +109,9 @@ function LogTab({ profile }) {
       const res = await fetch('/api/nutrition/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ foodId: food._id, servings, mealType, date: todayKey() }),
+        body: JSON.stringify({ foodId: food._id, servings, mealType, date: dateKey }),
       });
-      if (res.ok) loadToday();
+      if (res.ok) loadDate();
     } finally {
       setLoggingId(null);
     }
@@ -118,7 +119,7 @@ function LogTab({ profile }) {
 
   const deleteLog = async (id) => {
     await fetch(`/api/nutrition/log?id=${id}`, { method: 'DELETE' });
-    loadToday();
+    loadDate();
   };
 
   return (
@@ -147,7 +148,7 @@ function LogTab({ profile }) {
           </div>
         )}
 
-        <h3 className={styles.sectionTitle}>Logged today</h3>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:'24px', marginBottom:'16px'}}><h3 className={styles.sectionTitle} style={{margin:0}}>Logged for {dateKey}</h3><input type='date' value={dateKey} onChange={e => setDateKey(e.target.value)} style={{background:'var(--color-surface)', color:'var(--color-text)', border:'1px solid var(--color-border)', borderRadius:'8px', padding:'6px 10px'}} /></div>
         {logs.length === 0 && <p className={styles.muted}>Nothing logged yet today.</p>}
         <div className={styles.loggedList}>
           {logs.map((log) => (

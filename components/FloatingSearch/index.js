@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -12,6 +13,11 @@ export default function FloatingSearch() {
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [role, setRole] = useState('user');
+
+  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [hasDragged, setHasDragged] = useState(false);
+  const isDragging = useRef(false);
+  const dragStartPos = useRef({ x: 0, y: 0 });
 
   const pathname = usePathname();
 
@@ -57,10 +63,42 @@ export default function FloatingSearch() {
     e.preventDefault();
   };
 
+  const handlePointerDown = (e) => {
+    setHasDragged(false);
+    isDragging.current = true;
+    dragStartPos.current = { x: e.clientX, y: e.clientY };
+    e.target.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - dragStartPos.current.x;
+    const dy = e.clientY - dragStartPos.current.y;
+    setPosition(prev => ({
+      x: prev.x - dx,
+      y: prev.y - dy
+    }));
+    dragStartPos.current = { x: e.clientX, y: e.clientY };
+    setHasDragged(true);
+  };
+
+  const handlePointerUp = (e) => {
+    isDragging.current = false;
+    e.target.releasePointerCapture(e.pointerId);
+  };
+
   return (
     <>
-      <button className={styles.fab} onClick={() => setOpen(true)} aria-label="Quick Exercise Search">
-        <Dumbbell size={24} />
+      <button 
+        className={styles.fab} 
+        style={{ right: position.x + 'px', bottom: position.y + 'px' }}
+        onClick={(e) => { if (hasDragged) { e.preventDefault(); e.stopPropagation(); } else { setOpen(true); } }} 
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        aria-label="Quick Exercise Search"
+      >
+        <Dumbbell size={24} style={{ pointerEvents: 'none' }} />
       </button>
 
       {open && (
@@ -112,7 +150,7 @@ export default function FloatingSearch() {
             
             {results.length > 3 && (
               <div className={styles.scrollHint}>
-                Scroll to see more results ↓
+                Scroll to see more results +"
               </div>
             )}
           </div>

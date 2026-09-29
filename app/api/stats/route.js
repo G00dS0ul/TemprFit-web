@@ -4,6 +4,7 @@ import { getSessionUser } from '@/lib/auth'
 import WorkoutSession from '@/models/WorkoutSession'
 import PersonalRecord from '@/models/PersonalRecord'
 import Exercise from '@/models/Exercise'
+import MealLog from '@/models/MealLog'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,6 +28,7 @@ export async function GET() {
     status: 'completed',
   })
     .sort({ completedAt: -1 })
+    .populate('exercises.exercise', 'name')
     .lean()
 
   const thisWeekSessions = completedSessions.filter(
@@ -80,6 +82,38 @@ export async function GET() {
     .populate('exercise', 'name slug')
     .lean()
 
+  const mealLogs = await MealLog.find({ user: user._id }).lean();
+  const activityHeatmap = [];
+  const heatmapMap = {};
+  completedSessions.forEach(s => {
+    if (!s.completedAt) return;
+    const dateStr = new Date(s.completedAt).toISOString().split('T')[0];
+    if (!heatmapMap[dateStr]) {
+      heatmapMap[dateStr] = { count: 0, exercises: new Set() };
+    }
+    heatmapMap[dateStr].count += 1;
+      heatmapMap[dateStr].meals = 0;
+    if (s.exercises && s.exercises.length > 0) {
+      s.exercises.forEach(e => {
+        if (e.exercise && e.exercise.name) {
+          heatmapMap[dateStr].exercises.add(e.exercise.name);
+        }
+      });
+    }
+  });
+  mealLogs.forEach(m => {
+    if (!m.date) return;
+    const dateStr = new Date(m.date).toISOString().split('T')[0];
+    if (!heatmapMap[dateStr]) {
+      heatmapMap[dateStr] = { count: 0, exercises: new Set(), meals: 0 };
+    }
+    heatmapMap[dateStr].meals = (heatmapMap[dateStr].meals || 0) + 1;
+  });
+
+  for (const [date, data] of Object.entries(heatmapMap)) {
+    activityHeatmap.push({ date, count: data.count, exercises: Array.from(data.exercises), meals: data.meals || 0 });
+  }
+
   return NextResponse.json({
     totalSessions: completedSessions.length,
     sessionsThisWeek: thisWeekSessions.length,
@@ -96,6 +130,7 @@ export async function GET() {
     targetExercise: targetExercise ? { name: targetExercise.name, slug: targetExercise.slug } : null,
     currentBest1RM,
     goals: user.goals || {},
+    activityHeatmap,
     recentPRs: recentPRs.map((p) => ({
       exerciseName: p.exercise?.name || 'Exercise',
       exerciseSlug: p.exercise?.slug,

@@ -5,6 +5,8 @@ import Pod from '@/models/Pod';
 import WorkoutSession from '@/models/WorkoutSession';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     await connectDB();
@@ -21,9 +23,6 @@ export async function GET() {
     userPods.forEach(pod => {
       pod.members.forEach(id => memberIds.add(id.toString()));
     });
-
-    // Remove the user themselves so they don't just see their own feed, or keep it.
-    // Let's keep it so they can see their own activity in the pod.
 
     if (memberIds.size === 0) {
       return NextResponse.json({ feed: [] });

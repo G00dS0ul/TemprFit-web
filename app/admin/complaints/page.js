@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageSquare, Check, CornerDownRight, ShieldAlert } from 'lucide-react';
+import { MessageSquare, Check, CornerDownRight, ShieldAlert, ThumbsUp, ThumbsDown } from 'lucide-react';
 import styles from '../page.module.css';
 
 export default function AdminComplaints() {
@@ -44,7 +44,7 @@ export default function AdminComplaints() {
       }
     } catch (e) {
       console.error(e);
-      alert('Failed to perform action');
+      window.appAlert('Failed to perform action');
     }
   };
 
@@ -97,6 +97,16 @@ export default function AdminComplaints() {
                   <div style={{ background: 'rgba(59,130,246,0.05)', borderLeft: '4px solid #3b82f6', padding: '16px', borderRadius: '0 8px 8px 0' }}>
                     <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600, display: 'block', marginBottom: '8px' }}>Previous Admin Reply</span>
                     <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{c.adminReply}</p>
+                  </div>
+                )}
+
+                
+                {c.userFeedback && (
+                  <div style={{ background: 'rgba(245,158,11,0.05)', borderLeft: '4px solid #f59e0b', padding: '16px', borderRadius: '0 8px 8px 0' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#f59e0b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
+                      User Feedback: 
+                      {c.userFeedback === 'thumbs_up' ? <ThumbsUp size={14} color="#22c55e" /> : <ThumbsDown size={14} color="#ef4444" />}
+                    </span>
                   </div>
                 )}
 
