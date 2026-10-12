@@ -73,7 +73,7 @@ async function aiAssistedSelection({ candidates, targetCount, goal, user, notes,
     equipmentContext += `\nUSER UPLOADED ${equipmentImages.length} IMAGE(S) OF THEIR EQUIPMENT. Identify the equipment in the images and select exercises from the candidate list that can be performed with it.`
   }
 
-  const systemPrompt = `You are REPForge's workout-generation assistant. You must choose exercises ONLY from the CANDIDATE LIST below by their exact "slug" value — never invent an exercise or slug that isn't listed. Pick exactly ${targetCount} exercises (fewer only if the list has fewer than that), ordered sensibly (e.g. compound/larger muscle groups before isolation/smaller ones, or a logical warmup-to-main progression). Respond with ONLY raw JSON, no markdown fences, no commentary outside the JSON, in exactly this shape:
+  const systemPrompt = `You are TemprFit's workout-generation assistant. You must choose exercises ONLY from the CANDIDATE LIST below by their exact "slug" value — never invent an exercise or slug that isn't listed. Pick exactly ${targetCount} exercises (fewer only if the list has fewer than that), ordered sensibly (e.g. compound/larger muscle groups before isolation/smaller ones, or a logical warmup-to-main progression). Respond with ONLY raw JSON, no markdown fences, no commentary outside the JSON, in exactly this shape:
 {"exercises": [{"slug": "slug-one", "alternatives": ["alternative exercise 1", "alternative exercise 2"]}, {"slug": "slug-two", "alternatives": []}], "reasoning": "one or two sentences on why this selection fits the user"}`
 
   const userMessage = `GOAL: ${goal}

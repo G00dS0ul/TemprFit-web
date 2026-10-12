@@ -1,12 +1,13 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
-const STORAGE_KEY = 'repforge_nudges';
+const STORAGE_KEY = 'temprfit_nudges';
+const LEGACY_STORAGE_KEY = 'repforge_nudges';
 const NUDGE_COOLDOWN_MS = 4 * 60 * 60 * 1000; // 4 hours between nudges
 
 function getNudgeState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};

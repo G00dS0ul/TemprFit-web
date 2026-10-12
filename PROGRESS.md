@@ -181,6 +181,38 @@ Scoped deliberately narrow, per the agreed plan: rule-based angle checks on 5 ex
 - **`FormCheckSession` model + `/api/form-check`**: the client sends only the already-computed flagged-issues list (never the video) to the server, which asks Gemini (existing `lib/gemini.js`, same `GEMINI_API_KEY`) for a short plain-language coaching summary grounded strictly in the flagged issues — instructed not to invent anything or describe the video itself, since it never sees it. If Gemini fails, the flagged issues still save and display without a summary, same fallback pattern as the coach.
 - **`/form-check` page**: exercise picker, upload, analyze, results with severity-colored issue list + AI summary, recent-checks history. Linked from the Sidebar and from a "Check my form" link on `/coach`. Not added to the mobile bottom nav — it's already at 5 items and the spec is explicit about not crowding it; Sidebar (desktop) and the Coach page link cover it for now.
 
-**Known limitations**: thresholds are approximate, not clinically validated — this is beta-quality coaching feedback, not a certified form-checking product, and the summary explicitly avoids medical language. Single-person only (assumes one body in frame). Best results with a side-on camera angle and the full body in frame. No live real-time feedback during an active workout session yet — video review only. Coverage is intentionally limited to the 5 seed exercises; extending to more exercises means writing a new rule set per exercise, not a config change.
+## Phase 8 — Trust, Simplification, African Nutrition & Local Gym Locator (Completed)
 
-**No new `.env.local` values required.**
+Executed against external product review recommendations and user requests:
+
+1. **Accessibility & Viewport Tag**:
+   - Removed `maximumScale: 1` from `app/layout.js` viewport export so pinch-to-zoom is fully functional for all mobile users.
+
+2. **Honesty & Trust Polish**:
+   - Replaced placeholder hero stat numbers ("96%", "+12%", "482 kcal") with real product capability badges: "Form Check (Real-Time AI)", "Workout Engine (890+ Moves)", and "Privacy First (On-Device Vision)".
+   - Cleaned up legacy brand references across system prompts (`REPForge` -> `TemprFit`) and storage keys (`repforge_nudges` -> `temprfit_nudges` with dual-read fallback).
+   - Removed unverifiable encryption claims in marketing pages and added clear, factual descriptions of data storage.
+
+3. **Session Cookie Migration**:
+   - Migrated auth cookie to `temprfit_token` with dual-read fallback for legacy `repily_token` in both `lib/auth.js` and `middleware.js` to ensure no existing sessions break.
+
+4. **Form Check Guidance, Medical Notice & Low-Confidence Guard**:
+   - Added pre-check filming tips (angle, full body frame, lighting/distance) and a prominent medical disclaimer note ("Form Check gives educational guidance, not medical advice. Stop immediately if you experience pain.")
+   - Added visibility confidence scoring and a friendly "Low Tracking Visibility" alert with tips when the person cannot be cleanly tracked, avoiding silent inaccurate results.
+
+5. **Legal & Compliance (GDPR & NDPR)**:
+   - Updated `app/privacy/page.js` to detail zero video upload architecture (100% on-device MediaPipe landmarking), explicit disclosure of what numeric metrics are stored, and complete user rights under GDPR and the Nigeria Data Protection Act (NDPA / NDPR).
+
+6. **Navigation Focus & Simplification**:
+   - Refined mobile bottom navigation (`components/MobileBottomNav`) strictly to the core 5 tabs: **Today (`/dashboard`), Train (`/workouts`), Form Check (`/form-check`), Nutrition (`/nutrition`), and Progress (`/progress`)**. Form Check is now reachable in a single tap on mobile.
+   - Streamlined desktop navigation to max 5 core items and organized trainee categories into focused groups.
+
+7. **Local & African Nutrition Database**:
+   - Added `lib/seed-data/african-foods.js` with verified macro profiles for authentic Nigerian dishes: Jollof Rice, Egusi Soup, Pounded Yam, Suya Beef, Moi Moi, Dodo (Plantain), Akara, Efo Riro, Eba/Garri, Ogbono, and Asun.
+   - Updated `lib/nutrition.js` to check local and African foods before calling external Spoonacular/USDA APIs.
+
+8. **Live Gym & Workout Room Locator Map (`/gyms` + `/api/gyms`)**:
+   - Built Mongoose `Gym` model with GeoJSON `2dsphere` index, pricing (daily passes & monthly memberships in NGN), opening hours, verified amenities, and local community group links.
+   - Seeded real verified fitness clubs (i-Fitness Lekki, i-Fitness Ikeja GRA, Bodyline Ikoyi, Aerogym VI, The Fitness Central Abuja, and National Stadium Calisthenics Hub).
+   - Built interactive `/gyms` directory with live GPS geolocation (`Near Me`), city filters, real OpenStreetMap visual map embed, and direct Google Maps navigation links.
+

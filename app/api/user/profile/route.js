@@ -22,6 +22,18 @@ async function pickEditableFields(body, currentUserId) {
     if (clash) throw new Error('That username is already taken.')
     update.username = normalized
   }
+  if (typeof body.bio === 'string') update.bio = body.bio.trim().slice(0, 500)
+  if (typeof body.profession === 'string') update.profession = body.profession.trim().slice(0, 80)
+  if (typeof body.age !== 'undefined' && body.age !== null && body.age !== '') {
+    const ageNum = Number(body.age)
+    if (!isNaN(ageNum) && ageNum >= 10 && ageNum <= 120) update.age = ageNum
+  }
+  if (Array.isArray(body.hobbies)) {
+    update.hobbies = body.hobbies.map(h => String(h).trim()).filter(Boolean).slice(0, 30)
+  }
+  if (Array.isArray(body.talents)) {
+    update.talents = body.talents.map(t => String(t).trim()).filter(Boolean).slice(0, 30)
+  }
   if (typeof body.goal === 'string') update.goal = body.goal.trim().slice(0, 80)
   if (typeof body.experience === 'string') update.experience = body.experience.trim().slice(0, 40)
   if (typeof body.weightUnit === 'string' && ['lbs', 'kg'].includes(body.weightUnit)) {
@@ -93,6 +105,28 @@ async function pickEditableFields(body, currentUserId) {
     }
     if (body.fitnessProfile.bodyMetrics.targetWeightKg === null || typeof body.fitnessProfile.bodyMetrics.targetWeightKg === 'number') {
       update['fitnessProfile.bodyMetrics.targetWeightKg'] = body.fitnessProfile.bodyMetrics.targetWeightKg
+    }
+  }
+
+  // Privacy Settings (Pro & Max users can hide profile; Max users can set XP message fee)
+  if (body.privacySettings && typeof body.privacySettings === 'object') {
+    const userDoc = await User.findById(currentUserId).select('plan');
+    const isProOrMax = userDoc && (userDoc.plan === 'pro' || userDoc.plan === 'max');
+    const isMax = userDoc && userDoc.plan === 'max';
+
+    if (typeof body.privacySettings.isProfileHidden === 'boolean') {
+      if (body.privacySettings.isProfileHidden && !isProOrMax) {
+        throw new Error('Hiding your profile is a Pro & Max feature.');
+      }
+      update['privacySettings.isProfileHidden'] = body.privacySettings.isProfileHidden;
+    }
+
+    if (typeof body.privacySettings.messageXpFee !== 'undefined') {
+      const fee = Number(body.privacySettings.messageXpFee);
+      if (fee > 0 && !isMax) {
+        throw new Error('Locking messages and requesting an XP fee is exclusive to Max tier members.');
+      }
+      update['privacySettings.messageXpFee'] = Math.max(0, Math.floor(fee || 0));
     }
   }
 

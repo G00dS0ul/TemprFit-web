@@ -153,6 +153,12 @@ export default function Sidebar() {
                     href={item.href}
                     className={`${styles.menuItem} ${isActive ? styles.active : ''}`}
                     title={isCollapsed ? item.label : ''}
+                    onClick={(e) => {
+                      if (item.href.startsWith('/trainer-dashboard')) {
+                        e.preventDefault();
+                        alert("🚀 Trainer Workspace & Coaching features are coming soon in Phase 2!\n\nWe are currently putting 100% of our focus into perfecting the Trainee experience first.");
+                      }
+                    }}
                   >
                     <Icon size={20} />
                     <span>{item.label}</span>
@@ -171,10 +177,24 @@ export default function Sidebar() {
               <Zap size={20} />
               <span>Upgrade Plan</span>
             </Link>
-            <Link href="/become-trainer" className={`${styles.menuItem}`} style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', borderRadius: 'var(--radius-sm)', marginBottom: '8px' }} title={isCollapsed ? 'Become a Trainer' : ''}>
-              <Dumbbell size={20} />
-              <span>Become Trainer</span>
-            </Link>
+            <button
+              type="button"
+              className={`${styles.menuItem}`} 
+              style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', borderRadius: 'var(--radius-sm)', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between', width: '100%', font: 'inherit', cursor: 'pointer', textAlign: 'left' }} 
+              title={isCollapsed ? 'Become a Trainer (Soon)' : ''}
+              onClick={(e) => {
+                e.preventDefault();
+                alert("🚀 Certified Trainers & Escrow features are coming soon in Phase 2!\n\nWe are currently putting 100% of our focus into perfecting the Trainee experience first.");
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Dumbbell size={20} />
+                {!isCollapsed && <span>Become Trainer</span>}
+              </div>
+              {!isCollapsed && (
+                <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', fontWeight: 600 }}>Soon</span>
+              )}
+            </button>
           </>
         )}
         {user?.role === 'admin' && (

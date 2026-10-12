@@ -13,7 +13,7 @@ export async function GET(req) {
 
   try {
     const conversations = await Conversation.find({ participants: user._id })
-      .populate('participants', 'username avatarUrl role')
+      .populate('participants', 'username avatarUrl role plan activeColor activeBorder')
       .populate('lastMessage')
       .sort({ updatedAt: -1 })
       .lean();

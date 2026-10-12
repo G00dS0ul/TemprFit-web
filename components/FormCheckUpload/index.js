@@ -90,6 +90,9 @@ export default function FormCheckUpload({ onSaved }) {
     const duration = video.duration || 0;
     let t = 0;
 
+    let validDetectionFrames = 0;
+    let totalSampledFrames = 0;
+
     // Step through the clip in fixed increments rather than playing it back
     // in real time — faster analysis and avoids relying on frame callbacks
     // that behave inconsistently across browsers.
@@ -106,8 +109,16 @@ export default function FormCheckUpload({ onSaved }) {
       const nowMs = performance.now();
       const detection = landmarker.detectForVideo(video, nowMs);
       const landmarks = detection?.landmarks?.[0];
+      totalSampledFrames++;
 
-      if (landmarks) {
+      if (landmarks && landmarks.length > 0) {
+        // Basic landmark visibility sanity check (hips, knees, shoulders)
+        const coreLandmarks = [11, 12, 23, 24, 25, 26];
+        const visibleCore = coreLandmarks.filter(idx => landmarks[idx] && (landmarks[idx].visibility === undefined || landmarks[idx].visibility > 0.4));
+        if (visibleCore.length >= 4) {
+          validDetectionFrames++;
+        }
+
         drawSkeleton(ctx, landmarks, canvas.width, canvas.height);
         const { issues, state } = evaluateFrame(exerciseSlug, landmarks, ruleState);
         ruleState = state;
@@ -120,10 +131,16 @@ export default function FormCheckUpload({ onSaved }) {
       t += SAMPLE_INTERVAL_MS / 1000;
     }
 
+    const confidenceRatio = totalSampledFrames > 0 ? (validDetectionFrames / totalSampledFrames) : 0;
     const aggregated = aggregateIssues(rawHits);
     setProgress(100);
     setAnalyzing(false);
-    setResult({ issues: aggregated, videoDurationSeconds: duration });
+    setResult({ 
+      issues: aggregated, 
+      videoDurationSeconds: duration,
+      confidenceScore: Math.round(confidenceRatio * 100),
+      isLowConfidence: confidenceRatio < 0.35 
+    });
   };
 
   const saveSession = async () => {
@@ -170,6 +187,21 @@ export default function FormCheckUpload({ onSaved }) {
             <option key={ex.slug} value={ex.slug}>{ex.label}</option>
           ))}
         </select>
+      </div>
+
+      {/* Pre-check filming guide */}
+      <div className={styles.filmingGuide}>
+        <div className={styles.guideTitle}>
+          <strong>Filming Tips for Best Accuracy:</strong>
+        </div>
+        <ul className={styles.guideList}>
+          <li><strong>Angle:</strong> Side-on profile view (or 45° angle) works best.</li>
+          <li><strong>Frame:</strong> Keep your entire body (head to toes) visible throughout the movement.</li>
+          <li><strong>Lighting & Distance:</strong> Good lighting, phone placed 6–10 feet (2–3 meters) away.</li>
+        </ul>
+        <div className={styles.medicalNotice}>
+          ⚠️ <em>Form Check gives educational guidance, not medical advice. Stop immediately if you experience pain or discomfort.</em>
+        </div>
       </div>
 
       {!videoUrl && (
@@ -219,6 +251,20 @@ export default function FormCheckUpload({ onSaved }) {
 
       {result && (
         <div className={styles.results}>
+          {result.isLowConfidence ? (
+            <div className={styles.lowConfidenceAlert}>
+              <AlertTriangle size={18} />
+              <div>
+                <strong>Low Tracking Visibility ({result.confidenceScore}%)</strong>
+                <p>We could not track your full body clearly in this clip. Ensure your whole body is in frame with good lighting, and try filming again from the side.</p>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.confidenceBadge}>
+              Tracking Visibility: <strong>{result.confidenceScore}%</strong>
+            </div>
+          )}
+
           {result.issues.length === 0 ? (
             <div className={styles.clean}>
               <CheckCircle2 size={18} />

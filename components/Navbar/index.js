@@ -8,8 +8,8 @@ import {
   Search, Bell, Sun, Moon, ChevronDown, Menu, X, User,
   Settings, LogOut, Compass, BrainCircuit, LineChart, Users,
   Dumbbell, History, Activity, Sparkles, LayoutDashboard,
-  Apple, Salad, BookOpen, Loader2, MessageCircle, Calendar, CreditCard,
-  ChevronRight, ArrowRight, Zap, Heart, Briefcase
+  Apple, Salad, BookOpen, Loader2, MessageCircle, MessageSquare, Calendar, CreditCard,
+  ChevronRight, ArrowRight, Zap, Heart, Briefcase, ScanFace
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { displayName } from '@/lib/utils';
@@ -29,14 +29,21 @@ const APP_PAGES = [
   { title: 'Nutrition & Diet Plans', url: '/nutrition', icon: Apple },
   { title: 'AI Coach', url: '/coach', icon: BrainCircuit },
   { title: 'Form Check', url: '/form-check', icon: Activity },
+  { title: 'Messages', url: '/messages', icon: MessageSquare },
+  { title: 'Community Rooms', url: '/rooms', icon: MessageSquare },
   { title: 'Transformation Journey', url: '/transformation', icon: Sparkles },
-  { title: 'Trainers', url: '/trainers', icon: Users },
+  { title: 'Trainers', url: '/trainers', icon: Users, isComingSoon: true },
   { title: 'Moments', url: '/moments', icon: Users },
   { title: 'Notes', url: '/notes', icon: BookOpen },
   { title: 'Settings', url: '/settings', icon: Settings },
 ];
 
 export default function Navbar() {
+  const alertComingSoon = (e, feature = 'This feature') => {
+    if (e && e.preventDefault) e.preventDefault();
+    alert(`🚀 ${feature} is coming soon in Phase 2!\n\nWe are currently putting 100% of our focus into perfecting the Trainee experience first.`);
+  };
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -60,6 +67,7 @@ export default function Navbar() {
   const navRef = useRef(null);
   
   const [openCategory, setOpenCategory] = useState('');
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -68,6 +76,7 @@ export default function Navbar() {
         setNotifOpen(false);
         setSearchOpen(false);
         setMenuOpen(false);
+        setMoreOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -208,16 +217,56 @@ export default function Navbar() {
               <>
                 <Link href="/trainer-dashboard" className={`${styles.navLink} ${pathname === '/trainer-dashboard' ? styles.active : ''}`}>Dashboard</Link>
                 <Link href="/trainer-dashboard/clients" className={`${styles.navLink} ${pathname.startsWith('/trainer-dashboard/clients') ? styles.active : ''}`}>My Clients</Link>
+                <Link href="/messages" className={`${styles.navLink} ${pathname.startsWith('/messages') ? styles.active : ''}`}>Messages</Link>
                 <Link href="/trainer-dashboard/programs" className={`${styles.navLink} ${pathname.startsWith('/trainer-dashboard/programs') ? styles.active : ''}`}>Programs</Link>
                 <Link href="/trainer-dashboard/schedule" className={`${styles.navLink} ${pathname.startsWith('/trainer-dashboard/schedule') ? styles.active : ''}`}>Schedule</Link>
+              </>
+            ) : user ? (
+              <>
+                <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.active : ''}`}>Home</Link>
+                <Link href="/explore" className={`${styles.navLink} ${pathname.startsWith('/explore') ? styles.active : ''}`}>Exercise Library</Link>
+                <Link href="/workouts" className={`${styles.navLink} ${pathname.startsWith('/workouts') ? styles.active : ''}`}>Train</Link>
+                <Link href="/messages" className={`${styles.navLink} ${pathname.startsWith('/messages') ? styles.active : ''}`}>Messages</Link>
+                <Link href="/coach" className={`${styles.navLink} ${pathname.startsWith('/coach') ? styles.active : ''}`}>AI Coach</Link>
+                <Link href="/gyms" className={`${styles.navLink} ${pathname.startsWith('/gyms') ? styles.active : ''}`}>Gyms & Map</Link>
+                <div className={styles.moreDropdownWrapper}>
+                  <button
+                    type="button"
+                    className={`${styles.navLink} ${styles.moreBtn} ${pathname.startsWith('/form-check') || pathname.startsWith('/nutrition') || pathname.startsWith('/moments') || pathname.startsWith('/progress') || pathname.startsWith('/rooms') ? styles.active : ''}`}
+                    onClick={() => setMoreOpen(!moreOpen)}
+                    aria-label="More navigation options"
+                  >
+                    <span>More</span>
+                    <ChevronDown size={14} className={`${styles.moreChevron} ${moreOpen ? styles.rotateChevron : ''}`} />
+                  </button>
+                  {moreOpen && (
+                    <div className={styles.moreDropdownMenu}>
+                      <Link href="/form-check" className={styles.moreDropdownItem} onClick={() => setMoreOpen(false)}>
+                        <ScanFace size={15} /> <span>Form Check</span>
+                      </Link>
+                      <Link href="/rooms" className={styles.moreDropdownItem} onClick={() => setMoreOpen(false)}>
+                        <MessageSquare size={15} /> <span>Community Rooms</span>
+                      </Link>
+                      <Link href="/nutrition" className={styles.moreDropdownItem} onClick={() => setMoreOpen(false)}>
+                        <Apple size={15} /> <span>Nutrition</span>
+                      </Link>
+                      <Link href="/moments" className={styles.moreDropdownItem} onClick={() => setMoreOpen(false)}>
+                        <Users size={15} /> <span>Moments</span>
+                      </Link>
+                      <Link href="/progress" className={styles.moreDropdownItem} onClick={() => setMoreOpen(false)}>
+                        <LineChart size={15} /> <span>Progress</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>
                 <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.active : ''}`}>Home</Link>
                 <Link href="/explore" className={`${styles.navLink} ${pathname.startsWith('/explore') ? styles.active : ''}`}>Exercise Library</Link>
-                <Link href="/workouts" className={`${styles.navLink} ${pathname.startsWith('/workouts') ? styles.active : ''}`}>My Workouts</Link>
-                <Link href="/coach" className={`${styles.navLink} ${pathname.startsWith('/coach') ? styles.active : ''}`}>My AI Coach</Link>
-                <Link href="/moments" className={`${styles.navLink} ${pathname.startsWith('/moments') ? styles.active : ''}`}>Moments</Link>
+                <Link href="/gyms" className={`${styles.navLink} ${pathname.startsWith('/gyms') ? styles.active : ''}`}>Gyms & Map</Link>
+                <Link href="/messages" className={`${styles.navLink} ${pathname.startsWith('/messages') ? styles.active : ''}`}>Messages</Link>
+                <Link href="/coach" className={`${styles.navLink} ${pathname.startsWith('/coach') ? styles.active : ''}`}>AI Coach</Link>
               </>
             )}
           </div>
@@ -259,8 +308,19 @@ export default function Navbar() {
                         <div className={styles.omniSection}>
                           <span className={styles.omniSectionTitle}>Pages & Features</span>
                           {searchResults.pages.map(p => (
-                            <Link key={p.url} href={p.url} className={styles.omniResultItem} onClick={() => setSearchOpen(false)}>
-                              <p.icon size={16} /> {p.title}
+                            <Link 
+                              key={p.url} 
+                              href={p.url} 
+                              className={styles.omniResultItem} 
+                              onClick={(e) => {
+                                if (p.isComingSoon) {
+                                  alertComingSoon(e, p.title);
+                                }
+                                setSearchOpen(false);
+                              }}
+                            >
+                              <p.icon size={16} /> <span>{p.title}</span>
+                              {p.isComingSoon && <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', fontWeight: 600, marginLeft: 'auto' }}>Soon</span>}
                             </Link>
                           ))}
                         </div>
@@ -361,7 +421,14 @@ export default function Navbar() {
                       <Link href="/workouts" onClick={() => setUserMenuOpen(false)}><Dumbbell size={14} /> My Workouts</Link>
                       <Link href="/history" onClick={() => setUserMenuOpen(false)}><History size={14} /> History</Link>
                       <Link href="/progress" onClick={() => setUserMenuOpen(false)}><LineChart size={14} /> Progress</Link>
-                      <Link href="/escrow" onClick={() => setUserMenuOpen(false)}><Briefcase size={14} /> My Bookings</Link>
+                      <button 
+                        type="button" 
+                        onClick={(e) => { setUserMenuOpen(false); alertComingSoon(e, 'Trainer Bookings & Escrow'); }} 
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'none', border: 'none', padding: '10px 14px', color: 'inherit', font: 'inherit', cursor: 'pointer', textAlign: 'left', borderRadius: '8px' }}
+                      >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Briefcase size={14} /> My Bookings</span>
+                        <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', fontWeight: 600 }}>Soon</span>
+                      </button>
                       <Link href="/settings" onClick={() => setUserMenuOpen(false)}><Settings size={14} /> Settings</Link>
                       <hr />
                       <button className={styles.logoutBtn} onClick={handleLogout}><LogOut size={14} /> Sign Out</button>
@@ -387,8 +454,7 @@ export default function Navbar() {
         <>
           <div className={styles.mobileMenuOverlay} onClick={() => setMenuOpen(false)} />
           <div className={styles.mobileMenu}>
-            <div className={styles.mobileSectionTitle}>Navigation</div>
-            <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Home</Link>
+            <Link href={user ? '/dashboard' : '/'} className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Home</Link>
             
             {user ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
@@ -425,7 +491,12 @@ export default function Navbar() {
                             key={link.href} 
                             href={link.href} 
                             className={`${styles.mobileLink} ${pathname === link.href ? styles.activeMobileLink : ''}`} 
-                            onClick={() => setMenuOpen(false)}
+                            onClick={(e) => {
+                              if (link.href.startsWith('/trainer-dashboard')) {
+                                alertComingSoon(e, 'Trainer Workspace');
+                              }
+                              setMenuOpen(false);
+                            }}
                           >
                             <link.icon size={16} style={{ display: 'inline', marginRight: '8px' }} /> {link.label}
                           </Link>
@@ -442,9 +513,15 @@ export default function Navbar() {
                     <Link href="/upgrade" className={`${styles.mobileLink} ${styles.mobileUpgradeBtn}`} onClick={() => setMenuOpen(false)}>
                       <Zap size={16} style={{ display: 'inline', marginRight: '8px' }} /> Upgrade Plan
                     </Link>
-                    <Link href="/become-trainer" className={`${styles.mobileLink}`} style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }} onClick={() => setMenuOpen(false)}>
-                      <Dumbbell size={16} style={{ display: 'inline', marginRight: '8px' }} /> Become a Trainer
-                    </Link>
+                    <button 
+                      type="button"
+                      className={`${styles.mobileLink}`} 
+                      style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', font: 'inherit', cursor: 'pointer' }} 
+                      onClick={(e) => { setMenuOpen(false); alertComingSoon(e, 'Become a Trainer'); }}
+                    >
+                      <span><Dumbbell size={16} style={{ display: 'inline', marginRight: '8px' }} /> Become a Trainer</span>
+                      <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', fontWeight: 600 }}>Soon</span>
+                    </button>
                   </>
                 )}
                 <button className={styles.mobileAuth} onClick={handleLogout}>Sign Out ({displayName(user).split(' ')[0]})</button>

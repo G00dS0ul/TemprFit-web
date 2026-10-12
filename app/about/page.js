@@ -50,7 +50,7 @@ export default function AboutPage() {
                 alignItems: 'center',
                 gap: '8px'
               }}>
-                Become a Coach <Dumbbell size={18} />
+                Become a Coach (Soon) <Dumbbell size={18} />
               </Link>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function AboutPage() {
                 borderRadius: 'var(--radius-md)',
                 fontWeight: '600'
               }}>
-                Apply as a Trainer
+                Coach Waitlist (Soon)
               </Link>
             </div>
           </div>

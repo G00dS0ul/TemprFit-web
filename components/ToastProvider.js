@@ -38,6 +38,7 @@ export function ToastProvider({ children }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.appAlert = (msg) => showToast(msg, 'info');
+      window.alert = (msg) => showToast(msg, 'info');
       
       window.appConfirm = (msg) => {
         return new Promise((resolve) => {

@@ -392,7 +392,7 @@ export default function OnboardingPage() {
   };
 
   const isStepValid = () => {
-    if (step === 1) return data.nickname && data.country && data.phoneNumber;
+    if (step === 1) return Boolean(data.nickname?.trim());
     if (step === 5) {
       const { age, biologicalSex, heightCm, currentWeightKg, targetWeightKg } = data.bodyMetrics;
       if (data.primaryGoal !== 'general_health' && !targetWeightKg) return false;

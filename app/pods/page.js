@@ -47,6 +47,24 @@ export default function PodsPage() {
   const [shareModal, setShareModal] = useState({ isOpen: false, podId: null, username: '', loading: false });
 
   useEffect(() => {
+    // If pod id passed in query string, auto-load and display details
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetPodId = urlParams.get('id') || urlParams.get('podId');
+      if (targetPodId) {
+        setLoadingPodDetails(true);
+        fetch(`/api/pods/${targetPodId}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.pod) {
+              setSelectedPod(data.pod);
+            }
+          })
+          .catch(err => console.error('Error fetching query pod:', err))
+          .finally(() => setLoadingPodDetails(false));
+      }
+    }
+
     fetch('/api/auth/me')
       .then((r) => r.json())
       .then((data) => {

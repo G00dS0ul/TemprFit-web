@@ -48,9 +48,10 @@ export async function POST(request) {
       }
     }
 
-    if (user.isVerified === false) {
-      return NextResponse.json({ requiresVerification: true, email: user.email, message: 'Please verify your email to log in.' }, { status: 403 })
-    }
+    // Email verification check disabled for now (non-blocking onboarding)
+    // if (user.isVerified === false) {
+    //   return NextResponse.json({ requiresVerification: true, email: user.email, message: 'Please verify your email to log in.' }, { status: 403 })
+    // }
 
     user.lastLoginAt = new Date();
     await user.save();

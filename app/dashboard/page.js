@@ -261,7 +261,17 @@ export default function Dashboard() {
           {stats && stats.totalSessions === 0 && (
             <div className={styles.emptyBanner}>
               <p>No completed workouts yet — once you finish your first session, your real stats and charts show up here.</p>
-              <Link href="/workouts" className={styles.aiBtn} style={{ background: 'var(--color-primary)', color: '#000' }}>Start a workout</Link>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                <Link href="/workouts" className={styles.aiBtn} style={{ background: 'var(--color-primary, #22c55e)', color: '#000', fontWeight: '700', padding: '8px 16px', borderRadius: '10px', textDecoration: 'none', fontSize: '0.85rem' }}>
+                  🏋️ Start a Workout
+                </Link>
+                <Link href="/form-check" className={styles.aiBtn} style={{ background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)', fontWeight: '600', padding: '8px 16px', borderRadius: '10px', textDecoration: 'none', fontSize: '0.85rem' }}>
+                  📹 Real-time Form Check
+                </Link>
+                <Link href="/gyms" className={styles.aiBtn} style={{ background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)', fontWeight: '600', padding: '8px 16px', borderRadius: '10px', textDecoration: 'none', fontSize: '0.85rem' }}>
+                  🗺️ Explore Nearby Gyms
+                </Link>
+              </div>
             </div>
           )}
 
@@ -401,7 +411,13 @@ export default function Dashboard() {
             <div className={styles.goalsSection} style={{ marginTop: '40px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Active Training Bookings</h3>
-                <Link href="/escrow" style={{ color: '#22c55e', fontSize: '0.9rem', fontWeight: 600 }}>Manage All Escrows &rarr;</Link>
+                <button 
+                  type="button" 
+                  onClick={() => alert("🚀 Trainer Escrow management is coming soon in Phase 2!\n\nWe are currently putting 100% of our focus into perfecting the Trainee experience.")} 
+                  style={{ background: 'none', border: 'none', color: '#22c55e', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}
+                >
+                  Manage All Escrows &rarr;
+                </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {escrows.map(escrow => {
@@ -418,7 +434,11 @@ export default function Dashboard() {
                       </div>
                       <div style={{ display: 'flex', gap: '12px' }}>
                         <Link
-                          href={`/escrow/${escrow._id}`}
+                          href="#escrow"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            alert("🚀 Trainer Escrow management is coming soon in Phase 2!\n\nWe are currently putting 100% of our focus into perfecting the Trainee experience.");
+                          }}
                           style={{ background: '#22c55e', color: '#000', padding: '8px 16px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}
                         >
                           Manage Escrow
@@ -460,7 +480,7 @@ export default function Dashboard() {
                 <p style={{ color: 'var(--color-text-muted)' }}>Join the TemprFit Trainer Network to coach clients and earn money.</p>
               </div>
               <Link href="/become-trainer" style={{ background: 'var(--color-primary)', color: '#000', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
-                Become a Trainer
+                Become a Trainer (Soon)
               </Link>
             </div>
           )}

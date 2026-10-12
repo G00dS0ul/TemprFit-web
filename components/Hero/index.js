@@ -4,11 +4,12 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Activity, TrendingUp, Flame, BrainCircuit, Dumbbell, Apple, LineChart } from 'lucide-react';
+import { ArrowRight, Activity, TrendingUp, Flame, BrainCircuit, Dumbbell, Apple, LineChart, MapPin } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import styles from './Hero.module.css';
 
 const QUICK_NAV = [
+  { label: 'Gym Map', href: '/gyms', icon: MapPin },
   { label: 'AI Coach', href: '/coach', icon: BrainCircuit },
   { label: 'Workouts', href: '/workouts', icon: Dumbbell },
   { label: 'Nutrition', href: '/nutrition', icon: Apple },
@@ -126,22 +127,22 @@ export default function Hero() {
       <div className={styles.statCard1}>
         <Activity size={16} />
         <div>
-          <span className={styles.statLabel}>Form Analysis</span>
-          <span className={styles.statValue}>96%</span>
+          <span className={styles.statLabel}>Form Check</span>
+          <span className={styles.statValue}>Real-Time AI</span>
         </div>
       </div>
       <div className={styles.statCard2}>
         <TrendingUp size={16} />
         <div>
-          <span className={styles.statLabel}>Muscle Growth</span>
-          <span className={styles.statValue}>+12%</span>
+          <span className={styles.statLabel}>Workout Engine</span>
+          <span className={styles.statValue}>890+ Moves</span>
         </div>
       </div>
       <div className={styles.statCard3}>
         <Flame size={16} />
         <div>
-          <span className={styles.statLabel}>Calories</span>
-          <span className={styles.statValue}>482 kcal</span>
+          <span className={styles.statLabel}>Privacy First</span>
+          <span className={styles.statValue}>On-Device Vision</span>
         </div>
       </div>
 

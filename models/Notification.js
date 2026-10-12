@@ -24,7 +24,7 @@ const NotificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['forum', 'message', 'appointment', 'system', 'subscription', 'plan', 'social', 'general'],
+    enum: ['forum', 'message', 'appointment', 'system', 'subscription', 'plan', 'social', 'general', 'profile_like', 'follow', 'like', 'comment', 'xp_gift'],
     default: 'general',
   },
   createdAt: {
@@ -33,4 +33,8 @@ const NotificationSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.models.Notification || mongoose.model('Notification', NotificationSchema);
+if (mongoose.models.Notification) {
+  delete mongoose.models.Notification;
+}
+
+export default mongoose.model('Notification', NotificationSchema);

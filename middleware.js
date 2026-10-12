@@ -12,7 +12,7 @@ export function middleware(request) {
   }
 
   const authHeader = request.headers.get('authorization');
-  const cookieToken = request.cookies.get('repily_token')?.value;
+  const cookieToken = request.cookies.get('temprfit_token')?.value || request.cookies.get('repily_token')?.value;
 
   const requestHeaders = new Headers(request.headers);
 

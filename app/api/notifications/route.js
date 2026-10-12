@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { getSessionUser } from '@/lib/auth';
 import Notification from '@/models/Notification';
+import Conversation from '@/models/Conversation';
+import Message from '@/models/Message';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +19,22 @@ export async function GET(req) {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  return NextResponse.json({ notifications, unreadCount });
+  let unreadMessagesCount = 0;
+  try {
+    const userConvs = await Conversation.find({ participants: user._id }).select('_id').lean();
+    if (userConvs.length > 0) {
+      const convIds = userConvs.map(c => c._id);
+      unreadMessagesCount = await Message.countDocuments({
+        conversationId: { $in: convIds },
+        sender: { $ne: user._id },
+        readBy: { $nin: [user._id] }
+      });
+    }
+  } catch (msgErr) {
+    console.warn('Failed to calculate unreadMessagesCount:', msgErr);
+  }
+
+  return NextResponse.json({ notifications, unreadCount, unreadMessagesCount });
 }
 
 export async function PUT(req) {
