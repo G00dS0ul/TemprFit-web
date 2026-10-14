@@ -1,9 +1,16 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Dumbbell, Github, Twitter, Instagram, Youtube, Mail } from 'lucide-react';
 import styles from './Footer.module.css';
 
 export default function Footer() {
+  const alertComingSoon = (e, feature = 'This feature') => {
+    if (e && e.preventDefault) e.preventDefault();
+    alert(`🚀 ${feature} is coming soon in Phase 2!\n\nWe are currently putting 100% of our focus into perfecting the Trainee experience first.`);
+  };
+
   return (
     <footer className={styles.footer}>
       <div className="container">
@@ -27,17 +34,21 @@ export default function Footer() {
 
           <div className={styles.linksCol}>
             <h4>Platform</h4>
-            <Link href="/trainers">Find Trainers</Link>
+            <a href="#trainers" onClick={(e) => alertComingSoon(e, 'Certified Trainers Marketplace')} style={{ cursor: 'pointer' }}>
+              Find Trainers <span style={{ fontSize: '0.72rem', color: '#38bdf8' }}>(Soon)</span>
+            </a>
             <Link href="/nutrition">Diet Plans & Nutrition</Link>
             <Link href="/tracker">Progress Tracker</Link>
-            <Link href="/ai-coach">AI Coach</Link>
+            <Link href="/coach">AI Coach</Link>
             <Link href="/moments">Moments</Link>
           </div>
 
           <div className={styles.linksCol}>
             <h4>Company</h4>
-            <Link href="#">About Us</Link>
-            <Link href="/become-trainer">Become a Trainer</Link>
+            <Link href="/about">About Us</Link>
+            <a href="#become-trainer" onClick={(e) => alertComingSoon(e, 'Become a Trainer')} style={{ cursor: 'pointer' }}>
+              Become a Trainer <span style={{ fontSize: '0.72rem', color: '#38bdf8' }}>(Soon)</span>
+            </a>
             <Link href="/monetization">Monetization</Link>
             <Link href="#">Careers</Link>
             <Link href="#">Contact</Link>
@@ -49,7 +60,9 @@ export default function Footer() {
             <Link href="#">Terms of Service</Link>
             <Link href="#">Cookie Policy</Link>
             <Link href="#">Refund Policy</Link>
-            <Link href="#">Escrow Terms</Link>
+            <a href="#escrow" onClick={(e) => alertComingSoon(e, 'Escrow & Client Protection')} style={{ cursor: 'pointer' }}>
+              Escrow Terms <span style={{ fontSize: '0.72rem', color: '#38bdf8' }}>(Soon)</span>
+            </a>
           </div>
 
           <div className={styles.newsletter}>

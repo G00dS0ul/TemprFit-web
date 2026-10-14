@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { connectDB } from '@/lib/db';
 import { getSessionUser } from '@/lib/auth';
 import Pod from '@/models/Pod';
@@ -12,9 +13,15 @@ export async function POST(req, { params }) {
     }
 
     const podId = params.id;
+    
     const pod = await Pod.findById(podId);
     if (!pod) {
       return NextResponse.json({ error: 'Pod not found' }, { status: 404 });
+    }
+    
+    const podStatus = pod.status || 'active';
+    if (podStatus !== 'active' || (pod.endDate && new Date() > new Date(pod.endDate))) {
+      return NextResponse.json({ error: 'This pod has ended and is no longer accepting members.' }, { status: 400 });
     }
 
     const userIdStr = sessionUser._id.toString();

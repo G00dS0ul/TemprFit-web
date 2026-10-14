@@ -41,9 +41,16 @@ export default function TrainerCard({ trainer }) {
           <span className={styles.priceValue}>${trainer.price}</span>
           <span className={styles.pricePeriod}>/session</span>
         </div>
-        <Link href={`/trainers/${trainer.id}`} className={styles.bookBtn}>
-          Book Now
-        </Link>
+        <button 
+          type="button" 
+          className={styles.bookBtn}
+          onClick={(e) => {
+            e.preventDefault();
+            alert("🚀 1-on-1 Certified Trainer booking is coming soon in Phase 2!\n\nWe are currently putting 100% of our focus into perfecting the Trainee experience first.");
+          }}
+        >
+          Book Now (Soon)
+        </button>
       </div>
     </div>
   );

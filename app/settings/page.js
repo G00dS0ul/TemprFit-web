@@ -62,6 +62,13 @@ export default function SettingsPage() {
           trainerExperienceYears: data.user.trainerInfo?.experienceYears || 0,
           currentBodyWeight: data.user.fitnessProfile?.bodyMetrics?.currentWeightKg || '',
           targetBodyWeight: data.user.fitnessProfile?.bodyMetrics?.targetWeightKg || '',
+          bio: data.user.bio || '',
+          profession: data.user.profession || '',
+          age: data.user.age ?? '',
+          hobbies: Array.isArray(data.user.hobbies) ? data.user.hobbies : [],
+          talents: Array.isArray(data.user.talents) ? data.user.talents : [],
+          isProfileHidden: Boolean(data.user.privacySettings?.isProfileHidden),
+          messageXpFee: data.user.privacySettings?.messageXpFee || 0,
         });
         
         if (data.user.goals?.targetExerciseSlug) {
@@ -117,6 +124,11 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: form.username,
+          bio: form.bio,
+          profession: form.profession,
+          age: form.age === '' ? null : Number(form.age),
+          hobbies: form.hobbies,
+          talents: form.talents,
           goal: form.goal,
           experience: form.experience,
           weightUnit: form.weightUnit,
@@ -143,6 +155,10 @@ export default function SettingsPage() {
               currentWeightKg: form.currentBodyWeight === '' ? null : Number(form.currentBodyWeight),
               targetWeightKg: form.targetBodyWeight === '' ? null : Number(form.targetBodyWeight),
             }
+          },
+          privacySettings: {
+            isProfileHidden: Boolean(form.isProfileHidden),
+            messageXpFee: Number(form.messageXpFee) || 0,
           },
         }),
       });
@@ -351,6 +367,127 @@ export default function SettingsPage() {
             </div>
 
             <div className={styles.field}>
+              <label>Bio & Intro (About Me)</label>
+              <textarea
+                placeholder="Write a brief intro about yourself, your fitness journey, and interests..."
+                value={form.bio}
+                onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                rows={3}
+                maxLength={500}
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', resize: 'vertical' }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className={styles.field}>
+                <label>Age</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 24"
+                  min="10"
+                  max="120"
+                  value={form.age}
+                  onChange={(e) => setForm({ ...form, age: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label>Profession / Vocation</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Software Engineer, Designer, Athlete"
+                  value={form.profession}
+                  onChange={(e) => setForm({ ...form, profession: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Hobbies Selection */}
+            <div className={styles.field} style={{ marginTop: '8px' }}>
+              <label>Hobbies & Interests (Select all that apply)</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                {[
+                  'Weightlifting', 'Calisthenics', 'Running', 'Cycling', 'Swimming',
+                  'Boxing / MMA', 'CrossFit', 'Yoga', 'Hiking', 'Rock Climbing',
+                  'Gaming', 'Music', 'Cooking / Meal Prep', 'Reading', 'Photography',
+                  'Travel', 'Coding', 'Art / Design', 'Podcasts', 'Meditation'
+                ].map((hobby) => {
+                  const isSelected = (form.hobbies || []).includes(hobby);
+                  return (
+                    <button
+                      key={hobby}
+                      type="button"
+                      onClick={() => {
+                        const current = form.hobbies || [];
+                        setForm({
+                          ...form,
+                          hobbies: isSelected
+                            ? current.filter(h => h !== hobby)
+                            : [...current, hobby]
+                        });
+                      }}
+                      style={{
+                        background: isSelected ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                        border: isSelected ? '1px solid #22c55e' : '1px solid rgba(255, 255, 255, 0.1)',
+                        color: isSelected ? '#4ade80' : '#cbd5e1',
+                        padding: '6px 14px',
+                        borderRadius: '999px',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {isSelected ? '✓ ' : '+ '} {hobby}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Talents Selection */}
+            <div className={styles.field} style={{ marginTop: '8px' }}>
+              <label>Skills & Talents</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                {[
+                  'Strength Feats', 'Endurance', 'Flexibility / Mobility', 'Handstands / Acrobatics',
+                  'High Discipline', 'Nutrition Planning', 'Public Speaking', 'Mentoring / Coaching',
+                  'Speed & Agility', 'Mindset Coaching'
+                ].map((talent) => {
+                  const isSelected = (form.talents || []).includes(talent);
+                  return (
+                    <button
+                      key={talent}
+                      type="button"
+                      onClick={() => {
+                        const current = form.talents || [];
+                        setForm({
+                          ...form,
+                          talents: isSelected
+                            ? current.filter(t => t !== talent)
+                            : [...current, talent]
+                        });
+                      }}
+                      style={{
+                        background: isSelected ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                        border: isSelected ? '1px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.1)',
+                        color: isSelected ? '#38bdf8' : '#cbd5e1',
+                        padding: '6px 14px',
+                        borderRadius: '999px',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {isSelected ? '✓ ' : '+ '} {talent}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className={styles.field} style={{ marginTop: '16px' }}>
               <label>Weight Unit</label>
               <div className={styles.optionRow}>
                 {['lbs', 'kg'].map((u) => (
@@ -479,6 +616,94 @@ export default function SettingsPage() {
                     value={form.targetWeight}
                     onChange={(e) => setForm({ ...form, targetWeight: e.target.value })}
                   />
+                </div>
+              </div>
+
+              {/* PRIVACY & MESSAGING CONTROLS */}
+              <div className={styles.card} style={{ border: '1px solid rgba(56, 189, 248, 0.25)', background: 'linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <h3 style={{ margin: 0, color: '#38bdf8' }}>Privacy & Direct Messaging</h3>
+                  <span style={{ fontSize: '0.75rem', padding: '3px 8px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', fontWeight: 700 }}>
+                    YOUR TIER: {user?.plan?.toUpperCase()}
+                  </span>
+                </div>
+                <p className={styles.cardHint} style={{ marginBottom: '20px' }}>
+                  Configure your profile visibility and message locking preferences.
+                </p>
+
+                {/* Hide Profile Setting */}
+                <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <strong style={{ fontSize: '1rem', color: '#f8fafc' }}>Hide Profile From Public</strong>
+                        <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', fontWeight: 700 }}>
+                          PRO & MAX ONLY
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                        When hidden, other trainees and guests will not be able to view your workouts, badges, or profile page.
+                      </p>
+                    </div>
+
+                    {user?.plan === 'pro' || user?.plan === 'max' ? (
+                      <input
+                        type="checkbox"
+                        checked={form.isProfileHidden}
+                        onChange={(e) => setForm({ ...form, isProfileHidden: e.target.checked })}
+                        style={{ width: '22px', height: '22px', cursor: 'pointer', accentColor: '#38bdf8' }}
+                      />
+                    ) : (
+                      <Link href="/upgrade" style={{ fontSize: '0.78rem', color: '#c084fc', textDecoration: 'none', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(168, 85, 247, 0.4)', background: 'rgba(168, 85, 247, 0.1)', whiteSpace: 'nowrap' }}>
+                        Upgrade to Unlock
+                      </Link>
+                    )}
+                  </div>
+                </div>
+
+                {/* Lock Messages & Request XP Gift Setting */}
+                <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <strong style={{ fontSize: '1rem', color: '#f8fafc' }}>Lock Messages with XP Gift</strong>
+                        <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', fontWeight: 700 }}>
+                          MAX TIER EXCLUSIVE
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                        Require other trainees to gift you a specified amount of XP before they can initiate a direct message with you.
+                      </p>
+                    </div>
+
+                    {user?.plan !== 'max' && (
+                      <Link href="/upgrade" style={{ fontSize: '0.78rem', color: '#fbbf24', textDecoration: 'none', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.4)', background: 'rgba(245, 158, 11, 0.1)', whiteSpace: 'nowrap' }}>
+                        Get Max Tier
+                      </Link>
+                    )}
+                  </div>
+
+                  {user?.plan === 'max' ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
+                      <label style={{ fontSize: '0.9rem', color: '#cbd5e1', whiteSpace: 'nowrap' }}>Required XP Gift:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="50"
+                        placeholder="0 (Free to message)"
+                        value={form.messageXpFee}
+                        onChange={(e) => setForm({ ...form, messageXpFee: Math.max(0, Number(e.target.value) || 0) })}
+                        style={{ width: '140px', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'var(--bg)', color: '#fff', fontSize: '0.95rem' }}
+                      />
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                        {form.messageXpFee > 0 ? `Users must gift you ${form.messageXpFee} XP to start a chat` : 'Direct messaging is currently open to everyone'}
+                      </span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '0.82rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                      Free and Pro tier accounts cannot lock direct messages with an XP fee.
+                    </div>
+                  )}
                 </div>
               </div>
             </>

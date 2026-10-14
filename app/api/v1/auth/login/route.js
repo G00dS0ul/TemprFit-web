@@ -71,12 +71,13 @@ export async function POST(request) {
       );
     }
 
-    if (!user.isVerified) {
-      return NextResponse.json(
-        { error: 'Please verify your email address to continue.' },
-        { status: 403 }
-      );
-    }
+    // Verification check bypassed for now
+    // if (!user.isVerified) {
+    //   return NextResponse.json(
+    //     { error: 'Please verify your email address to continue.' },
+    //     { status: 403 }
+    //   );
+    // }
 
     // 2. Sign 30-day token with unique jti per D-4
     const token = signToken({

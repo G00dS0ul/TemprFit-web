@@ -41,7 +41,11 @@ const UserSchema = new mongoose.Schema(
     // Flips to true the first time the dashboard renders for this user, so
     // it can show "Welcome to your new dashboard" once and "Welcome back"
     // every time after — flipped server-side so it survives refreshes.
-    firstLoginCompleted: { type: Boolean, default: false },
+    bio: { type: String, trim: true, default: '', maxlength: 500 },
+    hobbies: [{ type: String, trim: true }],
+    talents: [{ type: String, trim: true }],
+    profession: { type: String, trim: true, default: '' },
+    profileLikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     goal: { type: String, default: '' }, // e.g. "Build Muscle"
     experience: { type: String, default: '' }, // e.g. "Beginner"
     plan: {
@@ -129,7 +133,11 @@ const UserSchema = new mongoose.Schema(
       specialInterests: [{ type: String }]
     },
     appPreferences: {
-      showOnLeaderboard: { type: Boolean, default: false }
+      showOnLeaderboard: { type: Boolean, default: true }
+    },
+    privacySettings: {
+      isProfileHidden: { type: Boolean, default: false },
+      messageXpFee: { type: Number, default: 0 } // XP gift required to message this user (Max users only)
     },
     hasCompletedOnboarding: { type: Boolean, default: false },
     onboardingTourSeen: { type: Map, of: Boolean, default: {} },
@@ -149,7 +157,21 @@ const UserSchema = new mongoose.Schema(
     borderExpiresAt: { type: Date, default: null },
     inventory: {
       streak_freeze: { type: Number, default: 0 }
-    }
+    },
+    liveLocation: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number], // [lng, lat]
+        default: undefined
+      },
+      city: { type: String, default: '' },
+      updatedAt: { type: Date, default: null }
+    },
+    shareLiveLocation: { type: Boolean, default: true }
 
   },
   { timestamps: true }
