@@ -79,7 +79,7 @@ export async function POST(request) {
     //   );
     // }
 
-    // 2. Sign 30-day token with unique jti per D-4
+    // 2. Sign 30-day token with unique jti
     const token = signToken({
       userId: user._id.toString(),
       email: user.email,

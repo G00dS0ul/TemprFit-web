@@ -1,0 +1,463 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "/api/v1/progress",
+  "description": "Progress analytics and weekly report contracts for Flutter mobile",
+  "version": "1.1.0",
+  "endpoint": "/api/v1/progress",
+  "endpoints": {
+    "progressGet": {
+      "method": "GET",
+      "endpoint": "/api/v1/progress",
+      "description": "Return additive 12-week and all-time Progress analytics",
+      "version": "1.1.0",
+      "request": {
+        "$ref": "#/definitions/progressGet_request",
+        "definitions": {
+          "progressGet_request": {
+            "type": "object",
+            "properties": {
+              "exercise": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "response": {
+        "$ref": "#/definitions/progressGet_response",
+        "definitions": {
+          "progressGet_response": {
+            "type": "object",
+            "properties": {
+              "hasHistory": {
+                "type": "boolean"
+              },
+              "totalSessions": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalVolumeAllTime": {
+                "type": "number",
+                "minimum": 0
+              },
+              "totalPRs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTimeMinutes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalCaloriesBurned": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "currentStreak": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "longestStreak": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "volumeByWeek": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ],
+                  "additionalProperties": true
+                },
+                "minItems": 12,
+                "maxItems": 12
+              },
+              "sessionsByWeek": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/progressGet_response/properties/volumeByWeek/items"
+                },
+                "minItems": 12,
+                "maxItems": 12
+              },
+              "exerciseOptions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "slug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "slug",
+                    "name"
+                  ],
+                  "additionalProperties": true
+                }
+              },
+              "activeExerciseSlug": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "strengthHistory": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "weight": {
+                      "type": "number"
+                    },
+                    "reps": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value",
+                    "weight",
+                    "reps"
+                  ],
+                  "additionalProperties": true
+                }
+              },
+              "goals": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "strengthTrend": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "achievedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "estOneRepMax": {
+                      "type": "number"
+                    },
+                    "weight": {
+                      "type": "number"
+                    },
+                    "reps": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "achievedAt",
+                    "estOneRepMax",
+                    "weight",
+                    "reps"
+                  ],
+                  "additionalProperties": true
+                }
+              },
+              "currentBest1RM": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "selectedExerciseName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "hasHistory",
+              "totalSessions",
+              "totalVolumeAllTime",
+              "totalPRs",
+              "totalTimeMinutes",
+              "totalCaloriesBurned",
+              "currentStreak",
+              "longestStreak",
+              "volumeByWeek",
+              "sessionsByWeek",
+              "exerciseOptions",
+              "activeExerciseSlug",
+              "strengthHistory",
+              "goals"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "weeklyReportGet": {
+      "method": "GET",
+      "endpoint": "/api/v1/progress/weekly-report",
+      "description": "Return the cached report for the current ISO week",
+      "version": "1.0.0",
+      "request": null,
+      "response": {
+        "$ref": "#/definitions/weeklyReportGet_response",
+        "definitions": {
+          "weeklyReportGet_response": {
+            "type": "object",
+            "properties": {
+              "report": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "_id": {},
+                      "id": {
+                        "type": "string"
+                      },
+                      "user": {},
+                      "weekStart": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        ]
+                      },
+                      "summary": {
+                        "type": "string"
+                      },
+                      "recommendation": {
+                        "type": "string"
+                      },
+                      "statsSnapshot": {
+                        "type": "object",
+                        "properties": {
+                          "sessionsCompleted": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "totalVolume": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "newPRs": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "sessionsGoal": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "sessionsCompleted",
+                          "totalVolume",
+                          "newPRs",
+                          "sessionsGoal"
+                        ],
+                        "additionalProperties": true
+                      },
+                      "createdAt": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        ]
+                      },
+                      "updatedAt": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "weekStart",
+                      "summary",
+                      "recommendation",
+                      "statsSnapshot"
+                    ],
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "weekStart": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "report",
+              "weekStart"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "weeklyReportPost": {
+      "method": "POST",
+      "endpoint": "/api/v1/progress/weekly-report",
+      "description": "Generate or regenerate the current ISO-week report",
+      "version": "1.0.0",
+      "request": {
+        "$ref": "#/definitions/weeklyReportPost_request",
+        "definitions": {
+          "weeklyReportPost_request": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "response": {
+        "$ref": "#/definitions/weeklyReportPost_response",
+        "definitions": {
+          "weeklyReportPost_response": {
+            "type": "object",
+            "properties": {
+              "report": {
+                "type": "object",
+                "properties": {
+                  "_id": {},
+                  "id": {
+                    "type": "string"
+                  },
+                  "user": {},
+                  "weekStart": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    ]
+                  },
+                  "summary": {
+                    "type": "string"
+                  },
+                  "recommendation": {
+                    "type": "string"
+                  },
+                  "statsSnapshot": {
+                    "type": "object",
+                    "properties": {
+                      "sessionsCompleted": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "totalVolume": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "newPRs": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "sessionsGoal": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "sessionsCompleted",
+                      "totalVolume",
+                      "newPRs",
+                      "sessionsGoal"
+                    ],
+                    "additionalProperties": true
+                  },
+                  "createdAt": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    ]
+                  },
+                  "updatedAt": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "weekStart",
+                  "summary",
+                  "recommendation",
+                  "statsSnapshot"
+                ],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "report"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  }
+}

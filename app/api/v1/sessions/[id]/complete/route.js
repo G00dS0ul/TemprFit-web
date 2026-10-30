@@ -28,7 +28,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Not your session.' }, { status: 403 });
     }
 
-    // Idempotent completion check per D-16:
+    // Idempotent completion check:
     // If the session has already been completed (e.g. client retried on network drop),
     // return 200 with the finalized session rather than a 409 Conflict error.
     if (session.status === 'completed') {

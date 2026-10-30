@@ -4,7 +4,10 @@ import { getSessionUser } from '@/lib/auth';
 import WorkoutSession from '@/models/WorkoutSession';
 import PersonalRecord from '@/models/PersonalRecord';
 import Exercise from '@/models/Exercise';
-import { progressResponseSchema } from '@/lib/contracts/v1/stats';
+import {
+  progressQuerySchema,
+  progressResponseSchema,
+} from '@/lib/contracts/v1/progress';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +27,16 @@ export async function GET(request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const requestedSlug = searchParams.get('exercise');
+    const parsedQuery = progressQuerySchema.safeParse(
+      Object.fromEntries(searchParams.entries())
+    );
+    if (!parsedQuery.success) {
+      return NextResponse.json(
+        { error: 'Invalid progress query.', details: parsedQuery.error.format() },
+        { status: 400 }
+      );
+    }
+    const requestedSlug = parsedQuery.data.exercise;
 
     const now = new Date();
 
@@ -60,7 +72,9 @@ export async function GET(request) {
     }
     const exerciseOptions = Array.from(exerciseOptionsMap, ([slug, name]) => ({ slug, name }));
 
-    const selectedSlug = requestedSlug || (exerciseOptions[0]?.slug ?? null);
+    const selectedSlug = requestedSlug
+      || user.goals?.targetExerciseSlug
+      || (exerciseOptions[0]?.slug ?? null);
     let strengthTrend = [];
     let currentBest1RM = null;
     let selectedExerciseName = null;
@@ -84,10 +98,46 @@ export async function GET(request) {
       }
     }
 
+    const strengthHistory = allPRs
+      .filter((pr) => pr.exercise?.slug === selectedSlug)
+      .map((pr) => ({
+        label: new Date(pr.achievedAt).toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+        }),
+        value: pr.estOneRepMax,
+        weight: pr.weight,
+        reps: pr.reps,
+      }));
+
+    const totalVolumeAllTime = completedSessions.reduce(
+      (sum, session) => sum + (session.totalVolume || 0),
+      0
+    );
+    const totalTimeSeconds = completedSessions.reduce((sum, session) => {
+      if (!session.startedAt || !session.completedAt) return sum;
+      return sum + Math.max(
+        0,
+        (new Date(session.completedAt) - new Date(session.startedAt)) / 1000
+      );
+    }, 0);
+    const totalTimeMinutes = Math.round(totalTimeSeconds / 60);
+
     const payload = {
+      hasHistory: completedSessions.length > 0,
+      totalSessions: completedSessions.length,
+      totalVolumeAllTime,
+      totalPRs: allPRs.length,
+      totalTimeMinutes,
+      totalCaloriesBurned: Math.round(totalTimeMinutes * 6.5),
+      currentStreak: user.currentStreak || 0,
+      longestStreak: user.longestStreak || 0,
       volumeByWeek,
       sessionsByWeek,
       exerciseOptions,
+      activeExerciseSlug: selectedSlug,
+      strengthHistory,
+      goals: user.goals || {},
       strengthTrend,
       currentBest1RM,
       selectedExerciseName,
