@@ -7,6 +7,8 @@ import { askGemini, GeminiConfigError, GeminiRequestError } from '@/lib/gemini';
 import { buildUserContext } from '@/lib/coach-context';
 import { checkAndIncrementAILimit } from '@/lib/aiLimit';
 import {
+  EQUIPMENT_IMAGE_LIMITS,
+  validateAndNormalizeEquipmentImages,
   workoutGenerateRequestSchema,
   workoutGenerateResponseSchema,
 } from '@/lib/contracts/v1/workouts';
@@ -14,6 +16,58 @@ import {
 export const dynamic = 'force-dynamic';
 
 const MINUTES_PER_EXERCISE = 8;
+
+async function readBoundedRequestBody(request) {
+  const contentLength = Number(request.headers?.get('content-length'));
+  if (contentLength && contentLength > EQUIPMENT_IMAGE_LIMITS.maxBodyBytes) {
+    const error = new Error('Generation request is too large.');
+    error.status = 413;
+    throw error;
+  }
+
+  if (request.body && typeof request.body.getReader === 'function') {
+    const reader = request.body.getReader();
+    const chunks = [];
+    let totalBytes = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.length;
+      if (totalBytes > EQUIPMENT_IMAGE_LIMITS.maxBodyBytes) {
+        try {
+          await reader.cancel();
+        } catch {
+          // ignore stream cancel error
+        }
+        const error = new Error('Generation request is too large.');
+        error.status = 413;
+        throw error;
+      }
+      chunks.push(value);
+    }
+
+    const combined = new Uint8Array(totalBytes);
+    let offset = 0;
+    for (const chunk of chunks) {
+      combined.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return new TextDecoder().decode(combined);
+  }
+
+  if (typeof request.text === 'function') {
+    const text = await request.text();
+    if (Buffer.byteLength(text, 'utf8') > EQUIPMENT_IMAGE_LIMITS.maxBodyBytes) {
+      const error = new Error('Generation request is too large.');
+      error.status = 413;
+      throw error;
+    }
+    return text;
+  }
+
+  return '';
+}
 
 function rulesBasedSelection(candidates, targetCount) {
   const byMuscle = new Map();
@@ -43,14 +97,22 @@ function parseJsonLoose(text) {
   return JSON.parse(cleaned);
 }
 
-async function aiAssistedSelection({ candidates, targetCount, goal, user, notes, customEquipment, equipmentImages }) {
+async function aiAssistedSelection({
+  candidates,
+  targetCount,
+  goal,
+  user,
+  notes,
+  customEquipment,
+  normalizedImages,
+}) {
   const candidateList = candidates
     .map((ex) => `${ex.slug} | ${ex.name} | primary: ${ex.targetMuscles.primary} | equipment: ${ex.equipment} | difficulty: ${ex.difficulty}`)
     .join('\n');
 
   let imagesNote = '';
-  if (Array.isArray(equipmentImages) && equipmentImages.length > 0) {
-    imagesNote = `\nThe user uploaded ${equipmentImages.length} image(s) of their available equipment/space. Tailor exercise choices around this environment.`;
+  if (Array.isArray(normalizedImages) && normalizedImages.length > 0) {
+    imagesNote = `\nThe user provided ${normalizedImages.length} photo(s) of their available equipment and gym space attached to this request. Analyze the attached images to identify available equipment, machines, weights, and accessories, and prioritize selecting matching exercises from the candidate list.`;
   }
 
   const systemPrompt = `You are a certified strength and conditioning coach. Pick EXACTLY ${targetCount} exercises from the CANDIDATE LIST below to build a balanced, effective workout for the user's goal: "${goal}".
@@ -78,6 +140,7 @@ ${candidateList}`;
     systemPrompt,
     history: [],
     userMessage: `Build my ${targetCount}-exercise ${goal} workout from the candidate list now.`,
+    attachments: normalizedImages && normalizedImages.length > 0 ? normalizedImages : undefined,
     responseMimeType: 'application/json',
   });
 
@@ -97,22 +160,63 @@ ${candidateList}`;
 
 export async function POST(request) {
   try {
+    let rawBody;
+    try {
+      rawBody = await readBoundedRequestBody(request);
+    } catch (err) {
+      if (err.status === 413) {
+        return NextResponse.json(
+          { error: 'Generation request is too large.' },
+          { status: 413 }
+        );
+      }
+      throw err;
+    }
+
+    let body;
+    try {
+      body = rawBody.trim() === '' ? {} : JSON.parse(rawBody);
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid generation parameters.' },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
     const user = await getSessionUser();
     if (!user) {
       return NextResponse.json({ error: 'Sign in required.' }, { status: 401 });
     }
 
-    const body = await request.json().catch(() => ({}));
     const parsed = workoutGenerateRequestSchema.safeParse(body);
     if (!parsed.success) {
+      const formatted = parsed.error.format();
+      if (formatted.equipmentImages) {
+        return NextResponse.json(
+          { error: 'Invalid equipment images.', details: formatted.equipmentImages },
+          { status: 400 }
+        );
+      }
       return NextResponse.json(
-        { error: 'Invalid generation parameters.', details: parsed.error.format() },
+        { error: 'Invalid generation parameters.', details: formatted },
         { status: 400 }
       );
     }
 
     const { timeMinutes, equipment, muscles, goal, useAI, notes, customEquipment, equipmentImages } = parsed.data;
+
+    let normalizedImages = [];
+    if (equipmentImages !== undefined) {
+      const imageValidation = validateAndNormalizeEquipmentImages(equipmentImages);
+      if (!imageValidation.valid) {
+        return NextResponse.json(
+          { error: 'Invalid equipment images.', details: imageValidation.error },
+          { status: 400 }
+        );
+      }
+      normalizedImages = imageValidation.normalized;
+    }
 
     const targetCount = Math.max(3, Math.min(10, Math.round(timeMinutes / MINUTES_PER_EXERCISE)));
 
@@ -157,7 +261,7 @@ export async function POST(request) {
           user,
           notes,
           customEquipment,
-          equipmentImages,
+          normalizedImages,
         });
 
         if (aiResult) {

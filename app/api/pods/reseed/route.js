@@ -3,6 +3,8 @@ import { connectDB } from '@/lib/db';
 import Pod from '@/models/Pod';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
   try {
     await connectDB();
