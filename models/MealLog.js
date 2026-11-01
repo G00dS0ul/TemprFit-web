@@ -5,7 +5,16 @@ import mongoose from 'mongoose'
 const MealLogSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    food: { type: mongoose.Schema.Types.ObjectId, ref: 'Food', required: true },
+    food: { type: mongoose.Schema.Types.ObjectId, ref: 'Food', required: false },
+    rawFood: {
+      name: { type: String },
+      calories: { type: Number },
+      protein: { type: Number },
+      carbs: { type: Number },
+      fat: { type: Number },
+      servingSize: { type: Number },
+      servingUnit: { type: String },
+    },
     date: { type: Date, required: true }, // normalized to midnight UTC of the day logged
     mealType: {
       type: String,
