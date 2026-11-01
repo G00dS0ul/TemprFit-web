@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "/api/v1/exercises",
+  "description": "Exercise library and exploration contracts for /api/v1/exercises/**",
+  "version": "1.0.0",
+  "endpoint": "/api/v1/exercises",
+  "endpoints": {
+    "exerciseSwap": {
+      "method": "POST",
+      "endpoint": "/api/v1/exercises/swap",
+      "description": "AI-assisted exercise alternative suggestions with library matching",
+      "version": "1.0.0",
+      "request": {
+        "$ref": "#/definitions/exerciseSwap_request",
+        "definitions": {
+          "exerciseSwap_request": {
+            "type": "object",
+            "properties": {
+              "exerciseName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "currentEquipment": {
+                "type": "string",
+                "maxLength": 1000,
+                "default": "Bodyweight, Dumbbells, Bands"
+              }
+            },
+            "required": [
+              "exerciseName"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "response": {
+        "$ref": "#/definitions/exerciseSwap_response",
+        "definitions": {
+          "exerciseSwap_response": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "const": true
+              },
+              "alternatives": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1000
+                    },
+                    "_id": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[0-9a-fA-F]{24}$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "slug": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "reason",
+                    "_id",
+                    "slug"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "success",
+              "alternatives"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  }
+}

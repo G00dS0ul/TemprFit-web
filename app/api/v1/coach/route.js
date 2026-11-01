@@ -44,7 +44,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Sign in required.' }, { status: 401 });
     }
 
-    // AI Coach requires Pro plan per D-17
+    // AI Coach requires Pro plan
     const { checkPlanAccess } = await import('@/lib/plans');
     const { allowed } = checkPlanAccess(user, 'pro');
     if (!allowed) {

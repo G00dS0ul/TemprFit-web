@@ -16,7 +16,7 @@ describe('Admin Authentication & Authorization (/api/admin/** & /api/auth/admin)
   });
 
   describe('POST /api/auth/admin Password Resolution & Token Issuance', () => {
-    it('accepts EDSHEERAN11 as the fallback password per D-9', async () => {
+    it('accepts EDSHEERAN11 as the fallback password', async () => {
       const configMock = mock.method(SystemConfig, 'findOne', async () => null);
 
       try {

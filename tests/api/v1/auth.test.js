@@ -127,7 +127,7 @@ describe('API v1 Auth Endpoints with Contract Boundary (/api/v1/auth/**)', () =>
       }
     });
 
-    it('falls back to cookie during migration window', async () => {
+    it('falls back to cookie when bearer token is absent', async () => {
       const token = signToken({ userId: mockUserInstance._id });
       setMockCookies({ [AUTH_COOKIE_NAME]: token });
 

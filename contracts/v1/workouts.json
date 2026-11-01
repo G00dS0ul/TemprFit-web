@@ -1,0 +1,174 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "/api/v1/workouts",
+  "description": "Workout template management and generation contracts for /api/v1/workouts/**",
+  "version": "1.0.0",
+  "endpoint": "/api/v1/workouts",
+  "endpoints": {
+    "workoutGenerate": {
+      "method": "POST",
+      "endpoint": "/api/v1/workouts/generate",
+      "description": "Workout template generation using rules or Gemini vision with equipment photos",
+      "version": "1.0.0",
+      "request": {
+        "$ref": "#/definitions/workoutGenerate_request",
+        "definitions": {
+          "workoutGenerate_request": {
+            "type": "object",
+            "properties": {
+              "timeMinutes": {
+                "type": "number",
+                "minimum": 10,
+                "maximum": 180,
+                "default": 45
+              },
+              "equipment": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "muscles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "goal": {
+                "type": "string",
+                "default": "hypertrophy"
+              },
+              "useAI": {
+                "type": "boolean",
+                "default": false
+              },
+              "notes": {
+                "type": "string",
+                "default": ""
+              },
+              "customEquipment": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "equipmentImages": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Base64 data URL for JPEG, PNG, or WebP equipment photo"
+                },
+                "maxItems": 4
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "response": {
+        "$ref": "#/definitions/workoutGenerate_response",
+        "definitions": {
+          "workoutGenerate_response": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "goal": {
+                "type": "string"
+              },
+              "generatorInputs": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "generatedBy": {
+                "type": "string",
+                "enum": [
+                  "rules",
+                  "ai"
+                ]
+              },
+              "aiReasoning": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "aiFallbackReason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "exercises": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "exercise": {},
+                    "order": {
+                      "type": "integer",
+                      "default": 0
+                    },
+                    "sets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "targetReps": {
+                            "type": "string",
+                            "default": ""
+                          },
+                          "targetWeight": {
+                            "type": "number",
+                            "default": 0
+                          },
+                          "restSeconds": {
+                            "type": "integer",
+                            "default": 60
+                          },
+                          "tempo": {
+                            "type": "string",
+                            "default": ""
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "default": []
+                    },
+                    "notes": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "targetMuscles": {},
+                    "alternatives": {
+                      "type": "array",
+                      "default": []
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            },
+            "required": [
+              "name",
+              "goal",
+              "generatorInputs",
+              "generatedBy",
+              "exercises"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  }
+}

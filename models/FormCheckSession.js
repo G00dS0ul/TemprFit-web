@@ -9,15 +9,20 @@ const FormCheckSessionSchema = new mongoose.Schema(
     exerciseSlug: {
       type: String,
       required: true,
-      enum: ['squat', 'push-up', 'plank', 'lunge', 'deadlift'],
+      enum: ['squat', 'push-up', 'plank', 'lunge', 'deadlift', 'other'],
     },
     videoDurationSeconds: { type: Number, default: null },
     flaggedIssues: [
       {
-        issueType: { type: String, required: true },
+        issueId: { type: String, required: false },
+        issueType: { type: String, required: false },
         label: { type: String, required: true },
         timestampSeconds: { type: Number, required: true },
-        severity: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
+        severity: {
+          type: String,
+          enum: ['low', 'medium', 'high', 'warning', 'error'],
+          default: 'medium',
+        },
         frameCount: { type: Number, default: 1 }, // how many sampled frames triggered this
       },
     ],

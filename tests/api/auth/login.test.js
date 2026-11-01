@@ -4,7 +4,13 @@ import assert from 'node:assert/strict';
 import { POST } from '@/app/api/auth/login/route';
 import User from '@/models/User';
 import { hashPassword, AUTH_COOKIE_NAME, AUTH_COOKIE_MAX_AGE } from '@/lib/auth';
+import { Resend } from 'resend';
+import '@/lib/email';
 
+mock.method(Resend.prototype, 'fetchRequest', async () => ({
+  data: { id: 'test-login-alert' },
+  error: null,
+}));
 
 describe('POST /api/auth/login Route Handler', () => {
   it('should return 400 if email or password is missing', async () => {
@@ -128,7 +134,7 @@ describe('POST /api/auth/login Route Handler', () => {
     }
   });
 
-  it('should return 403 if user email is not verified', async () => {
+  it('should allow unverified email during non-blocking onboarding', async () => {
     const passwordHash = await hashPassword('validPassword_123');
     const unverifiedUser = {
       _id: 'unverified_user_1',
@@ -154,17 +160,23 @@ describe('POST /api/auth/login Route Handler', () => {
       });
 
       const res = await POST(req);
-      assert.equal(res.status, 403);
+      assert.equal(res.status, 200);
       const data = await res.json();
-      assert.equal(data.requiresVerification, true);
-      assert.equal(data.email, 'unverified@example.com');
-      assert.equal(data.message, 'Please verify your email to log in.');
+      assert.deepEqual(data.user, { id: 'unverified_user_1', email: 'unverified@example.com' });
+      assert.equal(data.user.password, undefined);
+      assert.equal(data.token, undefined);
+      const setCookie = res.headers.get('set-cookie');
+      assert.ok(setCookie.startsWith(AUTH_COOKIE_NAME + '='));
+      assert.ok(setCookie.includes('HttpOnly'));
+      assert.match(setCookie, /SameSite=lax/i);
+      assert.ok(setCookie.includes('Path=/'));
+      assert.ok(setCookie.includes('Max-Age=' + AUTH_COOKIE_MAX_AGE));
     } finally {
       findOneMock.mock.restore();
     }
   });
 
-  it('should successfully log in valid user, set repily_token cookie, and return safe user object', async () => {
+  it('should successfully log in valid user, set temprfit_token cookie, and return safe user object', async () => {
     const passwordHash = await hashPassword('correctPass123!');
     let savedLastLogin = null;
 
@@ -217,15 +229,17 @@ describe('POST /api/auth/login Route Handler', () => {
       // Verify lastLoginAt was updated
       assert.ok(savedLastLogin instanceof Date);
 
-      // Verify Set-Cookie header contains repily_token
+      // Verify the primary cookie, security attributes and current lifetime
       const setCookie = res.headers.get('set-cookie');
       assert.ok(setCookie, 'Response should contain Set-Cookie header');
-      assert.ok(setCookie.includes('repily_token='), 'Cookie name must be repily_token');
+      assert.ok(setCookie.startsWith(AUTH_COOKIE_NAME + '='), 'Cookie name must be the confirmed primary');
       assert.ok(setCookie.includes('Path=/'), 'Cookie path must be /');
       assert.ok(setCookie.includes('HttpOnly'), 'Cookie must be HttpOnly');
+      assert.match(setCookie, /SameSite=lax/i, 'Cookie must use SameSite=Lax');
+      assert.equal(setCookie.includes('Secure'), process.env.NODE_ENV === 'production');
       assert.ok(
         setCookie.includes(`Max-Age=${AUTH_COOKIE_MAX_AGE}`),
-        'Cookie Max-Age must match legacy 10-year baseline'
+        'Cookie Max-Age must match the 30-day lifetime'
       );
     } finally {
       findOneMock.mock.restore();

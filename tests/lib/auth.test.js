@@ -9,6 +9,7 @@ import {
   verifyToken,
   getSessionUser,
   AUTH_COOKIE_NAME,
+  LEGACY_AUTH_COOKIE_NAME,
   AUTH_COOKIE_MAX_AGE,
 } from '@/lib/auth';
 import User from '@/models/User';
@@ -17,11 +18,12 @@ import { setMockCookies, clearMockCookies } from './../mocks/next-headers.js';
 
 describe('lib/auth.js Core Cryptography & Constants', () => {
   describe('Constants', () => {
-    it('AUTH_COOKIE_NAME should be repily_token', () => {
-      assert.equal(AUTH_COOKIE_NAME, 'repily_token');
+    it('cookie names should preserve the primary and legacy fallback tokens', () => {
+      assert.equal(AUTH_COOKIE_NAME, 'temprfit_token');
+      assert.equal(LEGACY_AUTH_COOKIE_NAME, 'repily_token');
     });
 
-    it('AUTH_COOKIE_MAX_AGE should be exactly 30 days in seconds per D-4', () => {
+    it('AUTH_COOKIE_MAX_AGE should be exactly 30 days in seconds', () => {
       const THIRTY_DAYS_SECONDS = 60 * 60 * 24 * 30;
       assert.equal(AUTH_COOKIE_MAX_AGE, THIRTY_DAYS_SECONDS);
       assert.equal(AUTH_COOKIE_MAX_AGE, 2592000);
@@ -73,7 +75,7 @@ describe('lib/auth.js Core Cryptography & Constants', () => {
       assert.equal(segments.length, 3);
     });
 
-    it('signToken should embed payload fields and legacy 10-year expiration', () => {
+    it('signToken should embed payload fields and the 30-day expiration', () => {
       const payload = { userId: 'user_abc_456', role: 'trainer' };
       const token = signToken(payload);
 
@@ -197,6 +199,25 @@ describe('lib/auth.js Core Cryptography & Constants', () => {
         assert.ok(user);
         assert.equal(user._id, 'active_member_id');
         assert.equal(user.email, 'member@temprfit.com');
+      } finally {
+        findMock.mock.restore();
+      }
+    });
+
+    it('getSessionUser should accept a valid JWT stored only in the legacy cookie', async () => {
+      const token = signToken({ userId: 'legacy_member_id', role: 'user' });
+      setMockCookies({ [LEGACY_AUTH_COOKIE_NAME]: token });
+      const legacyUser = {
+        _id: 'legacy_member_id',
+        email: 'legacy@temprfit.com',
+        role: 'user',
+        plan: 'free',
+        isBanned: false,
+      };
+      const findMock = mock.method(User, 'findById', async () => legacyUser);
+      try {
+        assert.equal(await getSessionUser(), legacyUser);
+        assert.equal(findMock.mock.calls[0].arguments[0], 'legacy_member_id');
       } finally {
         findMock.mock.restore();
       }
