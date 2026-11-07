@@ -27,6 +27,7 @@ async function pickEditableFields(body, currentUserId) {
   }
   if (typeof body.goal === 'string') update.goal = body.goal.trim().slice(0, 80);
   if (typeof body.experience === 'string') update.experience = body.experience.trim().slice(0, 40);
+  if (typeof body.bio === 'string') update.bio = body.bio.trim().slice(0, 500);
   if (typeof body.weightUnit === 'string' && ['lbs', 'kg'].includes(body.weightUnit)) {
     update.weightUnit = body.weightUnit;
   }
