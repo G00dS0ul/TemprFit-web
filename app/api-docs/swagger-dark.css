@@ -1,0 +1,588 @@
+/* ==========================================================================
+   TemprFit Swagger UI Dark Theme Override
+   Scoped strictly inside .temprfit-swagger-wrapper to prevent global bleed
+   ========================================================================== */
+
+/* Isolation and full-viewport reset on standalone documentation explorer */
+body:has(.temprfit-swagger-wrapper) nav,
+body:has(.temprfit-swagger-wrapper) footer,
+body:has(.temprfit-swagger-wrapper) [data-floating-search],
+body:has(.temprfit-swagger-wrapper) .global-tour-container {
+  display: none !important;
+}
+
+body:has(.temprfit-swagger-wrapper) {
+  background-color: #0b0c0e !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body:has(.temprfit-swagger-wrapper) main {
+  padding-top: 0 !important;
+}
+
+.temprfit-swagger-wrapper {
+  background-color: #0b0c0e;
+  color: #f4f5f6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* Base resets inside wrapper */
+.temprfit-swagger-wrapper .swagger-ui {
+  color: #f4f5f6;
+}
+
+.temprfit-swagger-wrapper .swagger-ui a {
+  color: #60a5fa;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .info {
+  margin: 20px 0;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .info .title {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 28px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .info p,
+.temprfit-swagger-wrapper .swagger-ui .info li,
+.temprfit-swagger-wrapper .swagger-ui .info table {
+  color: #9aa0a8;
+}
+
+/* ==========================================================================
+   Scheme & Server Container (.scheme-container)
+   Explicit dark theme overrides for Swagger UI servers selector and auth strip
+   ========================================================================== */
+
+.temprfit-swagger-wrapper .swagger-ui .scheme-container {
+  background: #0b0c0e !important;
+  background-color: #0b0c0e !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 16px 0 !important;
+  margin: 0 0 24px 0 !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .schemes {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .schemes .servers {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .schemes > label,
+.temprfit-swagger-wrapper .swagger-ui .servers > label,
+.temprfit-swagger-wrapper .swagger-ui .servers-title {
+  color: #9aa0a8 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  margin: 0 !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .servers select {
+  background-color: #131417 !important;
+  background-image: none !important;
+  color: #f4f5f6 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 6px !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  min-width: 320px !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .servers select:focus {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2) !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .servers select option {
+  background-color: #131417 !important;
+  color: #f4f5f6 !important;
+  padding: 8px !important;
+}
+
+/* Authorize Button */
+.temprfit-swagger-wrapper .swagger-ui .auth-wrapper {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .btn.authorize {
+  background: transparent !important;
+  color: #22c55e !important;
+  border: 1px solid #22c55e !important;
+  border-radius: 6px !important;
+  padding: 8px 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .btn.authorize svg {
+  fill: #22c55e !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .btn.authorize:hover {
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-color: #4ade80 !important;
+  color: #4ade80 !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .btn.authorize.locked {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border-color: #22c55e !important;
+  color: #22c55e !important;
+}
+
+/* Tag Sections */
+.temprfit-swagger-wrapper .swagger-ui .opblock-tag {
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 20px;
+  font-weight: 600;
+  padding: 14px 0 8px 0;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock-tag small {
+  color: #9aa0a8;
+  font-size: 13px;
+  margin-left: 10px;
+}
+
+/* Operation Blocks */
+.temprfit-swagger-wrapper .swagger-ui .opblock {
+  border-radius: 8px;
+  margin-bottom: 14px;
+  border-width: 1px;
+  border-style: solid;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock .opblock-summary {
+  padding: 10px 16px;
+  align-items: center;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock .opblock-summary-method {
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 13px;
+  min-width: 76px;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock .opblock-summary-path {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock .opblock-summary-description {
+  color: #9aa0a8;
+  font-size: 13px;
+  margin-left: 12px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock .authorization__btn {
+  padding: 0 8px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock .authorization__btn svg {
+  fill: #9aa0a8;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock .authorization__btn.locked svg {
+  fill: #3b82f6;
+}
+
+/* Specific Method Theming (Direct Match to User Screenshots) */
+
+/* GET Method */
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-get {
+  background-color: #0c1926;
+  border-color: #1e3a5f;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-get .opblock-summary {
+  background-color: #0f1e2e;
+  border-color: #1e3a5f;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-get .opblock-summary-method {
+  background-color: #2563eb;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-get .tab-header .tab-item.active h4 span {
+  border-bottom: 2px solid #38bdf8;
+  color: #ffffff;
+}
+
+/* POST Method */
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-post {
+  background-color: #0a1f18;
+  border-color: #134e38;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-post .opblock-summary {
+  background-color: #0d281e;
+  border-color: #134e38;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-post .opblock-summary-method {
+  background-color: #10b981;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-post .tab-header .tab-item.active h4 span {
+  border-bottom: 2px solid #34d399;
+  color: #ffffff;
+}
+
+/* PUT & PATCH Methods */
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-put,
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-patch {
+  background-color: #1c140b;
+  border-color: #78350f;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-put .opblock-summary,
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-patch .opblock-summary {
+  background-color: #241a0e;
+  border-color: #78350f;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-put .opblock-summary-method,
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-patch .opblock-summary-method {
+  background-color: #f59e0b;
+}
+
+/* DELETE Method */
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-delete {
+  background-color: #1f0b0f;
+  border-color: #7f1d1d;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-delete .opblock-summary {
+  background-color: #280f14;
+  border-color: #7f1d1d;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock.opblock-delete .opblock-summary-method {
+  background-color: #ef4444;
+}
+
+/* Operation Body & Sections */
+.temprfit-swagger-wrapper .swagger-ui .opblock-body {
+  padding: 16px 20px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock-section-header {
+  background: transparent;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.temprfit-swagger-wrapper .swagger-ui .opblock-section-header h4 {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* "Try it out" Button */
+.temprfit-swagger-wrapper .swagger-ui .btn.try-out__btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .btn.try-out__btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .btn.execute {
+  background-color: #2563eb;
+  border: none;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 8px 24px;
+  font-weight: 600;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .btn.execute:hover {
+  background-color: #1d4ed8;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .btn.cancel {
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  border-radius: 4px;
+}
+
+/* Parameter Tables */
+.temprfit-swagger-wrapper .swagger-ui .parameters-container {
+  padding: 10px 0;
+}
+
+.temprfit-swagger-wrapper .swagger-ui table.parameters {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.temprfit-swagger-wrapper .swagger-ui table.parameters th {
+  color: #9aa0a8;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.temprfit-swagger-wrapper .swagger-ui table.parameters td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.temprfit-swagger-wrapper .swagger-ui .parameter__name {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .parameter__type {
+  color: #9aa0a8;
+  font-size: 12px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .parameter__in {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .parameter__name.required:after {
+  content: " *";
+  color: #ef4444;
+}
+
+/* Input Fields & Dropdowns */
+.temprfit-swagger-wrapper .swagger-ui input[type="text"],
+.temprfit-swagger-wrapper .swagger-ui input[type="password"],
+.temprfit-swagger-wrapper .swagger-ui input[type="search"],
+.temprfit-swagger-wrapper .swagger-ui textarea,
+.temprfit-swagger-wrapper .swagger-ui select {
+  background-color: #131417;
+  color: #f4f5f6;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.temprfit-swagger-wrapper .swagger-ui input:focus,
+.temprfit-swagger-wrapper .swagger-ui textarea:focus,
+.temprfit-swagger-wrapper .swagger-ui select:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+/* Request Body & Code Blocks */
+.temprfit-swagger-wrapper .swagger-ui .body-param-content-type {
+  color: #9aa0a8;
+  font-size: 13px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .highlight-code,
+.temprfit-swagger-wrapper .swagger-ui .microlight,
+.temprfit-swagger-wrapper .swagger-ui pre {
+  background-color: #121316 !important;
+  color: #f4f5f6 !important;
+  border-radius: 6px;
+  padding: 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 13px !important;
+}
+
+/* Responses Table */
+.temprfit-swagger-wrapper .swagger-ui .responses-table {
+  width: 100%;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .responses-table th {
+  color: #9aa0a8;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.temprfit-swagger-wrapper .swagger-ui .responses-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.temprfit-swagger-wrapper .swagger-ui .response-col_status {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .response-col_description {
+  color: #f4f5f6;
+  font-size: 13px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .response-col_links {
+  color: #64748b;
+  font-style: italic;
+  font-size: 12px;
+  text-align: right;
+}
+
+/* Models / Schemas Section */
+.temprfit-swagger-wrapper .swagger-ui section.models {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background-color: #131417;
+  margin-top: 30px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui section.models h4 {
+  color: #ffffff;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.temprfit-swagger-wrapper .swagger-ui section.models .model-container {
+  background: transparent;
+  padding: 12px 16px;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .model-box {
+  background-color: #1a1c20;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+/* Authorize Modal */
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .backdrop-ux {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(4px);
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux {
+  background-color: #131417 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+  border-radius: 8px !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-header h3 {
+  color: #ffffff !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-header .close-modal {
+  fill: #9aa0a8 !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-content {
+  color: #f4f5f6 !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-content h4 {
+  color: #ffffff !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-content p {
+  color: #9aa0a8 !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-content code {
+  background-color: #1e2024 !important;
+  color: #38bdf8 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-content input[type=text],
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-ux-content input[type=password] {
+  background-color: #0b0c0e !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .auth-btn-wrapper {
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: flex-end !important;
+  margin-top: 16px !important;
+  padding-top: 14px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-btn {
+  border-radius: 6px !important;
+  padding: 8px 18px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-btn.auth {
+  background: #22c55e !important;
+  border: 1px solid #22c55e !important;
+  color: #000000 !important;
+}
+
+.temprfit-swagger-wrapper .swagger-ui .dialog-ux .modal-btn.btn-done {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}

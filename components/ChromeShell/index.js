@@ -15,6 +15,8 @@ export default function ChromeShell({ children }) {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/onboarding' || pathname.startsWith('/admin');
+  const isDocsPage = Boolean(pathname && pathname.startsWith('/api-docs'));
+  const isBareLayout = isAuthPage || isDocsPage;
 
   useEffect(() => {
     document.body.style.overflow = isHome ? 'hidden' : '';
@@ -22,7 +24,7 @@ export default function ChromeShell({ children }) {
     
     const mainEl = document.querySelector('main');
     if (mainEl) {
-      mainEl.style.paddingTop = (isHome || isAuthPage) ? '0' : '';
+      mainEl.style.paddingTop = (isHome || isBareLayout) ? '0' : '';
     }
 
     return () => {
@@ -30,19 +32,19 @@ export default function ChromeShell({ children }) {
       document.body.style.height = '';
       if (mainEl) mainEl.style.paddingTop = '';
     };
-  }, [isHome]);
+  }, [isHome, isBareLayout]);
 
   return (
     <>
-      {!isAuthPage && <Navbar />}
-      <main style={{ paddingTop: isHome || isAuthPage ? '0' : '' }}>
-        <div className={isHome || isAuthPage ? '' : styles.withBottomNavPadding}>
-          <GlobalTour />
+      {!isBareLayout && <Navbar />}
+      <main style={{ paddingTop: isHome || isBareLayout ? '0' : '' }}>
+        <div className={isHome || isBareLayout ? '' : styles.withBottomNavPadding}>
+          {!isDocsPage && <GlobalTour />}
           {children}
         </div>
       </main>
-      {!isHome && !isAuthPage && <Footer />}
-      {!isAuthPage && (
+      {!isHome && !isBareLayout && <Footer />}
+      {!isBareLayout && (
         <>
           <MobileBottomNav />
           <FloatingSearch />
