@@ -10,9 +10,14 @@
     "seed": "node scripts/seed-exercises.mjs",
     "test": "node --no-warnings --import ./tests/register.js --test \"tests/**/*.test.js\"",
     "emit-contracts": "node --no-warnings tools/emit-contract.js",
-    "check:contracts": "npm run emit-contracts && git diff --exit-code contracts/v1/"
+    "check:contracts": "npm run emit-contracts && git diff --exit-code contracts/v1/",
+    "openapi:inventory": "node --no-warnings tools/inventory-routes.js",
+    "openapi:emit": "node --no-warnings tools/emit-openapi.js",
+    "openapi:check-changes": "node --no-warnings tools/check-api-changes.js",
+    "openapi:update-baseline": "node --no-warnings tools/update-api-baseline.js"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "7.3.4",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@google/generative-ai": "^0.24.1",
     "@mediapipe/tasks-vision": "^0.10.14",
@@ -38,6 +43,7 @@
     "react-hot-toast": "^2.6.1",
     "recharts": "^2.12.7",
     "resend": "^6.28.1",
+    "swagger-ui-react": "^5.18.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
