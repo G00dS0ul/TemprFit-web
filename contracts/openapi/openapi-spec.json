@@ -1223,7 +1223,7 @@
     "/api/v1/auth/logout": {
       "post": {
         "summary": "Log out and invalidate session",
-        "description": "Clears the temprfit_token and repily_token cookies, adds active Bearer token jti to server-side RevokedToken collection, and terminates session.",
+        "description": "Selects a nonempty token from JSON body > Bearer header > temprfit_token > repily_token, without falling through an invalid selected token. Missing, invalid, expired or already-revoked tokens return 200 without adding or extending records. An active token requires an acknowledged atomic hash-only revocation with its original expiry. Both 200 and required-storage 503 clear temprfit_token, repily_token and admin_token cookies; cookie removal does not prove server invalidation or revoke unselected credentials. Logout using a predecessor after refresh does not cancel the successor.",
         "tags": [
           "Auth"
         ],
@@ -1254,7 +1254,7 @@
         },
         "responses": {
           "200": {
-            "description": "Logged out successfully",
+            "description": "Local cookies cleared; active selected token acknowledged revoked, or harmless/repeated logout",
             "content": {
               "application/json": {
                 "schema": {
@@ -1271,6 +1271,39 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid request body; cookies are not cleared",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected or response-contract failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required revocation storage unavailable or write outcome unknown; cookies cleared without claiming server invalidation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                },
+                "example": {
+                  "error": "Authentication service temporarily unavailable."
+                }
+              }
+            }
           }
         }
       }
@@ -1278,7 +1311,7 @@
     "/api/v1/auth/refresh": {
       "post": {
         "summary": "Rotate and refresh authentication token",
-        "description": "Rotates an existing unexpired, unrevoked JWT token. Emits a fresh 30-day token, revokes the previous token, and updates cookie.",
+        "description": "Selects a nonempty token from JSON body > Bearer header > temprfit_token > repily_token, without falling through an invalid selected token. Requires an unexpired, unrevoked JWT and active user. Prepares and validates a fresh 30-day successor before the atomic predecessor claim, but releases the token and primary cookie only to the single acknowledged winner. Replay or concurrent loser returns 401; required-storage failure or unknown write outcome returns 503 with no replacement token/cookie. Logout claiming first prevents issuance; refresh claiming first leaves its successor unaffected by old-token logout. A committed-but-lost response or post-claim failure may require sign-in again: there is no successor recovery or compensating claim deletion.",
         "tags": [
           "Auth"
         ],
@@ -1398,12 +1431,45 @@
               }
             }
           },
-          "401": {
-            "description": "Invalid, expired, or already revoked token",
+          "400": {
+            "description": "Invalid request body",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, expired, already revoked or concurrent losing token; missing or suspended user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected signing, user-model, response or contract failure; a post-claim failure may require sign-in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required revocation storage unavailable or write outcome unknown; no replacement token or cookie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                },
+                "example": {
+                  "error": "Authentication service temporarily unavailable."
                 }
               }
             }
@@ -1414,7 +1480,7 @@
     "/api/v1/auth/me": {
       "get": {
         "summary": "Inspect current authenticated session",
-        "description": "Inspects active Bearer header or session cookie. Returns the authenticated user object, or user: null if unauthenticated.",
+        "description": "Selects a nonempty Bearer header > temprfit_token > repily_token, without falling through an invalid selected token. Returns the authenticated user with originalRole, or user: null for missing, invalid, expired, known-revoked, missing-user or banned-user sessions. A valid-session required revocation storage failure returns 503, not user: null or 401. Other shared/legacy auth consumers retain their existing outage behavior.",
         "tags": [
           "Auth"
         ],
@@ -1512,6 +1578,29 @@
                     "user"
                   ],
                   "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected user-model, subscription or response-contract failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required revocation storage unavailable; no authenticated user data returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                },
+                "example": {
+                  "error": "Authentication service temporarily unavailable."
                 }
               }
             }

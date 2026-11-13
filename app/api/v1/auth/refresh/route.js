@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import { cookies, headers } from 'next/headers';
-import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import {
   verifyToken,
   signToken,
   isTokenRevoked,
   revokeToken,
+  RevocationUnavailableError,
   AUTH_COOKIE_NAME,
+  LEGACY_AUTH_COOKIE_NAME,
   AUTH_COOKIE_MAX_AGE,
 } from '@/lib/auth';
 import {
@@ -48,7 +49,7 @@ export async function POST(request) {
       }
     }
     if (!token) {
-      token = reqCookies.get(AUTH_COOKIE_NAME)?.value || null;
+      token = reqCookies.get(AUTH_COOKIE_NAME)?.value || reqCookies.get(LEGACY_AUTH_COOKIE_NAME)?.value || null;
     }
 
     if (!token) {
@@ -58,7 +59,16 @@ export async function POST(request) {
       );
     }
 
-    const revoked = await isTokenRevoked(token);
+    const payload = verifyToken(token);
+    if (!payload?.userId || !Number.isFinite(payload.exp) ||
+        !Number.isFinite(new Date(payload.exp * 1000).getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid or expired session token.' },
+        { status: 401 }
+      );
+    }
+
+    const revoked = await isTokenRevoked(token, { requireStorage: true });
     if (revoked) {
       return NextResponse.json(
         { error: 'Token has been revoked. Please sign in again.' },
@@ -66,15 +76,6 @@ export async function POST(request) {
       );
     }
 
-    const payload = verifyToken(token);
-    if (!payload || !payload.userId) {
-      return NextResponse.json(
-        { error: 'Invalid or expired session token.' },
-        { status: 401 }
-      );
-    }
-
-    await connectDB();
     const user = await User.findById(payload.userId);
     if (!user || user.isBanned) {
       return NextResponse.json(
@@ -82,9 +83,6 @@ export async function POST(request) {
         { status: 401 }
       );
     }
-
-    // Revoke old token and issue fresh 30-day token
-    await revokeToken(token, { reason: 'token_refresh', userId: user._id });
 
     const newToken = signToken({
       userId: user._id.toString(),
@@ -108,6 +106,18 @@ export async function POST(request) {
       );
     }
 
+    // Prepare the successor before claiming, but never release it to a losing caller.
+    if (payload.exp * 1000 <= Date.now()) {
+      return NextResponse.json({ error: 'Invalid or expired session token.' }, { status: 401 });
+    }
+    const claimed = await revokeToken(token, { reason: 'token_refresh', requireStorage: true });
+    if (!claimed) {
+      return NextResponse.json(
+        { error: 'Token has been revoked. Please sign in again.' },
+        { status: 401 }
+      );
+    }
+
     const response = NextResponse.json(parsedResponse.data, { status: 200 });
     response.cookies.set(AUTH_COOKIE_NAME, newToken, {
       httpOnly: true,
@@ -119,6 +129,9 @@ export async function POST(request) {
 
     return response;
   } catch (err) {
+    if (err instanceof RevocationUnavailableError) {
+      return NextResponse.json({ error: err.message }, { status: 503 });
+    }
     console.error('Refresh Error:', err);
     return NextResponse.json(
       { error: 'An unexpected error occurred during token refresh.' },
