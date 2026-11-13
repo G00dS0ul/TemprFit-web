@@ -11081,6 +11081,128 @@
         }
       }
     },
+    "/api/v1/users/search": {
+      "get": {
+        "summary": "Search athletes by query",
+        "description": "Searches athletes by username, name, or nickname using case-insensitive partial matching, excluding caller and hidden profiles.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 50,
+              "default": ""
+            },
+            "required": false,
+            "name": "q",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching athletes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "nullable": true
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "avatarUrl": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "plan": {
+                            "type": "string",
+                            "default": "free"
+                          },
+                          "role": {
+                            "type": "string",
+                            "default": "trainee"
+                          },
+                          "activeColor": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "activeBorder": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "xp": {
+                            "type": "number",
+                            "default": 0
+                          }
+                        },
+                        "required": [
+                          "username"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "users"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/messages": {
       "get": {
         "summary": "List user direct message conversations",
