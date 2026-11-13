@@ -19,7 +19,7 @@ describe('OpenAPI 3.0.3 Generator Tests', () => {
     assert.ok(spec.components.schemas.StandardError, 'StandardError schema required');
     assert.ok(spec.components.schemas.SafeUser, 'SafeUser schema required');
     assert.ok(spec.components.schemas.FlaggedIssue, 'FlaggedIssue schema required');
-    assert.strictEqual(spec.tags.length, 11, 'Expected 11 feature domain tags');
+    assert.strictEqual(spec.tags.length, 12, 'Expected 12 feature domain tags');
   });
 
   test('no schema emits invalid OpenAPI 3.0 type arrays for nullables', () => {
