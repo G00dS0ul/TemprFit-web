@@ -44,4 +44,48 @@ describe('OpenAPI 3.0.3 Generator Tests', () => {
       'Consecutive OpenAPI generations must produce identical JSON output'
     );
   });
+
+  test('auth lifecycle documentation preserves successes and truthful storage failures', () => {
+    const spec = generateOpenApiSpec();
+    const logout = spec.paths['/api/v1/auth/logout'].post;
+    const refresh = spec.paths['/api/v1/auth/refresh'].post;
+    const me = spec.paths['/api/v1/auth/me'].get;
+    for (const operation of [logout, refresh, me]) {
+      assert.deepEqual(operation.responses[503].content['application/json'].example,
+        { error: 'Authentication service temporarily unavailable.' });
+      assert.equal(operation.responses[503].content['application/json'].schema.$ref, '#/components/schemas/StandardError');
+      assert.ok(operation.responses[200]);
+      assert.ok(operation.responses[500]);
+      assert.match(operation.description, /temprfit_token > repily_token/);
+      assert.match(operation.description, /without falling through an invalid selected token/);
+    }
+    for (const operation of [logout, refresh]) {
+      assert.equal(operation.requestBody.required, false);
+      assert.match(operation.description, /JSON body > Bearer header/);
+      assert.ok(operation.responses[400]);
+    }
+    assert.match(logout.description, /hash-only revocation with its original expiry/);
+    assert.match(logout.description, /503 clear temprfit_token, repily_token and admin_token/);
+    assert.match(logout.description, /does not prove server invalidation/);
+    assert.match(logout.description, /does not cancel the successor/);
+    assert.equal(logout.responses[401], undefined);
+    assert.match(refresh.description, /single acknowledged winner/);
+    assert.match(refresh.description, /no successor recovery/);
+    assert.match(refresh.responses[503].description, /no replacement token or cookie/);
+    assert.ok(refresh.responses[401]);
+    assert.match(me.description, /503, not user: null or 401/);
+    assert.match(me.description, /Other shared\/legacy auth consumers retain/);
+    assert.equal(me.responses[401], undefined);
+    const logoutSchema = logout.responses[200].content['application/json'].schema;
+    const refreshSchema = refresh.responses[200].content['application/json'].schema;
+    const meSchema = me.responses[200].content['application/json'].schema;
+    assert.deepEqual(logoutSchema, { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'], additionalProperties: false });
+    assert.deepEqual(refreshSchema.required, ['user', 'token']);
+    assert.deepEqual(refreshSchema.properties.token, { type: 'string' });
+    assert.deepEqual(refreshSchema.properties.user.required, ['email', 'role']);
+    assert.equal(refreshSchema.additionalProperties, false);
+    assert.deepEqual(meSchema.required, ['user']);
+    assert.equal(meSchema.properties.user.nullable, true);
+    assert.equal(meSchema.additionalProperties, false);
+  });
 });

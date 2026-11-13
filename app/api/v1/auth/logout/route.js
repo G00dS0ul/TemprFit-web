@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { cookies, headers } from 'next/headers';
 import {
   revokeToken,
+  verifyToken,
+  isTokenRevoked,
+  RevocationUnavailableError,
   AUTH_COOKIE_NAME,
+  LEGACY_AUTH_COOKIE_NAME,
 } from '@/lib/auth';
 import {
   logoutRequestSchema,
@@ -12,6 +16,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
+  let response;
   try {
     let body = null;
     try {
@@ -42,12 +47,16 @@ export async function POST(request) {
       }
     }
     if (!token) {
-      token = reqCookies.get(AUTH_COOKIE_NAME)?.value || null;
+      token = reqCookies.get(AUTH_COOKIE_NAME)?.value || reqCookies.get(LEGACY_AUTH_COOKIE_NAME)?.value || null;
     }
 
-    // Revoke token in database if active
-    if (token) {
-      await revokeToken(token, { reason: 'user_logout' });
+    const payload = token ? verifyToken(token) : null;
+    if (payload?.userId && Number.isFinite(payload.exp) &&
+        Number.isFinite(new Date(payload.exp * 1000).getTime())) {
+      const revoked = await isTokenRevoked(token, { requireStorage: true });
+      if (!revoked && payload.exp * 1000 > Date.now()) {
+        await revokeToken(token, { reason: 'user_logout', requireStorage: true });
+      }
     }
 
     const responsePayload = { ok: true };
@@ -59,29 +68,21 @@ export async function POST(request) {
       );
     }
 
-    const response = NextResponse.json(parsedResponse.data, { status: 200 });
-
-    // Clear legacy and v1 session cookies
-    response.cookies.set({
-      name: AUTH_COOKIE_NAME,
-      value: '',
-      maxAge: 0,
-      path: '/',
-    });
-
-    response.cookies.set({
-      name: 'admin_token',
-      value: '',
-      maxAge: 0,
-      path: '/',
-    });
-
-    return response;
+    response = NextResponse.json(parsedResponse.data, { status: 200 });
   } catch (err) {
-    console.error('Logout Error:', err);
-    return NextResponse.json(
-      { error: 'An unexpected error occurred during logout.' },
-      { status: 500 }
-    );
+    if (err instanceof RevocationUnavailableError) {
+      response = NextResponse.json({ error: err.message }, { status: 503 });
+    } else {
+      console.error('Logout Error:', err);
+      return NextResponse.json(
+        { error: 'An unexpected error occurred during logout.' },
+        { status: 500 }
+      );
+    }
   }
+  // Cookie removal is independent of acknowledged server-side invalidation.
+  for (const name of [AUTH_COOKIE_NAME, LEGACY_AUTH_COOKIE_NAME, 'admin_token']) {
+    response.cookies.set({ name, value: '', maxAge: 0, path: '/' });
+  }
+  return response;
 }

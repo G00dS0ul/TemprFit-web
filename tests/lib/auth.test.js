@@ -1,6 +1,9 @@
 import './../setup.js';
-import { describe, it, mock, beforeEach } from 'node:test';
+import { describe, it, mock, beforeEach, afterEach, after } from 'node:test';
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import {
   hashPassword,
@@ -8,13 +11,39 @@ import {
   signToken,
   verifyToken,
   getSessionUser,
+  isTokenRevoked,
+  revokeToken,
+  hashToken,
+  RevocationUnavailableError,
   AUTH_COOKIE_NAME,
   LEGACY_AUTH_COOKIE_NAME,
   AUTH_COOKIE_MAX_AGE,
 } from '@/lib/auth';
 import User from '@/models/User';
 import Notification from '@/models/Notification';
-import { setMockCookies, clearMockCookies } from './../mocks/next-headers.js';
+import RevokedToken from '@/models/RevokedToken';
+import { setMockCookies, clearMockCookies, clearMockHeaders } from './../mocks/next-headers.js';
+
+const savedUri = process.env.MONGODB_URI;
+const hadUri = Object.hasOwn(process.env, 'MONGODB_URI');
+const savedCache = Object.getOwnPropertyDescriptor(globalThis, '_mongoose');
+const cache = { conn: null, promise: null };
+process.env.MONGODB_URI = 'mongodb://auth-storage.invalid/test';
+globalThis._mongoose = cache;
+const { connectDB } = await import('@/lib/db');
+if (hadUri) process.env.MONGODB_URI = savedUri;
+else delete process.env.MONGODB_URI;
+after(() => {
+  if (savedCache) Object.defineProperty(globalThis, '_mongoose', savedCache);
+  else delete globalThis._mongoose;
+});
+
+function deferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+  return { promise, resolve, reject };
+}
 
 describe('lib/auth.js Core Cryptography & Constants', () => {
   describe('Constants', () => {
@@ -266,6 +295,209 @@ describe('lib/auth.js Core Cryptography & Constants', () => {
         notifMock.mock.restore();
       }
     });
+  });
+});
+
+describe('Required revocation storage and preserved defaults', { concurrency: false }, () => {
+  let token;
+  let records;
+  let connect;
+
+  beforeEach(() => {
+    cache.conn = null;
+    cache.promise = null;
+    token = signToken({ userId: new mongoose.Types.ObjectId().toString() });
+    records = new Map();
+    clearMockCookies();
+    clearMockHeaders();
+    mock.method(console, 'error', () => {});
+    connect = mock.method(mongoose, 'connect', async (uri) => {
+      assert.equal(uri, 'mongodb://auth-storage.invalid/test');
+      return mongoose;
+    });
+    mock.method(RevokedToken, 'findOne', async (filter, projection, options) => {
+      assert.deepEqual(filter, { tokenHash: filter.tokenHash });
+      if (options) assert.equal(options.readPreference, 'primary');
+      return records.get(filter.tokenHash) || null;
+    });
+  });
+
+  afterEach(() => {
+    mock.restoreAll();
+    clearMockCookies();
+    clearMockHeaders();
+    cache.conn = null;
+    cache.promise = null;
+  });
+
+  it('does not query until a cold connection resolves, then reuses warm storage', async () => {
+    const connection = deferred();
+    const started = deferred();
+    connect.mock.mockImplementation(() => { started.resolve(); return connection.promise; });
+    const find = mock.method(RevokedToken, 'findOne', async (filter, projection, options) => {
+      assert.equal(cache.conn, mongoose);
+      assert.deepEqual(options, { readPreference: 'primary' });
+      assert.equal(filter.tokenHash, crypto.createHash('sha256').update(token).digest('hex'));
+      return null;
+    });
+    const read = isTokenRevoked(token, { requireStorage: true });
+    await started.promise;
+    assert.equal(find.mock.callCount(), 0);
+    connection.resolve(mongoose);
+    assert.equal(await read, false);
+    assert.equal(await isTokenRevoked(token, { requireStorage: true }), false);
+    assert.equal(connect.mock.callCount(), 1);
+    assert.equal(find.mock.callCount(), 2);
+  });
+
+  it('connects before a strict write and recovers after a rejected attempt', async () => {
+    connect.mock.mockImplementationOnce(async () => { throw new Error('offline'); });
+    await assert.rejects(isTokenRevoked(token, { requireStorage: true }), RevocationUnavailableError);
+    assert.equal(cache.promise, null);
+    const write = mock.method(RevokedToken, 'updateOne', async () => {
+      assert.equal(cache.conn, mongoose);
+      return { acknowledged: true, matchedCount: 0, modifiedCount: 0, upsertedCount: 1, upsertedId: new mongoose.Types.ObjectId() };
+    });
+    assert.equal(await revokeToken(token, { requireStorage: true }), true);
+    assert.equal(connect.mock.callCount(), 2);
+    assert.equal(write.mock.callCount(), 1);
+    assert.equal(await connectDB(), mongoose);
+  });
+
+  it('rejects a null connection without any model access', async () => {
+    connect.mock.mockImplementation(async () => null);
+    const read = mock.method(RevokedToken, 'findOne', async () => assert.fail('unconnected read'));
+    const write = mock.method(RevokedToken, 'updateOne', async () => assert.fail('unconnected write'));
+    await assert.rejects(isTokenRevoked(token, { requireStorage: true }), RevocationUnavailableError);
+    await assert.rejects(revokeToken(token, { requireStorage: true }), RevocationUnavailableError);
+    assert.equal(read.mock.callCount(), 0);
+    assert.equal(write.mock.callCount(), 0);
+  });
+
+  it('uses the canonical connector in fresh missing/empty-configuration processes', () => {
+    for (const absent of [true, false]) {
+      const env = { ...process.env, JWT_SECRET: 'synthetic-only-secret', MONGODB_URI: '' };
+      if (absent) delete env.MONGODB_URI;
+      const child = spawnSync(process.execPath, ['--no-warnings', '--import', './tests/register.js', '--input-type=module', '-e', `
+        import assert from 'node:assert/strict';
+        import mongoose from 'mongoose';
+        mongoose.connect = () => assert.fail('network must not be attempted');
+        const { signToken, isTokenRevoked, revokeToken, RevocationUnavailableError } = await import('@/lib/auth');
+        const token = signToken({ userId: new mongoose.Types.ObjectId().toString() });
+        await assert.rejects(isTokenRevoked(token, { requireStorage: true }), RevocationUnavailableError);
+        await assert.rejects(revokeToken(token, { requireStorage: true }), RevocationUnavailableError);
+      `], { env, encoding: 'utf8', timeout: 15000 });
+      assert.equal(child.status, 0, child.stderr);
+      assert.equal(child.error, undefined);
+    }
+  });
+
+  it('distinguishes known absence/presence from read failure and preserves fail-open defaults', async () => {
+    assert.equal(await isTokenRevoked(token, { requireStorage: true }), false);
+    records.set(hashToken(token), { tokenHash: hashToken(token) });
+    assert.equal(await isTokenRevoked(token, { requireStorage: true }), true);
+    const read = mock.method(RevokedToken, 'findOne', async () => { throw new Error('read failed'); });
+    await assert.rejects(isTokenRevoked(token, { requireStorage: true }), RevocationUnavailableError);
+    cache.conn = null;
+    cache.promise = null;
+    const before = connect.mock.callCount();
+    assert.equal(await isTokenRevoked(token), false);
+    assert.equal(connect.mock.callCount(), before);
+    assert.equal(read.mock.calls.at(-1).arguments.length, 1);
+    setMockCookies({ [AUTH_COOKIE_NAME]: token });
+    const user = { _id: 'default-user', plan: 'free' };
+    mock.method(User, 'findById', async () => user);
+    assert.equal(await getSessionUser(), user);
+    await assert.rejects(getSessionUser({ requireRevocation: true }), RevocationUnavailableError);
+  });
+
+  it('retains default write booleans and does not add a default connection', async () => {
+    const write = mock.method(RevokedToken, 'findOneAndUpdate', async () => ({}));
+    assert.equal(await revokeToken(token), true);
+    write.mock.mockImplementation(async () => { throw new Error('write failed'); });
+    assert.equal(await revokeToken(token), false);
+    assert.equal(connect.mock.callCount(), 0);
+  });
+
+  const results = [
+    [{ acknowledged: true, matchedCount: 0, modifiedCount: 0, upsertedCount: 1, upsertedId: 'insert' }, true],
+    [{ acknowledged: true, matchedCount: 1, modifiedCount: 0, upsertedCount: 0, upsertedId: null }, false],
+    [{ acknowledged: false }, 'unavailable'],
+    [{}, 'unavailable'],
+    [null, 'unavailable'],
+    [{ acknowledged: true, matchedCount: 1, modifiedCount: 0, upsertedCount: 1, upsertedId: 'insert' }, 'unavailable'],
+    [{ acknowledged: true, matchedCount: 0, modifiedCount: 0, upsertedCount: 1, upsertedId: null }, 'unavailable'],
+    [{ acknowledged: true, matchedCount: 1, modifiedCount: 1, upsertedCount: 0, upsertedId: null }, 'unavailable'],
+  ];
+  for (const [result, expected] of results) {
+    it(`classifies atomic write result ${JSON.stringify(result)}`, async () => {
+      mock.method(RevokedToken, 'updateOne', async () => result);
+      const claim = revokeToken(token, { requireStorage: true });
+      if (expected === 'unavailable') await assert.rejects(claim, RevocationUnavailableError);
+      else assert.equal(await claim, expected);
+    });
+  }
+
+  for (const confirmation of ['present', 'absent', 'failed']) {
+    it(`confirms a duplicate key with an exact primary read: ${confirmation}`, async () => {
+      mock.method(RevokedToken, 'updateOne', async () => { throw Object.assign(new Error('duplicate'), { code: 11000 }); });
+      mock.method(RevokedToken, 'findOne', async (filter, projection, options) => {
+        assert.deepEqual(filter, { tokenHash: hashToken(token) });
+        assert.equal(options.readPreference, 'primary');
+        if (confirmation === 'failed') throw new Error('read unavailable');
+        return confirmation === 'present' ? { tokenHash: filter.tokenHash } : null;
+      });
+      const claim = revokeToken(token, { requireStorage: true });
+      if (confirmation === 'present') assert.equal(await claim, false);
+      else await assert.rejects(claim, RevocationUnavailableError);
+    });
+  }
+
+  it('rejects unusable lifecycle credentials without fallback metadata or storage', async () => {
+    const userId = new mongoose.Types.ObjectId().toString();
+    const invalid = [null, '', 'malformed', jwt.sign({ userId }, 'wrong-secret'),
+      jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: -1 }),
+      jwt.sign({ userId }, process.env.JWT_SECRET), signToken({ role: 'admin' }),
+      jwt.sign({ userId, exp: 1e100 }, process.env.JWT_SECRET)];
+    const write = mock.method(RevokedToken, 'updateOne', async () => assert.fail('invalid claim'));
+    for (const candidate of invalid) assert.equal(await revokeToken(candidate, { requireStorage: true }), false);
+    assert.equal(connect.mock.callCount(), 0);
+    assert.equal(write.mock.callCount(), 0);
+  });
+
+  it('preserves exp, hash-only metadata and timestamps through actual Mongoose update middleware', async () => {
+    mock.method(RevokedToken.collection, 'updateOne', async (filter, update, options) => {
+      assert.deepEqual(Object.keys(update), ['$setOnInsert']);
+      assert.equal(options.upsert, true);
+      const existing = records.get(filter.tokenHash);
+      if (existing) return { acknowledged: true, matchedCount: 1, modifiedCount: 0, upsertedCount: 0, upsertedId: null };
+      assert.ok(update.$setOnInsert.userId instanceof mongoose.Types.ObjectId);
+      records.set(filter.tokenHash, structuredClone({
+        ...update.$setOnInsert,
+        userId: update.$setOnInsert.userId.toString(),
+      }));
+      return { acknowledged: true, matchedCount: 0, modifiedCount: 0, upsertedCount: 1, upsertedId: new mongoose.Types.ObjectId() };
+    });
+    const options = { requireStorage: true, reason: 'token_refresh', userId: new mongoose.Types.ObjectId(), expiresAt: new Date('2099-01-01') };
+    assert.equal(await revokeToken(token, options), true);
+    const snapshot = structuredClone(records.get(hashToken(token)));
+    assert.equal(snapshot.expiresAt.getTime(), jwt.decode(token).exp * 1000);
+    assert.equal(snapshot.userId.toString(), jwt.decode(token).userId);
+    assert.equal(snapshot.jti, jwt.decode(token).jti);
+    assert.equal(snapshot.reason, 'token_refresh');
+    assert.equal(snapshot.createdAt.getTime(), snapshot.updatedAt.getTime());
+    assert.equal(snapshot.createdAt.getTime(), snapshot.revokedAt.getTime());
+    assert.equal(JSON.stringify(snapshot).includes(token), false);
+    assert.deepEqual(Object.keys(snapshot).sort(), ['__v', 'createdAt', 'expiresAt', 'jti', 'reason', 'revokedAt', 'tokenHash', 'updatedAt', 'userId'].sort());
+    assert.equal(await revokeToken(token, { requireStorage: true, reason: 'user_logout' }), false);
+    assert.deepEqual(records.get(hashToken(token)), snapshot);
+    const indexes = RevokedToken.schema.indexes();
+    assert.ok(indexes.some(([keys, settings]) => keys.tokenHash === 1 && settings.unique === true));
+    assert.ok(indexes.some(([keys, settings]) => keys.expiresAt === 1 && settings.expireAfterSeconds === 0));
+    const signed = jwt.decode(token);
+    assert.equal(signed.exp - signed.iat, 2592000);
+    assert.ok(signed.jti);
+    assert.notEqual(jwt.decode(signToken({ userId: signed.userId })).jti, signed.jti);
   });
 });
 
