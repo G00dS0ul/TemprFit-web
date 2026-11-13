@@ -49,7 +49,18 @@ export async function GET(req, { params }) {
       }
     );
 
-    const messages = await Message.find({ conversationId: id })
+    const { searchParams } = new URL(req.url);
+    const since = searchParams.get('since');
+
+    const filter = { conversationId: id };
+    if (since) {
+      const sinceDate = new Date(since);
+      if (!isNaN(sinceDate.getTime())) {
+        filter.updatedAt = { $gt: sinceDate };
+      }
+    }
+
+    const messages = await Message.find(filter)
       .populate('sender', 'username name avatarUrl role plan activeColor activeBorder')
       .sort({ createdAt: 1 })
       .lean();
