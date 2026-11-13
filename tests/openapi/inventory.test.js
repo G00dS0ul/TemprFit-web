@@ -4,25 +4,25 @@ import { inventoryV1Routes } from '../../tools/inventory-routes.js';
 import { generateOpenApiSpec } from '../../lib/openapi/generator.js';
 
 describe('OpenAPI Route Inventory & Coverage Gate', () => {
-  test('discovers all 48 route files in app/api/v1', () => {
+  test('discovers all 54 route files in app/api/v1', () => {
     const inv = inventoryV1Routes();
-    assert.strictEqual(inv.fileCount, 48, `Expected 48 route.js files, found ${inv.fileCount}`);
+    assert.strictEqual(inv.fileCount, 54, `Expected 54 route.js files, found ${inv.fileCount}`);
   });
 
-  test('discovers all 69 HTTP operation exports across app/api/v1', () => {
+  test('discovers all 79 HTTP operation exports across app/api/v1', () => {
     const inv = inventoryV1Routes();
-    assert.strictEqual(inv.operationCount, 69, `Expected 69 operations, found ${inv.operationCount}`);
+    assert.strictEqual(inv.operationCount, 79, `Expected 79 operations, found ${inv.operationCount}`);
 
     const methodCounts = {};
     for (const op of inv.operations) {
       methodCounts[op.method] = (methodCounts[op.method] || 0) + 1;
     }
 
-    assert.strictEqual(methodCounts.GET, 26, 'Expected 26 GET methods');
-    assert.strictEqual(methodCounts.POST, 31, 'Expected 31 POST methods');
-    assert.strictEqual(methodCounts.PATCH, 5, 'Expected 5 PATCH methods');
-    assert.strictEqual(methodCounts.DELETE, 5, 'Expected 5 DELETE methods');
-    assert.strictEqual(methodCounts.PUT, 2, 'Expected 2 PUT methods');
+    assert.strictEqual(methodCounts.GET, 29, 'Expected 29 GET methods');
+    assert.strictEqual(methodCounts.POST, 33, 'Expected 33 POST methods');
+    assert.strictEqual(methodCounts.PATCH, 7, 'Expected 7 PATCH methods');
+    assert.strictEqual(methodCounts.DELETE, 7, 'Expected 7 DELETE methods');
+    assert.strictEqual(methodCounts.PUT, 3, 'Expected 3 PUT methods');
   });
 
   test('coverage gate: 100% of inventoried operations are documented in OpenAPI with 0 orphans', () => {
@@ -55,6 +55,6 @@ describe('OpenAPI Route Inventory & Coverage Gate', () => {
 
     assert.deepStrictEqual(missing, [], `Missing operations in OpenAPI documentation: ${missing.join(', ')}`);
     assert.deepStrictEqual(orphaned, [], `Orphaned operations documented but missing from code: ${orphaned.join(', ')}`);
-    assert.strictEqual(documentedOps.size, 69, 'Expected exactly 69 documented operations');
+    assert.strictEqual(documentedOps.size, 79, 'Expected exactly 79 documented operations');
   });
 });

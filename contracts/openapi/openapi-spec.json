@@ -11080,6 +11080,1724 @@
           }
         }
       }
+    },
+    "/api/v1/messages": {
+      "get": {
+        "summary": "List user direct message conversations",
+        "description": "Retrieves all active conversations for the authenticated athlete with populated participants, last message preview, and unread counts, ordered by most recent update.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of conversations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "conversations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "nullable": true
+                          },
+                          "participants": {
+                            "type": "array",
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "_id": {
+                                      "nullable": true
+                                    },
+                                    "username": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "avatarUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "role": {
+                                      "type": "string"
+                                    },
+                                    "plan": {
+                                      "type": "string",
+                                      "default": "free"
+                                    },
+                                    "activeColor": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "activeBorder": {
+                                      "type": "string",
+                                      "nullable": true
+                                    }
+                                  },
+                                  "required": [
+                                    "username"
+                                  ]
+                                },
+                                {
+                                  "nullable": true
+                                },
+                                {
+                                  "nullable": true
+                                }
+                              ]
+                            }
+                          },
+                          "lastMessage": {
+                            "type": "object",
+                            "nullable": true,
+                            "properties": {
+                              "_id": {
+                                "nullable": true
+                              },
+                              "conversationId": {
+                                "nullable": true
+                              },
+                              "sender": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "_id": {
+                                        "nullable": true
+                                      },
+                                      "username": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "nullable": true
+                                      },
+                                      "avatarUrl": {
+                                        "type": "string",
+                                        "nullable": true
+                                      },
+                                      "role": {
+                                        "type": "string"
+                                      },
+                                      "plan": {
+                                        "type": "string",
+                                        "default": "free"
+                                      },
+                                      "activeColor": {
+                                        "type": "string",
+                                        "nullable": true
+                                      },
+                                      "activeBorder": {
+                                        "type": "string",
+                                        "nullable": true
+                                      }
+                                    },
+                                    "required": [
+                                      "username"
+                                    ]
+                                  },
+                                  {
+                                    "nullable": true
+                                  },
+                                  {
+                                    "nullable": true
+                                  }
+                                ]
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "readBy": {
+                                "type": "array",
+                                "items": {
+                                  "nullable": true
+                                },
+                                "default": []
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "sent",
+                                  "delivered",
+                                  "seen"
+                                ],
+                                "default": "sent"
+                              },
+                              "isEdited": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "editedAt": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "nullable": true
+                                  }
+                                ]
+                              },
+                              "isForwarded": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "likes": {
+                                "type": "array",
+                                "items": {
+                                  "nullable": true
+                                },
+                                "default": []
+                              },
+                              "replyTo": {
+                                "type": "object",
+                                "nullable": true,
+                                "properties": {
+                                  "messageId": {
+                                    "type": "string"
+                                  },
+                                  "senderName": {
+                                    "type": "string"
+                                  },
+                                  "textSnippet": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "messageId"
+                                ]
+                              },
+                              "createdAt": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              "updatedAt": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text"
+                            ]
+                          },
+                          "unreadCount": {
+                            "type": "number",
+                            "default": 0
+                          },
+                          "updatedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "participants"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "conversations"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/messages/init": {
+      "post": {
+        "summary": "Initialize direct conversation with XP fee check",
+        "description": "Finds or creates a direct 1-on-1 conversation with the target user. If the target athlete is on the Max plan and has set an XP message fee, returns HTTP 402 unless confirmXpPayment is true.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetUserId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "confirmXpPayment": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "targetUserId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Conversation initialized or retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "conversationId": {
+                      "type": "string"
+                    },
+                    "conversation": {
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "conversationId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (self-chat or insufficient XP)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required (Target athlete requires XP gift)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requiresXpFee": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "fee": {
+                      "type": "number"
+                    },
+                    "recipientUsername": {
+                      "type": "string"
+                    },
+                    "senderXp": {
+                      "type": "number"
+                    },
+                    "canAfford": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "requiresXpFee",
+                    "fee",
+                    "recipientUsername",
+                    "senderXp",
+                    "canAfford",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Target user not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/messages/{id}": {
+      "get": {
+        "summary": "Get conversation messages and mark seen",
+        "description": "Loads chronological messages for the conversation and marks incoming messages from other participants as seen. Strictly verifies participant membership.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chronological message list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "nullable": true
+                          },
+                          "conversationId": {
+                            "nullable": true
+                          },
+                          "sender": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "_id": {
+                                    "nullable": true
+                                  },
+                                  "username": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "avatarUrl": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "role": {
+                                    "type": "string"
+                                  },
+                                  "plan": {
+                                    "type": "string",
+                                    "default": "free"
+                                  },
+                                  "activeColor": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "activeBorder": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "username"
+                                ]
+                              },
+                              {
+                                "nullable": true
+                              },
+                              {
+                                "nullable": true
+                              }
+                            ]
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "readBy": {
+                            "type": "array",
+                            "items": {
+                              "nullable": true
+                            },
+                            "default": []
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "sent",
+                              "delivered",
+                              "seen"
+                            ],
+                            "default": "sent"
+                          },
+                          "isEdited": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "editedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "nullable": true
+                              }
+                            ]
+                          },
+                          "isForwarded": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "likes": {
+                            "type": "array",
+                            "items": {
+                              "nullable": true
+                            },
+                            "default": []
+                          },
+                          "replyTo": {
+                            "type": "object",
+                            "nullable": true,
+                            "properties": {
+                              "messageId": {
+                                "type": "string"
+                              },
+                              "senderName": {
+                                "type": "string"
+                              },
+                              "textSnippet": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "messageId"
+                            ]
+                          },
+                          "createdAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "updatedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "text"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "messages"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: Caller is not a participant of this conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Conversation not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Send message in conversation",
+        "description": "Creates a new text message in the conversation, updates the conversation lastMessage pointer, and dispatches in-app notifications to other participants.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "replyTo": {
+                    "type": "object",
+                    "properties": {
+                      "messageId": {
+                        "type": "string"
+                      },
+                      "senderName": {
+                        "type": "string"
+                      },
+                      "textSnippet": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "messageId"
+                    ]
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "nullable": true
+                        },
+                        "conversationId": {
+                          "nullable": true
+                        },
+                        "sender": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "_id": {
+                                  "nullable": true
+                                },
+                                "username": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "avatarUrl": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "role": {
+                                  "type": "string"
+                                },
+                                "plan": {
+                                  "type": "string",
+                                  "default": "free"
+                                },
+                                "activeColor": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "activeBorder": {
+                                  "type": "string",
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "username"
+                              ]
+                            },
+                            {
+                              "nullable": true
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "readBy": {
+                          "type": "array",
+                          "items": {
+                            "nullable": true
+                          },
+                          "default": []
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "sent",
+                            "delivered",
+                            "seen"
+                          ],
+                          "default": "sent"
+                        },
+                        "isEdited": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "editedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        },
+                        "isForwarded": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "likes": {
+                          "type": "array",
+                          "items": {
+                            "nullable": true
+                          },
+                          "default": []
+                        },
+                        "replyTo": {
+                          "type": "object",
+                          "nullable": true,
+                          "properties": {
+                            "messageId": {
+                              "type": "string"
+                            },
+                            "senderName": {
+                              "type": "string"
+                            },
+                            "textSnippet": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "messageId"
+                          ]
+                        },
+                        "createdAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "updatedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "text"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid text payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: Caller is not a participant of this conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Conversation not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edit message text or toggle like",
+        "description": "Updates message text (if caller is the author) or toggles a heart like reaction on the message.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "like"
+                    ]
+                  },
+                  "messageId": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "nullable": true
+                        },
+                        "conversationId": {
+                          "nullable": true
+                        },
+                        "sender": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "_id": {
+                                  "nullable": true
+                                },
+                                "username": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "avatarUrl": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "role": {
+                                  "type": "string"
+                                },
+                                "plan": {
+                                  "type": "string",
+                                  "default": "free"
+                                },
+                                "activeColor": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "activeBorder": {
+                                  "type": "string",
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "username"
+                              ]
+                            },
+                            {
+                              "nullable": true
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "readBy": {
+                          "type": "array",
+                          "items": {
+                            "nullable": true
+                          },
+                          "default": []
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "sent",
+                            "delivered",
+                            "seen"
+                          ],
+                          "default": "sent"
+                        },
+                        "isEdited": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "editedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        },
+                        "isForwarded": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "likes": {
+                          "type": "array",
+                          "items": {
+                            "nullable": true
+                          },
+                          "default": []
+                        },
+                        "replyTo": {
+                          "type": "object",
+                          "nullable": true,
+                          "properties": {
+                            "messageId": {
+                              "type": "string"
+                            },
+                            "senderName": {
+                              "type": "string"
+                            },
+                            "textSnippet": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "messageId"
+                          ]
+                        },
+                        "createdAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "updatedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "text"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid update payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: Caller cannot edit another user message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Message or conversation not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete own message",
+        "description": "Permanently deletes a message authored by the caller and re-points the conversation lastMessage if needed.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "messageId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "deletedMessageId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "deletedMessageId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing messageId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: Caller cannot delete another user message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Message not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "summary": "List user notifications and unread counters",
+        "description": "Fetches recent notification events for the athlete and provides accurate total unread notification and unread DM counters across the account.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifications list and accurate unread counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "notifications": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "nullable": true
+                          },
+                          "user": {
+                            "nullable": true
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "read": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "link": {
+                            "type": "string",
+                            "default": ""
+                          },
+                          "type": {
+                            "type": "string",
+                            "default": "general"
+                          },
+                          "createdAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "message"
+                        ]
+                      }
+                    },
+                    "unreadCount": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "unreadMessagesCount": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  },
+                  "required": [
+                    "notifications"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Batch mark all notifications as read",
+        "description": "Marks all unread notifications for the authenticated user as read in a single batch operation.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All notifications marked as read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "patch": {
+        "summary": "Mark single notification as read",
+        "description": "Marks a specific notification owned by the authenticated user as read.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marked read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "notification": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "nullable": true
+                        },
+                        "user": {
+                          "nullable": true
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "read": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "link": {
+                          "type": "string",
+                          "default": ""
+                        },
+                        "type": {
+                          "type": "string",
+                          "default": "general"
+                        },
+                        "createdAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "notification"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}": {
+      "delete": {
+        "summary": "Delete notification",
+        "description": "Permanently deletes a notification item owned by the authenticated user.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "deletedId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "deletedId"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
