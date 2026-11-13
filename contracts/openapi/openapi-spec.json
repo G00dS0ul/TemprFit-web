@@ -55,6 +55,10 @@
     {
       "name": "Workouts",
       "description": "Custom workout templates and rules-based/Gemini AI multimodal routine generator"
+    },
+    {
+      "name": "Community",
+      "description": "Public athlete profiles, social graph, follow/like actions, and community rooms"
     }
   ],
   "components": {
@@ -10530,6 +10534,542 @@
           },
           "429": {
             "description": "Daily AI generation quota exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{username}": {
+      "get": {
+        "summary": "Get public athlete profile",
+        "description": "Retrieves sanitized public athlete profile, aggregate workout volume stats, visible pods, community rooms, and follow/like status for the requesting user.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9_.]{3,24}$"
+            },
+            "required": true,
+            "name": "username",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public athlete profile details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "nullable": true
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "avatarUrl": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "bio": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "hobbies": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "default": []
+                        },
+                        "talents": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "default": []
+                        },
+                        "profession": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "age": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "sex": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "plan": {
+                          "type": "string",
+                          "default": "free"
+                        },
+                        "activeColor": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "activeBorder": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "xp": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "checkInStreak": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "totalCheckInStreak": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "longestCheckInStreak": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "currentStreak": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "longestStreak": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "badges": {
+                          "type": "array",
+                          "items": {
+                            "nullable": true
+                          },
+                          "default": []
+                        },
+                        "createdAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "goal": {
+                          "type": "string"
+                        },
+                        "experience": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "username"
+                      ]
+                    },
+                    "stats": {
+                      "type": "object",
+                      "properties": {
+                        "totalVolume": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "sessions": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "pods": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "nullable": true
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "image": {
+                            "type": "string"
+                          },
+                          "isPrivate": {
+                            "type": "boolean",
+                            "default": false
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      },
+                      "default": []
+                    },
+                    "rooms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "nullable": true
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "subtitle": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "icon": {
+                            "type": "string"
+                          },
+                          "isPrivate": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "memberCount": {
+                            "type": "number",
+                            "default": 0
+                          },
+                          "isPreset": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "isCreator": {
+                            "type": "boolean",
+                            "default": false
+                          }
+                        },
+                        "required": [
+                          "title"
+                        ]
+                      },
+                      "default": []
+                    },
+                    "isOwner": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "isFollowing": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "hasLiked": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "followersCount": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "followingCount": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "likesCount": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "messageXpFee": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  },
+                  "required": [
+                    "user",
+                    "stats"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Profile is private",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "isPrivate": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "username": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "plan": {
+                          "type": "string",
+                          "default": "free"
+                        }
+                      },
+                      "required": [
+                        "username"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "isPrivate",
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{username}/follow": {
+      "post": {
+        "summary": "Toggle follow status for athlete",
+        "description": "Atomically toggles follower relationship with target athlete. Dispatches a social notification when a new follow is initiated.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9_.]{3,24}$"
+            },
+            "required": true,
+            "name": "username",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Follow status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "isFollowing": {
+                      "type": "boolean"
+                    },
+                    "followersCount": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "isFollowing",
+                    "followersCount"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username or attempt to follow oneself",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{username}/like": {
+      "post": {
+        "summary": "Toggle profile like for athlete",
+        "description": "Atomically toggles profile like for target athlete. Dispatches a social notification when a profile like is initiated.",
+        "tags": [
+          "Community"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9_.]{3,24}$"
+            },
+            "required": true,
+            "name": "username",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Like status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "hasLiked": {
+                      "type": "boolean"
+                    },
+                    "likesCount": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "hasLiked",
+                    "likesCount"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Sign in required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
             "content": {
               "application/json": {
                 "schema": {
